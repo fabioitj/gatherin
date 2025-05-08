@@ -1,0 +1,72 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        Int       @id @default(autoincrement())
+  name      String
+  email     String    @unique
+  password  String
+  createdAt DateTime  @default(now())
+  favorites Favorite[]
+  settings  Settings?
+  alerts    Alert[]
+}
+
+model Favorite {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  newsId    Int
+  news      News     @relation(fields: [newsId], references: [id])
+  savedAt   DateTime @default(now())
+  
+  @@index([userId])
+  @@index([newsId])
+}
+
+model News {
+  id          Int        @id @default(autoincrement())
+  title       String
+  source      String
+  publishedAt DateTime
+  summary     String
+  url         String
+  category    String
+  tags        String[]
+  country     String
+  sector      String
+  favorites   Favorite[]
+  
+  @@index([publishedAt])
+  @@index([category])
+  @@index([country])
+  @@index([sector])
+}
+
+model Settings {
+  id     Int    @id @default(autoincrement())
+  userId Int    @unique
+  theme  String @default("light") // "light" or "dark"
+  user   User   @relation(fields: [userId], references: [id])
+  
+  @@index([userId])
+}
+
+model Alert {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      User     @relation(fields: [userId], references: [id])
+  keyword   String
+  category  String?
+  country   String?
+  sector    String?
+  createdAt DateTime @default(now())
+  
+  @@index([userId])
+}
