@@ -12,6 +12,7 @@ import { ptBR } from 'date-fns/locale';
 
 interface NewsCardProps {
   news: NewsPreview;
+  linkPrefix?: string; // Add option to customize link prefix
 }
 
 const categoryLabels = {
@@ -24,7 +25,7 @@ const categoryColors = {
   [Category.FII]: 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'
 };
 
-export function NewsCard({ news }: NewsCardProps) {
+export function NewsCard({ news, linkPrefix = '/noticia' }: NewsCardProps) {
   const formattedDate = format(new Date(news.publishedAt), "dd 'de' MMMM, yyyy", {
     locale: ptBR
   });
@@ -84,7 +85,7 @@ export function NewsCard({ news }: NewsCardProps) {
       </CardContent>
 
       <CardFooter className="pt-0">
-        <Link href={`/noticia/${news.id}`} className="w-full">
+        <Link href={`${linkPrefix}/${news.id}`} className="w-full">
           <Button 
             className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium transition-all duration-200 shadow-md hover:shadow-lg"
           >
