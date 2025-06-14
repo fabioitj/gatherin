@@ -40,9 +40,6 @@ function FooterComponent() {
               <Link href="/sobre" className="block text-gray-400 hover:text-white transition-colors duration-200">
                 Sobre o GatherIn
               </Link>
-              <Link href="/api/news" className="block text-gray-400 hover:text-white transition-colors duration-200">
-                API de notícias
-              </Link>
             </nav>
           </div>
 

@@ -5,6 +5,8 @@ export async function GET(request: Request) {
   try {
     const news = await NewsDAL.getAllNews();
     
+    console.log("news", news);
+
     return NextResponse.json(news);
   } catch (error) {
     console.error('Erro na API de notícias:', error);
