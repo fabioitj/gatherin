@@ -26,6 +26,21 @@ const categoryColors = {
   [Category.FII]: 'bg-indigo-100 text-indigo-800'
 };
 
+// Esta função é necessária para o output: 'export'
+export async function generateStaticParams() {
+  try {
+    const news = await NewsDAL.getAllNews();
+    
+    return news.map((item) => ({
+      id: item.id,
+    }));
+  } catch (error) {
+    console.error('Erro ao gerar parâmetros estáticos:', error);
+    // Retorna array vazio se houver erro
+    return [];
+  }
+}
+
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
   try {
     const news = await NewsDAL.getNewsById(params.id);
