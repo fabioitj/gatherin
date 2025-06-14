@@ -1,9 +1,16 @@
 import Link from 'next/link';
 import { TrendingUp, Heart } from 'lucide-react';
+import { memo } from 'react';
 
-export function Footer() {
+function FooterComponent() {
   return (
-    <footer className="bg-gray-900 text-white" style={{ contentVisibility: 'auto' }}>
+    <footer 
+      className="bg-gray-900 text-white" 
+      style={{ 
+        contentVisibility: 'auto',
+        containIntrinsicSize: '0 400px'
+      }}
+    >
       <div className="container mx-auto px-4 py-12">
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
@@ -62,3 +69,5 @@ export function Footer() {
     </footer>
   );
 }
+
+export const Footer = memo(FooterComponent);

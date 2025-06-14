@@ -1,30 +1,35 @@
 'use client';
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useMemo } from 'react';
+import dynamic from 'next/dynamic';
 import { NewsCard } from '@/components/NewsCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { Category, NewsPreview } from '@/types/news';
 import { Loader2, AlertCircle, TrendingUp } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 
+// Lazy load components that are not immediately visible
+const LazyNewsCard = dynamic(() => import('@/components/NewsCard').then(mod => ({ default: mod.NewsCard })), {
+  loading: () => <div className="h-96 bg-gray-100 animate-pulse rounded-lg" />,
+});
+
 export default function HomePage() {
   const [news, setNews] = useState<NewsPreview[]>([]);
-  const [filteredNews, setFilteredNews] = useState<NewsPreview[]>([]);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Memoize filtered news to prevent unnecessary re-renders
+  const filteredNews = useMemo(() => {
+    if (selectedCategory) {
+      return news.filter(item => item.category === selectedCategory);
+    }
+    return news;
+  }, [news, selectedCategory]);
+
   useEffect(() => {
     fetchNews();
   }, []);
-
-  useEffect(() => {
-    if (selectedCategory) {
-      setFilteredNews(news.filter(item => item.category === selectedCategory));
-    } else {
-      setFilteredNews(news);
-    }
-  }, [news, selectedCategory]);
 
   const fetchNews = async () => {
     try {
@@ -139,13 +144,26 @@ export default function HomePage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredNews.map((item, index) => (
-              <NewsCard 
-                key={item.id} 
-                news={item} 
-                priority={index < 3}
-              />
-            ))}
+            {filteredNews.map((item, index) => {
+              // Render first 3 cards immediately, lazy load the rest
+              if (index < 3) {
+                return (
+                  <NewsCard 
+                    key={item.id} 
+                    news={item} 
+                    priority={true}
+                  />
+                );
+              }
+              
+              return (
+                <LazyNewsCard 
+                  key={item.id} 
+                  news={item} 
+                  priority={false}
+                />
+              );
+            })}
           </div>
         </>
       )}

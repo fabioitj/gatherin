@@ -78,5 +78,40 @@
   }
   body {
     @apply bg-background text-foreground;
+    font-feature-settings: 'rlig' 1, 'calt' 1;
+  }
+  
+  /* Performance optimizations */
+  img {
+    content-visibility: auto;
+  }
+  
+  .line-clamp-2 {
+    display: -webkit-box;
+    -webkit-line-clamp: 2;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  
+  .line-clamp-3 {
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+}
+
+/* Critical CSS for above-the-fold content */
+@layer utilities {
+  .hero-section {
+    contain: layout style paint;
+  }
+  
+  .news-grid {
+    contain: layout;
+  }
+  
+  .news-card {
+    contain: layout style;
   }
 }

@@ -1,6 +1,5 @@
 import { NextResponse } from 'next/server';
 import { NewsDAL } from '@/dal/news';
-import { Category } from '@/types/news';
 
 export async function GET(request: Request) {
   try {
@@ -9,8 +8,8 @@ export async function GET(request: Request) {
     return NextResponse.json(news, {
       headers: {
         'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
-        'Content-Encoding': 'gzip',
         'Content-Type': 'application/json; charset=utf-8',
+        'Vary': 'Accept-Encoding',
       },
     });
   } catch (error) {
@@ -33,15 +32,7 @@ export async function GET(request: Request) {
 
 export async function HEAD(request: Request) {
   try {
-    const { searchParams } = new URL(request.url);
-    const categoryParam = searchParams.get('category');
-
-    let category: Category | undefined;
-    if (categoryParam && Object.values(Category).includes(categoryParam as Category)) {
-      category = categoryParam as Category;
-    }
-
-    const news = await NewsDAL.getAllNews(category);
+    const news = await NewsDAL.getAllNews();
     
     return new NextResponse(null, {
       status: 200,
@@ -49,7 +40,7 @@ export async function HEAD(request: Request) {
         'Content-Type': 'application/json; charset=utf-8',
         'Content-Length': JSON.stringify(news).length.toString(),
         'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
-        'Content-Encoding': 'gzip',
+        'Vary': 'Accept-Encoding',
       },
     });
   } catch (error) {

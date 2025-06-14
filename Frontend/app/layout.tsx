@@ -9,6 +9,7 @@ const inter = Inter({
   subsets: ['latin'],
   display: 'swap',
   preload: true,
+  variable: '--font-inter',
 });
 
 export const metadata: Metadata = {
@@ -30,14 +31,15 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="pt-BR">
+    <html lang="pt-BR" className={inter.variable}>
       <head>
-        <link rel="preconnect" href="https://www.infomoney.com.br" />
-        <link rel="preconnect" href="https://infomoney.com.br" />
+        <link rel="preconnect" href="https://www.infomoney.com.br" crossOrigin="anonymous" />
+        <link rel="preconnect" href="https://infomoney.com.br" crossOrigin="anonymous" />
         <link rel="dns-prefetch" href="https://www.infomoney.com.br" />
         <link rel="dns-prefetch" href="https://infomoney.com.br" />
+        <link rel="preload" href="/api/news" as="fetch" crossOrigin="anonymous" />
       </head>
-      <body className={`${inter.className} min-h-screen bg-gradient-to-br from-gray-50 to-purple-50`}>
+      <body className={`${inter.className} min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 font-sans`}>
         <div className="flex flex-col min-h-screen">
           <Header />
           <main className="flex-1">
