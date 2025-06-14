@@ -7,9 +7,8 @@ import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 
 export function Header() {
   const navigation = [
-    { name: 'Home', href: '/' },
-    { name: 'News', href: '/news' },
-    { name: 'About', href: '/sobre' },
+    { name: 'Início', href: '/' },
+    { name: 'Sobre', href: '/sobre' },
   ];
 
   return (
@@ -25,7 +24,7 @@ export function Header() {
                 GatherIn
               </h1>
               <p className="text-xs text-muted-foreground hidden sm:block">
-                News for investors
+                Notícias para investidores
               </p>
             </div>
           </Link>
