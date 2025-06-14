@@ -3,7 +3,6 @@ import { NewsDAL } from '@/dal/news';
 import { Category } from '@/types/news';
 
 export async function GET(request: Request) {
-  console.log("OI");
   try {
     let category: Category | undefined;
 
