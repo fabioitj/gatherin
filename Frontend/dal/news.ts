@@ -2,15 +2,18 @@ import { prisma } from '@/lib/prisma';
 import { News, Category } from '@/types/news';
 
 export class NewsDAL {
-  static async getAllNews(): Promise<News[]> {
+  static async getAllNews(category?: Category): Promise<News[]> {
     try {
+      const whereClause = category ? { category } : {};
+      
       const news = await prisma.news.findMany({
+        where: whereClause,
         orderBy: {
           publishedAt: 'desc'
         }
       });
 
-      console.log({news});
+      console.log({ news });
       
       return news;
     } catch (error) {
@@ -21,6 +24,10 @@ export class NewsDAL {
 
   static async getNewsById(id: string): Promise<News | null> {
     try {
+      if (!id || typeof id !== 'string') {
+        throw new Error('ID inválido');
+      }
+
       const news = await prisma.news.findUnique({
         where: { id }
       });
