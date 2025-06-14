@@ -29,8 +29,13 @@ export default function HomePage() {
   const fetchNews = async () => {
     try {
       setLoading(true);
-      const response = await fetch('/api/news');
-      console.log(response);
+      const response = await fetch('/api/news', {
+        headers: {
+          'Accept': 'application/json',
+          'Content-Type': 'application/json',
+        },
+      });
+      
       if (!response.ok) {
         throw new Error('Falha ao carregar notícias');
       }
@@ -134,8 +139,12 @@ export default function HomePage() {
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-            {filteredNews.map((item) => (
-              <NewsCard key={item.id} news={item} />
+            {filteredNews.map((item, index) => (
+              <NewsCard 
+                key={item.id} 
+                news={item} 
+                priority={index < 3}
+              />
             ))}
           </div>
         </>

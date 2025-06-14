@@ -4,13 +4,13 @@ import { Category } from '@/types/news';
 
 export async function GET(request: Request) {
   try {
-    let category: Category | undefined;
-
     const news = await NewsDAL.getAllNews();
     
     return NextResponse.json(news, {
       headers: {
         'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
+        'Content-Encoding': 'gzip',
+        'Content-Type': 'application/json; charset=utf-8',
       },
     });
   } catch (error) {
@@ -21,7 +21,12 @@ export async function GET(request: Request) {
         error: 'Falha ao carregar notícias',
         message: error instanceof Error ? error.message : 'Erro interno do servidor'
       },
-      { status: 500 }
+      { 
+        status: 500,
+        headers: {
+          'Content-Type': 'application/json; charset=utf-8',
+        },
+      }
     );
   }
 }
@@ -41,16 +46,17 @@ export async function HEAD(request: Request) {
     return new NextResponse(null, {
       status: 200,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
         'Content-Length': JSON.stringify(news).length.toString(),
         'Cache-Control': 'public, max-age=300, stale-while-revalidate=60',
+        'Content-Encoding': 'gzip',
       },
     });
   } catch (error) {
     return new NextResponse(null, {
       status: 500,
       headers: {
-        'Content-Type': 'application/json',
+        'Content-Type': 'application/json; charset=utf-8',
       },
     });
   }

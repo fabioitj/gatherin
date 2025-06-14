@@ -5,7 +5,11 @@ import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Toaster } from '@/components/ui/sonner';
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ 
+  subsets: ['latin'],
+  display: 'swap',
+  preload: true,
+});
 
 export const metadata: Metadata = {
   title: 'GatherIn - Notícias para Investidores',
@@ -27,6 +31,12 @@ export default function RootLayout({
 }) {
   return (
     <html lang="pt-BR">
+      <head>
+        <link rel="preconnect" href="https://www.infomoney.com.br" />
+        <link rel="preconnect" href="https://infomoney.com.br" />
+        <link rel="dns-prefetch" href="https://www.infomoney.com.br" />
+        <link rel="dns-prefetch" href="https://infomoney.com.br" />
+      </head>
       <body className={`${inter.className} min-h-screen bg-gradient-to-br from-gray-50 to-purple-50`}>
         <div className="flex flex-col min-h-screen">
           <Header />
