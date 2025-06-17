@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { TrendingUp, Menu, LogOut, User } from 'lucide-react';
+import { TrendingUp, Menu, LogOut, User, Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
@@ -66,10 +66,21 @@ export function Header() {
                   {item.name}
                 </Link>
               ))}
+              
+              {/* Favorites Link - Only show when authenticated */}
+              {session?.user && (
+                <Link
+                  href="/favorites"
+                  className="flex items-center text-sm font-medium text-gray-700 hover:text-red-600 transition-colors duration-200"
+                >
+                  <Heart className="w-4 h-4 mr-1" />
+                  Favoritos
+                </Link>
+              )}
             </nav>
 
-            {/* User Menu */}
-            {session?.user && (
+            {/* User Menu or Auth Buttons */}
+            {session?.user ? (
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button variant="ghost" className="relative h-8 w-8 rounded-full">
@@ -90,12 +101,32 @@ export function Header() {
                     </div>
                   </DropdownMenuLabel>
                   <DropdownMenuSeparator />
+                  <DropdownMenuItem asChild>
+                    <Link href="/favorites" className="flex items-center">
+                      <Heart className="mr-2 h-4 w-4" />
+                      <span>Meus Favoritos</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
                     <span>Sair</span>
                   </DropdownMenuItem>
                 </DropdownMenuContent>
               </DropdownMenu>
+            ) : (
+              <div className="flex items-center space-x-2">
+                <Link href="/login">
+                  <Button variant="ghost" size="sm">
+                    Entrar
+                  </Button>
+                </Link>
+                <Link href="/register">
+                  <Button size="sm" className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800">
+                    Criar conta
+                  </Button>
+                </Link>
+              </div>
             )}
           </div>
 
@@ -118,8 +149,16 @@ export function Header() {
                   </Link>
                 ))}
                 
-                {session?.user && (
+                {session?.user ? (
                   <>
+                    <Link
+                      href="/favorites"
+                      className="flex items-center text-lg font-medium text-gray-700 hover:text-red-600 transition-colors duration-200"
+                    >
+                      <Heart className="w-5 h-5 mr-2" />
+                      Favoritos
+                    </Link>
+                    
                     <div className="border-t pt-4 mt-4">
                       <div className="flex items-center space-x-3 mb-4">
                         <Avatar className="h-10 w-10">
@@ -142,6 +181,19 @@ export function Header() {
                       </Button>
                     </div>
                   </>
+                ) : (
+                  <div className="border-t pt-4 mt-4 space-y-2">
+                    <Link href="/login" className="block">
+                      <Button variant="ghost" className="w-full justify-start">
+                        Entrar
+                      </Button>
+                    </Link>
+                    <Link href="/register" className="block">
+                      <Button className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800">
+                        Criar conta
+                      </Button>
+                    </Link>
+                  </div>
                 )}
               </div>
             </SheetContent>

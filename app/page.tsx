@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { useSession } from 'next-auth/react';
 import { NewsCard } from '@/components/NewsCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { SearchBar } from '@/components/SearchBar';
@@ -17,6 +18,7 @@ const LazyNewsCard = dynamic(() => import('@/components/NewsCard').then(mod => (
 });
 
 export default function HomePage() {
+  const { data: session } = useSession();
   const [newsData, setNewsData] = useState<PaginatedNews | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -24,6 +26,7 @@ export default function HomePage() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
+  const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
 
   // Fetch news data
   const fetchNews = async (page = 1, category?: Category | null, search?: string) => {
@@ -71,6 +74,24 @@ export default function HomePage() {
     }
   };
 
+  // Fetch favorite IDs for authenticated users
+  const fetchFavoriteIds = async (newsIds: string[]) => {
+    if (!session?.user || newsIds.length === 0) {
+      setFavoriteIds([]);
+      return;
+    }
+
+    try {
+      const response = await fetch(`/api/favorites/check?newsIds=${newsIds.join(',')}`);
+      if (response.ok) {
+        const data = await response.json();
+        setFavoriteIds(data.favoriteIds || []);
+      }
+    } catch (err) {
+      console.error('Error loading favorite IDs:', err);
+    }
+  };
+
   useEffect(() => {
     fetchNews(1, selectedCategory, searchQuery);
     setCurrentPage(1);
@@ -79,6 +100,16 @@ export default function HomePage() {
   useEffect(() => {
     fetchStats();
   }, []);
+
+  // Fetch favorite IDs when news data changes and user is authenticated
+  useEffect(() => {
+    if (newsData?.news && session?.user) {
+      const newsIds = newsData.news.map(news => news.id);
+      fetchFavoriteIds(newsIds);
+    } else {
+      setFavoriteIds([]);
+    }
+  }, [newsData, session]);
 
   const handleCategoryChange = (category: Category | null) => {
     setSelectedCategory(category);
@@ -199,6 +230,8 @@ export default function HomePage() {
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
             {newsData.news.map((item, index) => {
+              const isFavorited = favoriteIds.includes(item.id);
+              
               // Render first 6 cards immediately, lazy load the rest
               if (index < 6) {
                 return (
@@ -206,6 +239,7 @@ export default function HomePage() {
                     key={item.id} 
                     news={item} 
                     priority={index < 3}
+                    isFavorited={isFavorited}
                   />
                 );
               }
@@ -215,6 +249,7 @@ export default function HomePage() {
                   key={item.id} 
                   news={item} 
                   priority={false}
+                  isFavorited={isFavorited}
                 />
               );
             })}

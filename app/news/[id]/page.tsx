@@ -6,6 +6,7 @@ import { NewsDAL } from '@/dal/news';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TagList } from '@/components/TagList';
+import { FavoriteButton } from '@/components/FavoriteButton';
 import { Category } from '@/types/news';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
@@ -67,6 +68,15 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             <div className="flex items-center text-gray-600">
               <Calendar className="w-5 h-5 mr-2" />
               <span>{formattedDate} às {formattedTime}</span>
+            </div>
+
+            <div className="ml-auto">
+              <FavoriteButton 
+                newsId={news.id}
+                size="lg"
+                variant="outline"
+                showText={true}
+              />
             </div>
           </div>
 
@@ -144,6 +154,12 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             </div>
             
             <div className="flex gap-3">
+              <FavoriteButton 
+                newsId={news.id}
+                variant="outline"
+                showText={true}
+              />
+              
               <Link href="/">
                 <Button variant="outline" className="bg-white">
                   Ver mais notícias
