@@ -1,5 +1,3 @@
-'use client';
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, ExternalLink, Tag } from 'lucide-react';
@@ -27,7 +25,7 @@ const categoryColors = {
   [Category.REITS]: 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'
 };
 
-function NewsCardComponent({ news, linkPrefix = '/noticia', priority = false }: NewsCardProps) {
+function NewsCardComponent({ news, linkPrefix = '/news', priority = false }: NewsCardProps) {
   const formattedDate = format(new Date(news.publishedAt), "dd 'de' MMMM, yyyy", {
     locale: ptBR
   });

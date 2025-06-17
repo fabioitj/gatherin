@@ -20,7 +20,7 @@ export function Header() {
 
   const navigation = [
     { name: 'Início', href: '/' },
-    { name: 'Sobre', href: '/sobre' },
+    { name: 'Sobre', href: '/about' },
   ];
 
   const getInitials = (name: string) => {
