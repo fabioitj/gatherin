@@ -22,3 +22,20 @@ export interface News {
 export type NewsPreview = Pick<News, 
   'id' | 'title' | 'summary' | 'imageUrl' | 'source' | 'publishedAt' | 'category' | 'tags' | 'tickers'
 >;
+
+export interface NewsFilters {
+  category?: Category;
+  search?: string;
+  dateFrom?: Date;
+  dateTo?: Date;
+  tags?: string[];
+  tickers?: string[];
+}
+
+export interface PaginatedNews {
+  news: NewsPreview[];
+  total: number;
+  page: number;
+  limit: number;
+  totalPages: number;
+}

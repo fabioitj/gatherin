@@ -27,6 +27,11 @@ model News {
   createdAt   DateTime @default(now())
   updatedAt   DateTime @updatedAt
   category    Category
+  tags        String[] @default([])
+  tickers     String[] @default([])
   
+  @@index([publishedAt])
+  @@index([category])
+  @@index([title])
   @@map("news")
 }
