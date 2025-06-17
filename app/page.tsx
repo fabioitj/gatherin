@@ -67,7 +67,7 @@ export default function HomePage() {
         setStats(data);
       }
     } catch (err) {
-      console.error('Erro ao carregar estatísticas:', err);
+      console.error('Error loading stats:', err);
     }
   };
 
@@ -188,7 +188,7 @@ export default function HomePage() {
               {searchQuery 
                 ? `Resultados para "${searchQuery}"`
                 : selectedCategory 
-                  ? `Notícias de ${selectedCategory === Category.ACOES ? 'Ações' : 'FIIs'}`
+                  ? `Notícias de ${selectedCategory === Category.STOCKS ? 'Ações' : 'FIIs'}`
                   : 'Todas as notícias'
               }
             </h2>

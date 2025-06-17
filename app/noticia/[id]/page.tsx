@@ -17,13 +17,13 @@ interface NewsDetailPageProps {
 }
 
 const categoryLabels = {
-  [Category.ACOES]: 'Ações',
-  [Category.FII]: 'FIIs'
+  [Category.STOCKS]: 'Ações',
+  [Category.REITS]: 'FIIs'
 };
 
 const categoryColors = {
-  [Category.ACOES]: 'bg-purple-100 text-purple-800',
-  [Category.FII]: 'bg-indigo-100 text-indigo-800'
+  [Category.STOCKS]: 'bg-purple-100 text-purple-800',
+  [Category.REITS]: 'bg-indigo-100 text-indigo-800'
 };
 
 export default async function NewsDetailPage({ params }: NewsDetailPageProps) {

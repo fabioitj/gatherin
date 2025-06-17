@@ -48,8 +48,8 @@ export class NewsDAL {
         totalPages: Math.ceil(total / limit)
       };
     } catch (error) {
-      console.error('Erro ao buscar notícias:', error);
-      throw new Error('Falha ao carregar notícias');
+      console.error('Error fetching news:', error);
+      throw new Error('Failed to load news');
     }
   }
 
@@ -61,8 +61,8 @@ export class NewsDAL {
       
       return news;
     } catch (error) {
-      console.error('Erro ao buscar notícia por ID:', error);
-      throw new Error('Falha ao carregar notícia');
+      console.error('Error fetching news by ID:', error);
+      throw new Error('Failed to load news');
     }
   }
 
@@ -88,8 +88,8 @@ export class NewsDAL {
         totalPages: Math.ceil(total / limit)
       };
     } catch (error) {
-      console.error('Erro ao buscar notícias por categoria:', error);
-      throw new Error('Falha ao carregar notícias por categoria');
+      console.error('Error fetching news by category:', error);
+      throw new Error('Failed to load news by category');
     }
   }
 
@@ -104,8 +104,8 @@ export class NewsDAL {
       
       return news;
     } catch (error) {
-      console.error('Erro ao buscar últimas notícias:', error);
-      throw new Error('Falha ao carregar últimas notícias');
+      console.error('Error fetching latest news:', error);
+      throw new Error('Failed to load latest news');
     }
   }
 
@@ -139,8 +139,8 @@ export class NewsDAL {
         totalPages: Math.ceil(total / limit)
       };
     } catch (error) {
-      console.error('Erro ao buscar notícias:', error);
-      throw new Error('Falha ao buscar notícias');
+      console.error('Error searching news:', error);
+      throw new Error('Failed to search news');
     }
   }
 
@@ -150,10 +150,10 @@ export class NewsDAL {
     recentCount: number;
   }> {
     try {
-      const [total, acoes, fii, recent] = await Promise.all([
+      const [total, stocks, reits, recent] = await Promise.all([
         prisma.news.count(),
-        prisma.news.count({ where: { category: Category.ACOES } }),
-        prisma.news.count({ where: { category: Category.FII } }),
+        prisma.news.count({ where: { category: Category.STOCKS } }),
+        prisma.news.count({ where: { category: Category.REITS } }),
         prisma.news.count({
           where: {
             publishedAt: {
@@ -166,14 +166,14 @@ export class NewsDAL {
       return {
         total,
         byCategory: {
-          [Category.ACOES]: acoes,
-          [Category.FII]: fii
+          [Category.STOCKS]: stocks,
+          [Category.REITS]: reits
         },
         recentCount: recent
       };
     } catch (error) {
-      console.error('Erro ao buscar estatísticas:', error);
-      throw new Error('Falha ao carregar estatísticas');
+      console.error('Error fetching stats:', error);
+      throw new Error('Failed to load stats');
     }
   }
 }

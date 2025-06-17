@@ -20,7 +20,7 @@ export async function GET(request: Request) {
     
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Erro na API de busca:', error);
+    console.error('Search API error:', error);
     
     return NextResponse.json(
       { 

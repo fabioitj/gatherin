@@ -11,13 +11,13 @@ interface CategoryFilterProps {
 }
 
 const categoryConfig = {
-  [Category.ACOES]: {
+  [Category.STOCKS]: {
     label: 'Ações',
     icon: TrendingUp,
     color: 'bg-purple-100 text-purple-700 border-purple-200 hover:bg-purple-200 hover:border-purple-300',
     activeColor: 'bg-purple-600 text-white border-purple-600 hover:bg-purple-700'
   },
-  [Category.FII]: {
+  [Category.REITS]: {
     label: 'FIIs',
     icon: Building2,
     color: 'bg-indigo-100 text-indigo-700 border-indigo-200 hover:bg-indigo-200 hover:border-indigo-300',

@@ -53,7 +53,7 @@ export async function POST(request: NextRequest) {
     }, { status: 201 });
     
   } catch (error) {
-    console.error('Erro no registro:', error);
+    console.error('Registration error:', error);
     
     if (error instanceof z.ZodError) {
       return NextResponse.json({

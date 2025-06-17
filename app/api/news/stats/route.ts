@@ -7,7 +7,7 @@ export async function GET() {
     
     return NextResponse.json(stats);
   } catch (error) {
-    console.error('Erro na API de estatísticas:', error);
+    console.error('Stats API error:', error);
     
     return NextResponse.json(
       { 

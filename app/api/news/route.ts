@@ -31,7 +31,7 @@ export async function GET(request: Request) {
     
     return NextResponse.json(result);
   } catch (error) {
-    console.error('Erro na API de notícias:', error);
+    console.error('News API error:', error);
     
     return NextResponse.json(
       { 
