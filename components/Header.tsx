@@ -71,9 +71,8 @@ export function Header() {
               {session?.user && (
                 <Link
                   href="/favorites"
-                  className="flex items-center text-sm font-medium text-gray-700 hover:text-red-600 transition-colors duration-200"
+                  className="text-sm font-medium text-gray-700 hover:text-red-600 transition-colors duration-200"
                 >
-                  <Heart className="w-4 h-4 mr-1" />
                   Favoritos
                 </Link>
               )}
@@ -153,9 +152,8 @@ export function Header() {
                   <>
                     <Link
                       href="/favorites"
-                      className="flex items-center text-lg font-medium text-gray-700 hover:text-red-600 transition-colors duration-200"
+                      className="text-lg font-medium text-gray-700 hover:text-red-600 transition-colors duration-200"
                     >
-                      <Heart className="w-5 h-5 mr-2" />
                       Favoritos
                     </Link>
                     
