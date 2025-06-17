@@ -3,7 +3,14 @@ import { NextResponse } from 'next/server';
 
 export default withAuth(
   function middleware(req) {
-    // Add any additional middleware logic here if needed
+    const { pathname } = req.nextUrl;
+    const token = req.nextauth.token;
+    
+    // Redirect authenticated users away from auth pages
+    if (token && (pathname.startsWith('/login') || pathname.startsWith('/register'))) {
+      return NextResponse.redirect(new URL('/', req.url));
+    }
+    
     return NextResponse.next();
   },
   {
@@ -19,11 +26,7 @@ export default withAuth(
         
         // Check if it's a public route
         if (publicRoutes.some(route => pathname.startsWith(route))) {
-          // If user is already authenticated, redirect to home
-          if (token) {
-            return false; // This will trigger a redirect
-          }
-          return true;
+          return true; // Allow access to auth pages
         }
         
         // Check if it's a public API route
