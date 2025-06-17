@@ -1,20 +1,17 @@
 import requests
 from bs4 import BeautifulSoup
 from datetime import datetime
-from openai import OpenAI
 import psycopg2
 import os
 from dotenv import load_dotenv
 import schedule
 import time
+from lib.openai import client
 
 load_dotenv()
 
 # Configurações
 DATABASE_URL = os.getenv("DATABASE_URL")
-OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-
-client = OpenAI(api_key=OPENAI_API_KEY)
 
 BASE_URL = "https://www.infomoney.com.br"
 LIST_URL = f"{BASE_URL}/cotacoes/b3/"
@@ -137,9 +134,10 @@ def tarefa_diaria():
     noticias = extrair_noticias(categoria)
     salvar_noticias_no_postgres(noticias)
 
-schedule.every().hour.do(tarefa_diaria)
+schedule.every().minute.do(tarefa_diaria)
+tarefa_diaria()
 
 print("Agendador iniciado... Ctrl+C para parar.")
 while True:
     schedule.run_pending()
-    time.sleep(60)
+    time.sleep(1)
