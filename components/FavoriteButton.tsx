@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Heart } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { useSession } from 'next-auth/react';
@@ -14,6 +14,7 @@ interface FavoriteButtonProps {
   variant?: 'default' | 'ghost' | 'outline';
   className?: string;
   showText?: boolean;
+  onToggle?: (isFavorited: boolean) => void;
 }
 
 export function FavoriteButton({ 
@@ -22,11 +23,17 @@ export function FavoriteButton({
   size = 'md',
   variant = 'ghost',
   className,
-  showText = false
+  showText = false,
+  onToggle
 }: FavoriteButtonProps) {
   const { data: session } = useSession();
   const [isFavorited, setIsFavorited] = useState(initialIsFavorited);
   const [isLoading, setIsLoading] = useState(false);
+
+  // Update local state when prop changes
+  useEffect(() => {
+    setIsFavorited(initialIsFavorited);
+  }, [initialIsFavorited]);
 
   const handleToggleFavorite = async (e: React.MouseEvent) => {
     e.preventDefault();
@@ -55,6 +62,11 @@ export function FavoriteButton({
       const data = await response.json();
       setIsFavorited(data.isFavorited);
       
+      // Call the onToggle callback if provided
+      if (onToggle) {
+        onToggle(data.isFavorited);
+      }
+      
       toast.success(data.message, {
         duration: 2000,
       });
@@ -71,9 +83,9 @@ export function FavoriteButton({
   }
 
   const sizeClasses = {
-    sm: 'h-8 w-8',
-    md: 'h-9 w-9',
-    lg: 'h-10 w-10'
+    sm: showText ? 'h-8 px-3' : 'h-8 w-8',
+    md: showText ? 'h-9 px-4' : 'h-9 w-9',
+    lg: showText ? 'h-10 px-5' : 'h-10 w-10'
   };
 
   const iconSizes = {
@@ -85,7 +97,7 @@ export function FavoriteButton({
   return (
     <Button
       variant={variant}
-      size="icon"
+      size={showText ? 'default' : 'icon'}
       onClick={handleToggleFavorite}
       disabled={isLoading}
       className={cn(
@@ -102,11 +114,12 @@ export function FavoriteButton({
         className={cn(
           iconSizes[size],
           'transition-all duration-200',
-          isFavorited ? 'fill-current' : ''
+          isFavorited ? 'fill-current' : '',
+          showText ? 'mr-2' : ''
         )} 
       />
       {showText && (
-        <span className="ml-2 text-sm">
+        <span className="text-sm">
           {isFavorited ? 'Favoritado' : 'Favoritar'}
         </span>
       )}

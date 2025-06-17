@@ -8,14 +8,17 @@ export async function GET(request: NextRequest) {
     const session = await getServerSession(authOptions);
     
     if (!session?.user?.id) {
-      return NextResponse.json(
-        { error: 'Unauthorized' },
-        { status: 401 }
-      );
+      return NextResponse.json({ favoriteIds: [] });
     }
 
     const { searchParams } = new URL(request.url);
-    const newsIds = searchParams.get('newsIds')?.split(',') || [];
+    const newsIdsParam = searchParams.get('newsIds');
+    
+    if (!newsIdsParam) {
+      return NextResponse.json({ favoriteIds: [] });
+    }
+
+    const newsIds = newsIdsParam.split(',').filter(id => id.trim() !== '');
     
     if (newsIds.length === 0) {
       return NextResponse.json({ favoriteIds: [] });

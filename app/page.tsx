@@ -86,9 +86,13 @@ export default function HomePage() {
       if (response.ok) {
         const data = await response.json();
         setFavoriteIds(data.favoriteIds || []);
+      } else {
+        console.error('Failed to fetch favorite IDs:', response.status);
+        setFavoriteIds([]);
       }
     } catch (err) {
       console.error('Error loading favorite IDs:', err);
+      setFavoriteIds([]);
     }
   };
 
