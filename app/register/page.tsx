@@ -9,7 +9,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
-import { useAuth } from '@/contexts/AuthContext';
+import { signIn } from 'next-auth/react';
 
 export default function RegisterPage() {
   const [name, setName] = useState('');
@@ -22,7 +22,6 @@ export default function RegisterPage() {
   const [error, setError] = useState('');
 
   const router = useRouter();
-  const { register } = useAuth();
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -44,8 +43,34 @@ export default function RegisterPage() {
     }
 
     try {
-      await register(name, email, password);
-      router.push('/');
+      // Register user
+      const registerResponse = await fetch('/api/auth/register', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      const registerData = await registerResponse.json();
+
+      if (!registerResponse.ok) {
+        throw new Error(registerData.error || 'Erro ao criar conta');
+      }
+
+      // Auto-login after successful registration
+      const result = await signIn('credentials', {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError('Conta criada, mas erro ao fazer login automático');
+      } else {
+        router.push('/');
+        router.refresh();
+      }
     } catch (err) {
       setError(err instanceof Error ? err.message : 'Erro ao criar conta');
     } finally {
