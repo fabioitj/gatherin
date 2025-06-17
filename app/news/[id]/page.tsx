@@ -3,6 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { Calendar, ExternalLink, ArrowLeft, Tag, Building } from 'lucide-react';
 import { NewsDAL } from '@/dal/news';
+import { FavoritesDAL } from '@/dal/favorites';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { TagList } from '@/components/TagList';
@@ -10,6 +11,8 @@ import { FavoriteButton } from '@/components/FavoriteButton';
 import { Category } from '@/types/news';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
+import { getServerSession } from 'next-auth';
+import { authOptions } from '@/lib/auth';
 
 interface NewsDetailPageProps {
   params: {
@@ -32,6 +35,19 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
 
   if (!news) {
     notFound();
+  }
+
+  // Check if the news is favorited by the current user
+  const session = await getServerSession(authOptions);
+  let isFavorited = false;
+  
+  if (session?.user?.id) {
+    try {
+      isFavorited = await FavoritesDAL.isFavorited(session.user.id, news.id);
+    } catch (error) {
+      console.error('Error checking favorite status:', error);
+      // Continue with isFavorited = false
+    }
   }
 
   const formattedDate = format(new Date(news.publishedAt), "dd 'de' MMMM 'de' yyyy", {
@@ -73,6 +89,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             <div className="ml-auto">
               <FavoriteButton 
                 newsId={news.id}
+                initialIsFavorited={isFavorited}
                 size="lg"
                 variant="outline"
                 showText={true}
@@ -156,6 +173,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
             <div className="flex gap-3">
               <FavoriteButton 
                 newsId={news.id}
+                initialIsFavorited={isFavorited}
                 variant="outline"
                 showText={true}
               />
