@@ -15,6 +15,17 @@ enum Category {
   FII
 }
 
+model User {
+  id            String    @id @default(cuid())
+  name          String
+  email         String    @unique
+  passwordHash  String
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@map("users")
+}
+
 model News {
   id          String   @id @default(cuid())
   title       String   @unique

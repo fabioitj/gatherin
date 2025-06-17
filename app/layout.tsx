@@ -4,6 +4,7 @@ import { Inter } from 'next/font/google';
 import { Header } from '@/components/Header';
 import { Footer } from '@/components/Footer';
 import { Toaster } from '@/components/ui/sonner';
+import { AuthProvider } from '@/contexts/AuthContext';
 
 const inter = Inter({ 
   subsets: ['latin'],
@@ -40,14 +41,16 @@ export default function RootLayout({
         <link rel="preload" href="/api/news" as="fetch" crossOrigin="anonymous" />
       </head>
       <body className={`${inter.className} min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 font-sans`}>
-        <div className="flex flex-col min-h-screen">
-          <Header />
-          <main className="flex-1">
-            {children}
-          </main>
-          <Footer />
-        </div>
-        <Toaster />
+        <AuthProvider>
+          <div className="flex flex-col min-h-screen">
+            <Header />
+            <main className="flex-1">
+              {children}
+            </main>
+            <Footer />
+          </div>
+          <Toaster />
+        </AuthProvider>
       </body>
     </html>
   );

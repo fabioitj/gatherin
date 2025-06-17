@@ -1,15 +1,36 @@
 'use client';
 
 import Link from 'next/link';
-import { TrendingUp, Menu } from 'lucide-react';
+import { TrendingUp, Menu, LogOut, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
+import {
+  DropdownMenu,
+  DropdownMenuContent,
+  DropdownMenuItem,
+  DropdownMenuLabel,
+  DropdownMenuSeparator,
+  DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
+import { Avatar, AvatarFallback } from '@/components/ui/avatar';
+import { useAuth } from '@/contexts/AuthContext';
 
 export function Header() {
+  const { user, logout } = useAuth();
+
   const navigation = [
     { name: 'Início', href: '/' },
     { name: 'Sobre', href: '/sobre' },
   ];
+
+  const getInitials = (name: string) => {
+    return name
+      .split(' ')
+      .map(word => word[0])
+      .join('')
+      .toUpperCase()
+      .slice(0, 2);
+  };
 
   return (
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
@@ -30,17 +51,49 @@ export function Header() {
           </Link>
 
           {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-6">
-            {navigation.map((item) => (
-              <Link
-                key={item.name}
-                href={item.href}
-                className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors duration-200"
-              >
-                {item.name}
-              </Link>
-            ))}
-          </nav>
+          <div className="hidden md:flex items-center space-x-6">
+            <nav className="flex items-center space-x-6">
+              {navigation.map((item) => (
+                <Link
+                  key={item.name}
+                  href={item.href}
+                  className="text-sm font-medium text-gray-700 hover:text-purple-600 transition-colors duration-200"
+                >
+                  {item.name}
+                </Link>
+              ))}
+            </nav>
+
+            {/* User Menu */}
+            {user && (
+              <DropdownMenu>
+                <DropdownMenuTrigger asChild>
+                  <Button variant="ghost" className="relative h-8 w-8 rounded-full">
+                    <Avatar className="h-8 w-8">
+                      <AvatarFallback className="bg-purple-100 text-purple-700">
+                        {getInitials(user.name)}
+                      </AvatarFallback>
+                    </Avatar>
+                  </Button>
+                </DropdownMenuTrigger>
+                <DropdownMenuContent className="w-56" align="end" forceMount>
+                  <DropdownMenuLabel className="font-normal">
+                    <div className="flex flex-col space-y-1">
+                      <p className="text-sm font-medium leading-none">{user.name}</p>
+                      <p className="text-xs leading-none text-muted-foreground">
+                        {user.email}
+                      </p>
+                    </div>
+                  </DropdownMenuLabel>
+                  <DropdownMenuSeparator />
+                  <DropdownMenuItem onClick={logout} className="text-red-600 focus:text-red-600">
+                    <LogOut className="mr-2 h-4 w-4" />
+                    <span>Sair</span>
+                  </DropdownMenuItem>
+                </DropdownMenuContent>
+              </DropdownMenu>
+            )}
+          </div>
 
           {/* Mobile Navigation */}
           <Sheet>
@@ -60,6 +113,32 @@ export function Header() {
                     {item.name}
                   </Link>
                 ))}
+                
+                {user && (
+                  <>
+                    <div className="border-t pt-4 mt-4">
+                      <div className="flex items-center space-x-3 mb-4">
+                        <Avatar className="h-10 w-10">
+                          <AvatarFallback className="bg-purple-100 text-purple-700">
+                            {getInitials(user.name)}
+                          </AvatarFallback>
+                        </Avatar>
+                        <div>
+                          <p className="text-sm font-medium">{user.name}</p>
+                          <p className="text-xs text-muted-foreground">{user.email}</p>
+                        </div>
+                      </div>
+                      <Button
+                        variant="ghost"
+                        onClick={logout}
+                        className="w-full justify-start text-red-600 hover:text-red-600 hover:bg-red-50"
+                      >
+                        <LogOut className="mr-2 h-4 w-4" />
+                        Sair
+                      </Button>
+                    </div>
+                  </>
+                )}
               </div>
             </SheetContent>
           </Sheet>
