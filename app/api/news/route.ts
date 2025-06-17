@@ -29,8 +29,6 @@ export async function GET(request: Request) {
 
     const result = await NewsDAL.getAllNews(Object.keys(filters).length > 0 ? filters : undefined, page, limit);
     
-    console.log("news result", result);
-
     return NextResponse.json(result);
   } catch (error) {
     console.error('Erro na API de notícias:', error);
