@@ -23,14 +23,14 @@ export function StatsCard({ stats }: StatsCardProps) {
     },
     {
       title: 'Notícias de Ações',
-      value: stats.byCategory[Category.STOCKS],
+      value: stats.byCategory[Category.ACOES],
       icon: TrendingUp,
       color: 'text-purple-600',
       bgColor: 'bg-purple-100'
     },
     {
       title: 'Notícias de FIIs',
-      value: stats.byCategory[Category.REITS],
+      value: stats.byCategory[Category.FII],
       icon: Building2,
       color: 'text-indigo-600',
       bgColor: 'bg-indigo-100'

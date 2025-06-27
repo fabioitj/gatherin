@@ -176,7 +176,7 @@ export default function HomePage() {
       </div>
 
       {/* Stats */}
-      {stats && <StatsCard stats={stats} />}
+      {/* {stats && <StatsCard stats={stats} />} */}
 
       {/* Search and Filters */}
       <div className="mb-8 space-y-6">
@@ -223,7 +223,7 @@ export default function HomePage() {
               {searchQuery 
                 ? `Resultados para "${searchQuery}"`
                 : selectedCategory 
-                  ? `Notícias de ${selectedCategory === Category.STOCKS ? 'Ações' : 'FIIs'}`
+                  ? `Notícias de ${selectedCategory === Category.ACOES ? 'Ações' : 'FIIs'}`
                   : 'Todas as notícias'
               }
             </h2>

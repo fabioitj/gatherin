@@ -18,13 +18,13 @@ interface NewsCardProps {
 }
 
 const categoryLabels = {
-  [Category.STOCKS]: 'Ações',
-  [Category.REITS]: 'FIIs'
+  [Category.ACOES]: 'Ações',
+  [Category.FII]: 'FIIs'
 };
 
 const categoryColors = {
-  [Category.STOCKS]: 'bg-purple-100 text-purple-800 hover:bg-purple-200',
-  [Category.REITS]: 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'
+  [Category.ACOES]: 'bg-purple-100 text-purple-800 hover:bg-purple-200',
+  [Category.FII]: 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'
 };
 
 function NewsCardComponent({ news, linkPrefix = '/news', priority = false, isFavorited = false }: NewsCardProps) {

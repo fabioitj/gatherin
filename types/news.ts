@@ -1,6 +1,6 @@
 export enum Category {
-  STOCKS = 'ACOES',
-  REITS = 'FII'
+  ACOES = 'ACOES',
+  FII = 'FII'
 }
 
 export interface News {

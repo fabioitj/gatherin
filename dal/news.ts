@@ -150,10 +150,10 @@ export class NewsDAL {
     recentCount: number;
   }> {
     try {
-      const [total, stocks, reits, recent] = await Promise.all([
+      const [total, ACOES, FII, recent] = await Promise.all([
         prisma.news.count(),
-        prisma.news.count({ where: { category: Category.STOCKS } }),
-        prisma.news.count({ where: { category: Category.REITS } }),
+        prisma.news.count({ where: { category: Category.ACOES } }),
+        prisma.news.count({ where: { category: Category.FII } }),
         prisma.news.count({
           where: {
             publishedAt: {
@@ -166,8 +166,8 @@ export class NewsDAL {
       return {
         total,
         byCategory: {
-          [Category.STOCKS]: stocks,
-          [Category.REITS]: reits
+          [Category.ACOES]: ACOES,
+          [Category.FII]: FII
         },
         recentCount: recent
       };

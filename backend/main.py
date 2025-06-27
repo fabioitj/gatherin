@@ -1,12 +1,12 @@
 import schedule
 import time
-from websites.infomoney import start_infomoney
-from websites.moneytimes import start_moneytimes
+from websites.infomoney import InfoMoney
+from websites.moneytimes import MoneyTimes
 
 def hourly_task():
-    start_infomoney()
-    start_moneytimes()
-
+    InfoMoney().start()
+    MoneyTimes().start()
+    
 schedule.every().hour.do(hourly_task)
 hourly_task()
 
