@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { useForm } from 'react-hook-form';
 import { zodResolver } from '@hookform/resolvers/zod';
 import * as z from 'zod';
@@ -30,7 +30,16 @@ import {
   SelectValue,
 } from '@/components/ui/select';
 import { toast } from 'sonner';
-import { PlusCircle } from 'lucide-react';
+import { PlusCircle, ChevronsUpDown } from 'lucide-react';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import {
+  Command,
+  CommandInput,
+  CommandEmpty,
+  CommandGroup,
+  CommandItem,
+} from '@/components/ui/command';
+import { cn } from '@/lib/utils';
 
 const assetFormSchema = z.object({
   ticker: z.string().min(1, 'O ticker é obrigatório'),
@@ -45,25 +54,16 @@ interface AddAssetDialogProps {
   onAssetAdded: (asset: any) => void;
 }
 
-const mockedAssets = {
-  STOCK: [
-    { value: 'PETR4', label: 'PETR4 - Petrobras' },
-    { value: 'VALE3', label: 'VALE3 - Vale' },
-    { value: 'ITUB4', label: 'ITUB4 - Itaú Unibanco' },
-    { value: 'BBDC4', label: 'BBDC4 - Bradesco' },
-    { value: 'ABEV3', label: 'ABEV3 - Ambev' },
-  ],
-  FII: [
-    { value: 'MXRF11', label: 'MXRF11 - Maxi Renda' },
-    { value: 'HGLG11', label: 'HGLG11 - CSHG Logística' },
-    { value: 'KNRI11', label: 'KNRI11 - Kinea Renda Imobiliária' },
-    { value: 'BCFF11', label: 'BCFF11 - BTG Pactual Fundo de Fundos' },
-    { value: 'XPLG11', label: 'XPLG11 - XP Log' },
-  ],
-};
+interface Asset {
+  stock: string;
+  name: string;
+}
 
 export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
   const [open, setOpen] = useState(false);
+  const [comboboxOpen, setComboboxOpen] = useState(false);
+  const [assets, setAssets] = useState<Asset[]>([]);
+  const [searchQuery, setSearchQuery] = useState('');
 
   const form = useForm<AssetFormValues>({
     resolver: zodResolver(assetFormSchema),
@@ -76,6 +76,27 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
   });
 
   const assetType = form.watch('type');
+
+  useEffect(() => {
+    const fetchAssets = async () => {
+      if (searchQuery.length > 1) {
+        const type = assetType === 'STOCK' ? 'stock' : 'fund';
+        const response = await fetch(`/api/assets/search?type=${type}&search=${searchQuery}`);
+        if (response.ok) {
+          const data = await response.json();
+          setAssets(data);
+        }
+      } else {
+        setAssets([]);
+      }
+    };
+
+    const debounce = setTimeout(() => {
+      fetchAssets();
+    }, 300);
+
+    return () => clearTimeout(debounce);
+  }, [searchQuery, assetType]);
 
   const onSubmit = async (values: AssetFormValues) => {
     const response = await fetch('/api/wallet/assets', {
@@ -119,7 +140,12 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
               render={({ field }) => (
                 <FormItem>
                   <FormLabel>Tipo</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
+                  <Select onValueChange={(value) => {
+                    field.onChange(value);
+                    form.setValue('ticker', '');
+                    setAssets([]);
+                    setSearchQuery('');
+                  }} defaultValue={field.value}>
                     <FormControl>
                       <SelectTrigger>
                         <SelectValue placeholder="Selecione o tipo de ativo" />
@@ -138,22 +164,51 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
               control={form.control}
               name="ticker"
               render={({ field }) => (
-                <FormItem>
+                <FormItem className="flex flex-col">
                   <FormLabel>Ticker</FormLabel>
-                  <Select onValueChange={field.onChange} defaultValue={field.value}>
-                    <FormControl>
-                      <SelectTrigger>
-                        <SelectValue placeholder="Selecione o ativo" />
-                      </SelectTrigger>
-                    </FormControl>
-                    <SelectContent>
-                      {mockedAssets[assetType]?.map((asset) => (
-                        <SelectItem key={asset.value} value={asset.value}>
-                          {asset.label}
-                        </SelectItem>
-                      ))}
-                    </SelectContent>
-                  </Select>
+                  <Popover open={comboboxOpen} onOpenChange={setComboboxOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          className={cn(
+                            'w-full justify-between',
+                            !field.value && 'text-muted-foreground'
+                          )}
+                        >
+                          {field.value
+                            ? assets.find((asset) => asset.stock === field.value)?.name || field.value
+                            : 'Selecione o ativo'}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0">
+                      <Command filter={() => 1}>
+                        <CommandInput
+                          placeholder="Procurar ativo..."
+                          value={searchQuery}
+                          onValueChange={setSearchQuery}
+                        />
+                        <CommandEmpty>Nenhum ativo encontrado.</CommandEmpty>
+                        <CommandGroup>
+                          {assets.map((asset) => (
+                            <CommandItem
+                              value={asset.stock}
+                              key={asset.stock}
+                              onSelect={() => {
+                                field.onChange(asset.stock);
+                                setComboboxOpen(false);
+                              }}
+                            >
+                              {asset.stock} - {asset.name}
+                            </CommandItem>
+                          ))}
+                        </CommandGroup>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
                   <FormMessage />
                 </FormItem>
               )}
