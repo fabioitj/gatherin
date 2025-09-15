@@ -23,9 +23,7 @@ interface FormData {
   // Step 2: Personal Info
   cpf: string;
   birthDate: string;
-  // Brazilian mobile numbers: 11 digits, area code (2 digits) + 9 + 8 digits
-  // Example: (47) 99261-1819 = 47992611819
-  return cleanPhone.length === 11 && /^[1-9][1-9]9[0-9]{8}$/.test(cleanPhone);
+  phoneNumber: string;
 }
 
 const initialFormData: FormData = {
