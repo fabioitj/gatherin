@@ -20,9 +20,13 @@ model User {
   name          String
   email         String    @unique
   passwordHash  String
+  birthDate     DateTime? 
+  cpf           String?   @unique
+  phoneNumber   String?
   createdAt     DateTime  @default(now())
   updatedAt     DateTime  @updatedAt
   favorites     Favorite[]
+  wallet        Wallet?
 
   @@map("users")
 }
@@ -59,4 +63,35 @@ model Favorite {
 
   @@unique([userId, newsId])
   @@map("favorites")
+}
+
+enum AssetType {
+  STOCK
+  FII
+}
+
+model Wallet {
+  id        String   @id @default(cuid())
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  userId    String   @unique
+  assets    Asset[]
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("wallets")
+}
+
+model Asset {
+  id            String    @id @default(cuid())
+  wallet        Wallet    @relation(fields: [walletId], references: [id], onDelete: Cascade)
+  walletId      String
+  ticker        String
+  type          AssetType
+  quantity      Int
+  averagePrice  Float
+  createdAt     DateTime  @default(now())
+  updatedAt     DateTime  @updatedAt
+
+  @@unique([walletId, ticker])
+  @@map("assets")
 }

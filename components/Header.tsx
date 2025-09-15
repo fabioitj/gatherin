@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { TrendingUp, Menu, LogOut, User, Heart } from 'lucide-react';
+import { TrendingUp, Menu, LogOut, User, Heart, Wallet } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
@@ -67,14 +67,22 @@ export function Header() {
                 </Link>
               ))}
               
-              {/* Favorites Link - Only show when authenticated */}
+              {/* Favorites and Wallet Links - Only show when authenticated */}
               {session?.user && (
-                <Link
-                  href="/favorites"
-                  className="text-sm font-medium text-gray-700 hover:text-red-600 transition-colors duration-200"
-                >
-                  Favoritos
-                </Link>
+                <>
+                  <Link
+                    href="/favorites"
+                    className="text-sm font-medium text-gray-700 hover:text-red-600 transition-colors duration-200"
+                  >
+                    Favoritos
+                  </Link>
+                  <Link
+                    href="/wallet"
+                    className="text-sm font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200"
+                  >
+                    Carteira
+                  </Link>
+                </>
               )}
             </nav>
 
@@ -104,6 +112,12 @@ export function Header() {
                     <Link href="/favorites" className="flex items-center">
                       <Heart className="mr-2 h-4 w-4" />
                       <span>Meus Favoritos</span>
+                    </Link>
+                  </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/wallet" className="flex items-center">
+                      <Wallet className="mr-2 h-4 w-4" />
+                      <span>Minha Carteira</span>
                     </Link>
                   </DropdownMenuItem>
                   <DropdownMenuSeparator />
@@ -155,6 +169,12 @@ export function Header() {
                       className="text-lg font-medium text-gray-700 hover:text-red-600 transition-colors duration-200"
                     >
                       Favoritos
+                    </Link>
+                    <Link
+                      href="/wallet"
+                      className="text-lg font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200"
+                    >
+                      Carteira
                     </Link>
                     
                     <div className="border-t pt-4 mt-4">
