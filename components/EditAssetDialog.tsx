@@ -27,7 +27,17 @@ import { toast } from 'sonner';
 
 const assetFormSchema = z.object({
   quantity: z.coerce.number().int().positive('A quantidade deve ser um número positivo'),
-  averagePrice: z.coerce.number().positive('O preço médio deve ser um número positivo'),
+  averagePrice: z.string()
+    .min(1, 'O preço médio é obrigatório')
+    .transform((val) => {
+      // Handle Brazilian decimal format (comma as decimal separator)
+      const normalizedValue = val.replace(/\./g, '').replace(',', '.');
+      const parsed = parseFloat(normalizedValue);
+      if (isNaN(parsed) || parsed <= 0) {
+        throw new Error('O preço médio deve ser um número positivo');
+      }
+      return parsed;
+    }),
 });
 
 type AssetFormValues = z.infer<typeof assetFormSchema>;
@@ -49,7 +59,11 @@ export function EditAssetDialog({ asset, onAssetUpdated }: EditAssetDialogProps)
     resolver: zodResolver(assetFormSchema),
     defaultValues: {
       quantity: asset.quantity,
-      averagePrice: asset.averagePrice,
+      averagePrice: asset.averagePrice.toLocaleString('pt-BR', {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true
+      }),
     },
   });
 
@@ -107,7 +121,11 @@ export function EditAssetDialog({ asset, onAssetUpdated }: EditAssetDialogProps)
                 <FormItem>
                   <FormLabel>Preço Médio</FormLabel>
                   <FormControl>
-                    <Input type="number" step="0.01" {...field} />
+                    <Input 
+                      type="text" 
+                      placeholder="0,00"
+                      {...field} 
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
