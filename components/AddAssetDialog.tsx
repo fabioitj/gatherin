@@ -300,11 +300,9 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                           <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                         </Button>
                       </FormControl>
-                    </PopoverTrigger>
-                    <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
-                      <Command shouldFilter={false}>
-                          type="text" 
-                          placeholder="0,00"
+                        <CommandInput
+                          placeholder={`Buscar ${assetType === 'STOCK' ? 'ação' : 'FII'}...`}
+                          value={searchQuery}
                           onValueChange={setSearchQuery}
                         />
                         <CommandList>
