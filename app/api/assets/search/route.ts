@@ -6,13 +6,13 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get('search') || '';
 
   try {
-    // Use the correct Brapi endpoint for searching assets
-    let url = '';
-    if (type === 'stock') {
-      url = `https://brapi.dev/api/quote/list?search=${encodeURIComponent(search)}&limit=20`;
-    } else {
-      // For FIIs, we need to use a different approach since Brapi doesn't have a dedicated FII search
-      url = `https://brapi.dev/api/quote/list?search=${encodeURIComponent(search)}&limit=20`;
+    // Use the correct Brapi endpoint based on type
+    const apiType = type === 'STOCK' ? 'stock' : 'fund';
+    let url = `https://brapi.dev/api/quote/list?type=${apiType}`;
+    
+    // Add search parameter if provided
+    if (search) {
+      url += `&search=${encodeURIComponent(search)}`;
     }
 
     const response = await fetch(url, {
@@ -24,31 +24,28 @@ export async function GET(req: NextRequest) {
 
     if (!response.ok) {
       console.error('Brapi API error:', response.status, response.statusText);
-      throw new Error(`Brapi API returned ${response.status}`);
+      const errorText = await response.text();
+      console.error('Brapi API error response:', errorText);
+      throw new Error(`Brapi API returned ${response.status}: ${response.statusText}`);
     }
 
     const data = await response.json();
     
-    // Filter results based on type
-    let filteredResults = data.stocks || [];
-    
-    if (type === 'fund') {
-      // Filter for FIIs (usually end with 11)
-      filteredResults = filteredResults.filter((asset: any) => 
-        asset.stock && asset.stock.endsWith('11')
-      );
-    } else {
-      // Filter for stocks (exclude FIIs)
-      filteredResults = filteredResults.filter((asset: any) => 
-        asset.stock && !asset.stock.endsWith('11')
-      );
-    }
-
-    return NextResponse.json(filteredResults);
+    // Return the stocks array from the response
+    return NextResponse.json({
+      stocks: data.stocks || [],
+      totalCount: data.totalCount || 0,
+      hasNextPage: data.hasNextPage || false,
+      currentPage: data.currentPage || 1,
+      totalPages: data.totalPages || 1
+    });
   } catch (error) {
     console.error('Brapi integration error:', error);
     return NextResponse.json(
-      { error: 'Failed to fetch assets from Brapi' }, 
+      { 
+        error: 'Failed to fetch assets from Brapi',
+        details: error instanceof Error ? error.message : 'Unknown error'
+      }, 
       { status: 500 }
     );
   }
