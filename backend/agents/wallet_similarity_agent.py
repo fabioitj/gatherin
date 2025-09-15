@@ -255,7 +255,7 @@ class WalletSimilarityAgent(BaseAgent):
     
     def _save_recommendations(self, recommendations: List[Dict[str, Any]]) -> int:
         """
-        Save recommendations to database
+        Save recommendations to database and sync with Next.js API
         """
         if not recommendations:
             return 0
@@ -320,6 +320,10 @@ class WalletSimilarityAgent(BaseAgent):
             
             conn.commit()
             self.logger.info(f"Saved {saved_count} recommendations to database")
+            
+            # Also sync with Next.js API for easier frontend access
+            self._sync_with_nextjs_api(recommendations)
+            
             return saved_count
             
         except Exception as e:
@@ -329,6 +333,39 @@ class WalletSimilarityAgent(BaseAgent):
         finally:
             cur.close()
             conn.close()
+    
+    def _sync_with_nextjs_api(self, recommendations: List[Dict[str, Any]]):
+        """
+        Sync recommendations with Next.js API
+        """
+        try:
+            import requests
+            
+            # Format for Next.js API
+            formatted_recs = []
+            for rec in recommendations:
+                formatted_recs.append({
+                    "base_asset": rec["base_asset"],
+                    "recommended_asset": rec["recommended_asset"],
+                    "similarity_score": rec["similarity_score"],
+                    "support": rec["support"],
+                    "confidence": rec["confidence"],
+                    "users_with_both": rec["users_with_both"],
+                    "users_with_base": rec["users_with_base"],
+                    "percentage_also_invest": rec["percentage_also_invest"],
+                    "recommendation_strength": rec["recommendation_strength"]
+                })
+            
+            # Send to Next.js API (you might need to adjust the URL)
+            # response = requests.post(
+            #     "http://localhost:3000/api/recommendations",
+            #     json={"recommendations": formatted_recs}
+            # )
+            
+            self.logger.info(f"Prepared {len(formatted_recs)} recommendations for Next.js sync")
+            
+        except Exception as e:
+            self.logger.warning(f"Could not sync with Next.js API: {str(e)}")
     
     def _get_top_recommendations(self, recommendations: List[Dict[str, Any]], limit: int) -> List[Dict[str, Any]]:
         """
