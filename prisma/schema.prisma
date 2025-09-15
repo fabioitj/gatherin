@@ -113,3 +113,21 @@ model AssetRecommendation {
   @@unique([baseAsset, recommendedAsset])
   @@map("asset_recommendations")
 }
+
+model AssetRecommendation {
+  id                    String   @id @default(cuid())
+  baseAsset            String
+  recommendedAsset     String
+  similarityScore      Float
+  support              Float
+  confidence           Float
+  usersWithBoth        Int
+  usersWithBase        Int
+  percentageAlsoInvest Float
+  recommendationStrength Float
+  createdAt            DateTime @default(now())
+  updatedAt            DateTime @updatedAt
+
+  @@unique([baseAsset, recommendedAsset])
+  @@map("asset_recommendations")
+}
