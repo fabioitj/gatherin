@@ -33,7 +33,9 @@ function validateCPF(cpf: string): boolean {
 // Phone validation function
 function validateBrazilianPhone(phone: string): boolean {
   const cleanPhone = phone.replace(/\D/g, '');
-  return cleanPhone.length === 11 && cleanPhone.startsWith('11'); // Simplified validation
+  // Brazilian mobile numbers: 11 digits, area code (2 digits) + 9 + 8 digits
+  // Example: (47) 99261-1819 = 47992611819
+  return cleanPhone.length === 11 && /^[1-9][1-9]9[0-9]{8}$/.test(cleanPhone);
 }
 
 const registerSchema = z.object({

@@ -23,7 +23,9 @@ interface FormData {
   // Step 2: Personal Info
   cpf: string;
   birthDate: string;
-  phoneNumber: string;
+  // Brazilian mobile numbers: 11 digits, area code (2 digits) + 9 + 8 digits
+  // Example: (47) 99261-1819 = 47992611819
+  return cleanPhone.length === 11 && /^[1-9][1-9]9[0-9]{8}$/.test(cleanPhone);
 }
 
 const initialFormData: FormData = {
@@ -120,6 +122,14 @@ export default function RegisterPage() {
       setError('Telefone deve ter 11 dígitos no formato (11) 99999-9999');
       return false;
     }
+    
+    // Validate Brazilian phone format
+    const cleanPhone = formData.phoneNumber.replace(/\D/g, '');
+    if (!/^[1-9][1-9]9[0-9]{8}$/.test(cleanPhone)) {
+      setError('Telefone deve ser um número de celular válido no formato (XX) 9XXXX-XXXX');
+      return false;
+    }
+    
     return true;
   };
 
