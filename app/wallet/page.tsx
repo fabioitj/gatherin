@@ -291,37 +291,13 @@ export default function WalletPage() {
             <p className="text-sm sm:text-base text-gray-600 mt-1">Gerencie sua carteira de investimentos</p>
           </div>
           <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
-            {/* B3 Import Button - More Prominent */}
-            <div className="relative group">
-              <Button 
-                size="default"
-                className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold w-full sm:w-auto"
-              >
-                {/* Animated Background Glow */}
-                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
-                
-                {/* B3 Logo */}
-                <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-lg mr-2 sm:mr-3 shadow-md">
-                  <span className="text-blue-600 font-black text-xs sm:text-sm tracking-tight">B3</span>
-                </div>
-                
-                {/* Button Text */}
-                <span className="flex items-center">
-                  <span className="hidden sm:inline">Adicionar Carteira</span>
-                  <span className="sm:hidden">Adicionar B3</span>
-                  <div className="ml-1 sm:ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                  <div className="ml-1 sm:ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                </span>
-                
-                {/* Shine Effect */}
-                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-              </Button>
-              
-              {/* Tooltip/Badge */}
-              <div className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-1 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-lg animate-bounce">
-                NOVO
+            {/* B3 Import Button */}
+            <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+              <div className="flex items-center justify-center w-5 h-5 bg-white rounded mr-2">
+                <span className="text-blue-600 font-bold text-xs">B3</span>
               </div>
-            </div>
+              Adicionar Carteira
+            </Button>
             
             {/* Regular Add Asset Button */}
             <AddAssetDialog onAssetAdded={handleAssetAdded} />
@@ -593,45 +569,12 @@ export default function WalletPage() {
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4">
                 {/* B3 Import Button for Empty State */}
-                <div className="relative group">
-                  <Button 
-                    size="default"
-                    className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-4 py-2 text-sm font-semibold w-full sm:w-auto"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
-                    <div className="flex items-center justify-center w-6 h-6 bg-white rounded-lg mr-2 shadow-md">
-                      <span className="text-blue-600 font-black text-xs tracking-tight">B3</span>
-                    </div>
-                    <span className="flex items-center">
-                      Adicionar Carteira
-                      <div className="ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                  </Button>
-                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-1 py-0.5 rounded-full shadow-lg animate-bounce">
-                    NOVO
+                <Button className="bg-blue-600 hover:bg-blue-700 text-white">
+                  <div className="flex items-center justify-center w-5 h-5 bg-white rounded mr-2">
+                    <span className="text-blue-600 font-bold text-xs">B3</span>
                   </div>
-                </div>
-                {/* B3 Import Button for Empty State */}
-                <div className="relative group">
-                  <Button 
-                    size="default"
-                    className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-4 py-2 text-sm font-semibold w-full sm:w-auto"
-                  >
-                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
-                    <div className="flex items-center justify-center w-6 h-6 bg-white rounded-lg mr-2 shadow-md">
-                      <span className="text-blue-600 font-black text-xs tracking-tight">B3</span>
-                    </div>
-                    <span className="flex items-center">
-                      Importar da B3
-                      <div className="ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
-                    </span>
-                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
-                  </Button>
-                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-1 py-0.5 rounded-full shadow-lg animate-bounce">
-                    NOVO
-                  </div>
-                </div>
+                  Adicionar Carteira
+                </Button>
                 <AddAssetDialog onAssetAdded={handleAssetAdded} />
               </div>
             </div>
