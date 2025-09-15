@@ -2,7 +2,9 @@
 
 import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
-import { Loader2, Trash2 } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import Link from 'next/link';
+import { Loader2, Trash2, ArrowLeft, Wallet, TrendingUp, Building2, Plus } from 'lucide-react';
 import { AddAssetDialog } from '@/components/AddAssetDialog';
 import { EditAssetDialog } from '@/components/EditAssetDialog';
 import {
@@ -18,6 +20,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
 
 // Define types for Wallet and Asset
@@ -37,10 +40,21 @@ interface Wallet {
 
 export default function WalletPage() {
   const { data: session, status } = useSession();
+  const router = useRouter();
   const [wallet, setWallet] = useState<Wallet | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [assetToDelete, setAssetToDelete] = useState<Asset | null>(null);
+
+  // Redirect if not authenticated
+  useEffect(() => {
+    if (status === 'loading') return;
+    
+    if (!session?.user) {
+      router.push('/login?callbackUrl=/wallet');
+      return;
+    }
+  }, [session, status, router]);
 
   const fetchWallet = () => {
     if (status === 'authenticated') {
@@ -76,7 +90,7 @@ export default function WalletPage() {
         assets: [...wallet.assets, newAsset].sort((a, b) => a.ticker.localeCompare(b.ticker)),
       });
     } else {
-        setWallet({ id: '', userId: session?.user?.id || '', assets: [newAsset] });
+      setWallet({ id: '', userId: session?.user?.id || '', assets: [newAsset] });
     }
   };
 
@@ -112,80 +126,245 @@ export default function WalletPage() {
     }
   };
 
-  if (loading) {
+  // Show loading while checking authentication
+  if (status === 'loading') {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <Loader2 className="w-8 h-8 animate-spin mx-auto text-primary" />
-        <p className="text-muted-foreground">Carregando carteira...</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
+            <p className="text-gray-600">Carregando...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (error) {
+  // Don't render anything if not authenticated (will redirect)
+  if (!session?.user) {
+    return null;
+  }
+
+  if (loading && !wallet) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center text-destructive">
-        <p>{`Erro: ${error}`}</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex items-center justify-center min-h-96">
+          <div className="text-center">
+            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
+            <p className="text-gray-600">Carregando carteira...</p>
+          </div>
+        </div>
       </div>
     );
   }
 
-  if (!session) {
+  if (error && !wallet) {
     return (
-      <div className="container mx-auto px-4 py-8 text-center">
-        <p className="text-muted-foreground">Por favor, faça login para ver sua carteira.</p>
+      <div className="container mx-auto px-4 py-8">
+        <div className="max-w-2xl mx-auto text-center">
+          <div className="text-red-500 mb-4">
+            <Wallet className="w-16 h-16 mx-auto opacity-50" />
+          </div>
+          <h3 className="text-xl font-semibold text-gray-600 mb-2">
+            Erro ao carregar carteira
+          </h3>
+          <p className="text-gray-500 mb-6">{error}</p>
+          <Button 
+            onClick={fetchWallet}
+            className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+          >
+            Tentar novamente
+          </Button>
+        </div>
       </div>
     );
   }
+
+  const totalAssets = wallet?.assets?.length || 0;
+  const stocksCount = wallet?.assets?.filter(asset => asset.type === 'STOCK').length || 0;
+  const fiisCount = wallet?.assets?.filter(asset => asset.type === 'FII').length || 0;
+  const totalValue = wallet?.assets?.reduce((sum, asset) => sum + (asset.quantity * asset.averagePrice), 0) || 0;
 
   return (
     <div className="container mx-auto px-4 py-8">
-      <h1 className="text-3xl font-bold mb-6 text-foreground">Minha Carteira</h1>
-      <Card>
+      {/* Back Button */}
+      <div className="mb-8">
+        <Link href="/">
+          <Button variant="ghost" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
+            <ArrowLeft className="w-4 h-4 mr-2" />
+            Voltar para início
+          </Button>
+        </Link>
+      </div>
+
+      {/* Header */}
+      <div className="text-center mb-12">
+        <div className="flex items-center justify-center mb-6">
+          <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
+            <Wallet className="w-8 h-8 text-white" />
+          </div>
+        </div>
+        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
+          Minha Carteira
+        </h1>
+        <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+          Gerencie seus investimentos em ações e fundos imobiliários de forma organizada.
+        </p>
+      </div>
+
+      {/* Stats Cards */}
+      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Total de Ativos
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-blue-100">
+              <Wallet className="w-4 h-4 text-blue-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900">
+              {totalAssets}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Ações
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-purple-100">
+              <TrendingUp className="w-4 h-4 text-purple-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900">
+              {stocksCount}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              FIIs
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-indigo-100">
+              <Building2 className="w-4 h-4 text-indigo-600" />
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900">
+              {fiisCount}
+            </div>
+          </CardContent>
+        </Card>
+
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+            <CardTitle className="text-sm font-medium text-gray-600">
+              Valor Total
+            </CardTitle>
+            <div className="p-2 rounded-lg bg-green-100">
+              <span className="text-green-600 font-bold text-sm">R$</span>
+            </div>
+          </CardHeader>
+          <CardContent>
+            <div className="text-2xl font-bold text-gray-900">
+              R$ {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+            </div>
+          </CardContent>
+        </Card>
+      </div>
+
+      {/* Assets Table */}
+      <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
         <CardHeader className="flex flex-row items-center justify-between">
-          <CardTitle>Meus Ativos</CardTitle>
+          <div>
+            <CardTitle className="text-2xl font-bold text-gray-900">Meus Ativos</CardTitle>
+            <p className="text-gray-600 mt-1">Gerencie sua carteira de investimentos</p>
+          </div>
           <AddAssetDialog onAssetAdded={handleAssetAdded} />
         </CardHeader>
         <CardContent>
           {wallet?.assets && wallet.assets.length > 0 ? (
             <div className="overflow-x-auto">
-              <table className="w-full table-auto">
+              <table className="w-full">
                 <thead>
-                  <tr className="bg-muted/50">
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Ticker</th>
-                    <th className="px-4 py-3 text-left text-sm font-medium text-muted-foreground">Tipo</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Quantidade</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Preço Médio</th>
-                    <th className="px-4 py-3 text-right text-sm font-medium text-muted-foreground">Ações</th>
+                  <tr className="border-b border-gray-200">
+                    <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700">Ticker</th>
+                    <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700">Tipo</th>
+                    <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Quantidade</th>
+                    <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Preço Médio</th>
+                    <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Valor Total</th>
+                    <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Ações</th>
                   </tr>
                 </thead>
-                <tbody className="divide-y divide-border">
+                <tbody className="divide-y divide-gray-100">
                   {wallet.assets.map((asset) => (
-                    <tr key={asset.id}>
-                      <td className="px-4 py-3 text-sm font-medium text-foreground">{asset.ticker}</td>
-                      <td className="px-4 py-3 text-sm text-muted-foreground">{asset.type}</td>
-                      <td className="px-4 py-3 text-right text-sm text-muted-foreground">{asset.quantity}</td>
-                      <td className="px-4 py-3 text-right text-sm text-muted-foreground">{`R$ ${asset.averagePrice.toFixed(2)}`}</td>
-                      <td className="px-4 py-3 text-right">
-                        <EditAssetDialog asset={asset} onAssetUpdated={handleAssetUpdated} />
-                        <AlertDialog>
-                          <AlertDialogTrigger asChild>
-                            <Button variant="ghost" size="icon" onClick={() => setAssetToDelete(asset)}>
-                              <Trash2 className="w-5 h-5 text-destructive" />
-                            </Button>
-                          </AlertDialogTrigger>
-                          <AlertDialogContent>
-                            <AlertDialogHeader>
-                              <AlertDialogTitle>Você tem certeza?</AlertDialogTitle>
-                              <AlertDialogDescription>
-                                Essa ação não pode ser desfeita. Isso excluirá permanentemente o ativo de sua carteira.
-                              </AlertDialogDescription>
-                            </AlertDialogHeader>
-                            <AlertDialogFooter>
-                              <AlertDialogCancel onClick={() => setAssetToDelete(null)}>Cancelar</AlertDialogCancel>
-                              <AlertDialogAction onClick={handleDeleteAsset} className="bg-destructive hover:bg-destructive/90">Excluir</AlertDialogAction>
-                            </AlertDialogFooter>
-                          </AlertDialogContent>
-                        </AlertDialog>
+                    <tr key={asset.id} className="hover:bg-gray-50 transition-colors duration-200">
+                      <td className="px-4 py-4">
+                        <div className="font-semibold text-gray-900">{asset.ticker}</div>
+                      </td>
+                      <td className="px-4 py-4">
+                        <Badge 
+                          variant="secondary" 
+                          className={`${
+                            asset.type === 'STOCK' 
+                              ? 'bg-purple-100 text-purple-800' 
+                              : 'bg-indigo-100 text-indigo-800'
+                          } font-medium`}
+                        >
+                          {asset.type === 'STOCK' ? 'Ação' : 'FII'}
+                        </Badge>
+                      </td>
+                      <td className="px-4 py-4 text-right text-gray-700 font-medium">
+                        {asset.quantity.toLocaleString()}
+                      </td>
+                      <td className="px-4 py-4 text-right text-gray-700 font-medium">
+                        R$ {asset.averagePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-4 py-4 text-right text-gray-900 font-semibold">
+                        R$ {(asset.quantity * asset.averagePrice).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                      </td>
+                      <td className="px-4 py-4 text-right">
+                        <div className="flex items-center justify-end gap-2">
+                          <EditAssetDialog asset={asset} onAssetUpdated={handleAssetUpdated} />
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setAssetToDelete(asset)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent>
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir <strong>{asset.ticker}</strong> da sua carteira? 
+                                  Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setAssetToDelete(null)}>
+                                  Cancelar
+                                </AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={handleDeleteAsset} 
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
                       </td>
                     </tr>
                   ))}
@@ -193,7 +372,18 @@ export default function WalletPage() {
               </table>
             </div>
           ) : (
-            <p className="text-center text-muted-foreground py-8">Você não possui ativos em sua carteira.</p>
+            <div className="text-center py-12">
+              <div className="text-gray-400 mb-4">
+                <Wallet className="w-16 h-16 mx-auto opacity-50" />
+              </div>
+              <h3 className="text-xl font-semibold text-gray-600 mb-2">
+                Sua carteira está vazia
+              </h3>
+              <p className="text-gray-500 mb-6">
+                Comece adicionando seus primeiros ativos para acompanhar seus investimentos.
+              </p>
+              <AddAssetDialog onAssetAdded={handleAssetAdded} />
+            </div>
           )}
         </CardContent>
       </Card>

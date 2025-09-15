@@ -75,13 +75,15 @@ export function EditAssetDialog({ asset, onAssetUpdated }: EditAssetDialogProps)
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon">
-          <Edit className="w-5 h-5 text-primary" />
+        <Button variant="ghost" size="icon" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+          <Edit className="w-4 h-4" />
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] border-0 shadow-xl">
         <DialogHeader>
-          <DialogTitle>{`Editar Ativo: ${asset.ticker}`}</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-900">
+            Editar {asset.ticker}
+          </DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -112,7 +114,12 @@ export function EditAssetDialog({ asset, onAssetUpdated }: EditAssetDialogProps)
               )}
             />
             <DialogFooter>
-              <Button type="submit">Salvar Alterações</Button>
+              <Button 
+                type="submit" 
+                className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full"
+              >
+                Salvar Alterações
+              </Button>
             </DialogFooter>
           </form>
         </Form>

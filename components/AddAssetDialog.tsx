@@ -102,14 +102,14 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button>
-          <PlusCircle className="w-5 h-5 mr-2" />
+        <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg">
+          <Plus className="w-4 h-4 mr-2" />
           Adicionar Ativo
         </Button>
       </DialogTrigger>
-      <DialogContent className="sm:max-w-[425px]">
+      <DialogContent className="sm:max-w-[425px] border-0 shadow-xl">
         <DialogHeader>
-          <DialogTitle>Adicionar Novo Ativo</DialogTitle>
+          <DialogTitle className="text-xl font-bold text-gray-900">Adicionar Novo Ativo</DialogTitle>
         </DialogHeader>
         <Form {...form}>
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
@@ -185,7 +185,12 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
               )}
             />
             <DialogFooter>
-              <Button type="submit">Adicionar Ativo</Button>
+              <Button 
+                type="submit" 
+                className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 w-full"
+              >
+                Adicionar Ativo
+              </Button>
             </DialogFooter>
           </form>
         </Form>
