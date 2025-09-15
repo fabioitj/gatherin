@@ -29,8 +29,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from '@/components/ui/select';
-import { PlusCircle } from 'lucide-react';
 import { toast } from 'sonner';
+import { PlusCircle } from 'lucide-react';
 
 const assetFormSchema = z.object({
   ticker: z.string().min(1, 'O ticker é obrigatório'),
@@ -103,7 +103,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
         <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white shadow-lg">
-          <Plus className="w-4 h-4 mr-2" />
+          <PlusCircle className="w-4 h-4 mr-2" />
           Adicionar Ativo
         </Button>
       </DialogTrigger>

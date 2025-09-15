@@ -35,5 +35,3 @@ const InputMaskComponent = React.forwardRef<HTMLInputElement, InputMaskProps>(
 InputMaskComponent.displayName = 'InputMask';
 
 export { InputMaskComponent as InputMask };
-
-export { InputMask }
