@@ -20,6 +20,7 @@ const LazyNewsCard = dynamic(() => import('@/components/NewsCard').then(mod => (
 
 export default function HomePage() {
   const { data: session } = useSession();
+  const searchParams = useSearchParams();
   const [newsData, setNewsData] = useState<PaginatedNews | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
   const [searchQuery, setSearchQuery] = useState('');
