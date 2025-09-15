@@ -55,6 +55,10 @@ export default function RegisterPage() {
       setError('Nome é obrigatório');
       return false;
     }
+    if (formData.name.trim().length < 2) {
+      setError('Nome deve ter pelo menos 2 caracteres');
+      return false;
+    }
     if (!formData.email.trim()) {
       setError('Email é obrigatório');
       return false;
@@ -83,12 +87,37 @@ export default function RegisterPage() {
       setError('CPF deve ter 11 dígitos');
       return false;
     }
+    
+    // Basic CPF validation
+    const cleanCPF = formData.cpf.replace(/\D/g, '');
+    if (/^(\d)\1{10}$/.test(cleanCPF)) {
+      setError('CPF inválido');
+      return false;
+    }
+    
     if (!formData.birthDate) {
       setError('Data de nascimento é obrigatória');
       return false;
     }
+    
+    // Age validation
+    const birthDate = new Date(formData.birthDate);
+    const today = new Date();
+    const age = today.getFullYear() - birthDate.getFullYear();
+    const monthDiff = today.getMonth() - birthDate.getMonth();
+    
+    if (age < 18 || (age === 18 && monthDiff < 0) || 
+        (age === 18 && monthDiff === 0 && today.getDate() < birthDate.getDate())) {
+      setError('Você deve ter pelo menos 18 anos para se cadastrar');
+      return false;
+    }
+    
     if (!formData.phoneNumber.replace(/\D/g, '')) {
       setError('Telefone é obrigatório');
+      return false;
+    }
+    if (formData.phoneNumber.replace(/\D/g, '').length !== 11) {
+      setError('Telefone deve ter 11 dígitos no formato (11) 99999-9999');
       return false;
     }
     return true;
