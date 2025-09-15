@@ -40,9 +40,9 @@ class AgentManager:
     def _register_default_agents(self):
         """Register default agents"""
         # News Scraper Agent - runs every hour
-        news_agent = NewsScraperAgent()
-        self.register_agent(news_agent)
-        self.schedule_agent("NewsScraperAgent", interval_hours=1)
+        # news_agent = NewsScraperAgent()
+        # self.register_agent(news_agent)
+        # self.schedule_agent("NewsScraperAgent", interval_hours=1)
         
         # Wallet Similarity Agent - runs every 6 hours
         similarity_agent = WalletSimilarityAgent()

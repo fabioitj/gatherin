@@ -16,7 +16,7 @@ class WalletSimilarityAgent(BaseAgent):
     def __init__(self, config: Dict[str, Any] = None):
         default_config = {
             "min_similarity_threshold": 0.1,  # 10% minimum similarity
-            "min_users_for_recommendation": 5,  # Minimum users needed for a recommendation
+            "min_users_for_recommendation": 1,  # Minimum users needed for a recommendation
             "max_recommendations_per_asset": 10,
             "similarity_algorithms": ["jaccard", "cosine"],
             "batch_size": 1000
