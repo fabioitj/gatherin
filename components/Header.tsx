@@ -1,7 +1,7 @@
 'use client';
 
 import Link from 'next/link';
-import { TrendingUp, Menu, LogOut, User, Heart, Wallet } from 'lucide-react';
+import { TrendingUp, Menu, LogOut, User, Heart, Wallet, Lightbulb } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Sheet, SheetContent, SheetTrigger } from '@/components/ui/sheet';
 import {
@@ -120,6 +120,12 @@ export function Header() {
                       <span>Minha Carteira</span>
                     </Link>
                   </DropdownMenuItem>
+                  <DropdownMenuItem asChild>
+                    <Link href="/recommendations" className="flex items-center">
+                      <Lightbulb className="mr-2 h-4 w-4" />
+                      <span>Recomendações</span>
+                    </Link>
+                  </DropdownMenuItem>
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={handleLogout} className="text-red-600 focus:text-red-600">
                     <LogOut className="mr-2 h-4 w-4" />
@@ -175,6 +181,12 @@ export function Header() {
                       className="text-lg font-medium text-gray-700 hover:text-blue-600 transition-colors duration-200"
                     >
                       Carteira
+                    </Link>
+                    <Link
+                      href="/recommendations"
+                      className="text-lg font-medium text-gray-700 hover:text-yellow-600 transition-colors duration-200"
+                    >
+                      Recomendações
                     </Link>
                     
                     <div className="border-t pt-4 mt-4">

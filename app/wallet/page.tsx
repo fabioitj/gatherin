@@ -574,6 +574,11 @@ export default function WalletPage() {
                   </div>
                   Adicionar Carteira
                 </Button>
+                  <Link href="/recommendations">
+                    <Button variant="outline" className="border-yellow-200 text-yellow-700 hover:bg-yellow-50">
+                      Ver recomendações
+                    </Button>
+                  </Link>
                 <AddAssetDialog onAssetAdded={handleAssetAdded} />
               </div>
             </div>
