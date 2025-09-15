@@ -1,0 +1,337 @@
+from typing import Dict, Any, List, Tuple
+import psycopg2
+from collections import defaultdict, Counter
+import os
+from dotenv import load_dotenv
+from agents.base_agent import BaseAgent
+
+load_dotenv()
+
+class WalletSimilarityAgent(BaseAgent):
+    """
+    Agent responsible for analyzing wallet similarities and generating recommendations
+    """
+    
+    def __init__(self, config: Dict[str, Any] = None):
+        default_config = {
+            "min_similarity_threshold": 0.1,  # 10% minimum similarity
+            "min_users_for_recommendation": 5,  # Minimum users needed for a recommendation
+            "max_recommendations_per_asset": 10,
+            "similarity_algorithms": ["jaccard", "cosine"],
+            "batch_size": 1000
+        }
+        
+        if config:
+            default_config.update(config)
+            
+        super().__init__("WalletSimilarityAgent", default_config)
+        self.db_url = os.getenv("DATABASE_URL")
+    
+    def _execute(self) -> Dict[str, Any]:
+        """
+        Execute wallet similarity analysis
+        """
+        try:
+            # Get all wallets data
+            wallets_data = self._get_wallets_data()
+            
+            if not wallets_data:
+                return {
+                    "message": "No wallet data found",
+                    "similarities_generated": 0,
+                    "recommendations_generated": 0
+                }
+            
+            self.logger.info(f"Analyzing {len(wallets_data)} wallets")
+            
+            # Generate asset co-occurrence matrix
+            asset_cooccurrence = self._calculate_asset_cooccurrence(wallets_data)
+            
+            # Generate similarity recommendations
+            recommendations = self._generate_recommendations(asset_cooccurrence, wallets_data)
+            
+            # Save recommendations to database
+            saved_count = self._save_recommendations(recommendations)
+            
+            return {
+                "wallets_analyzed": len(wallets_data),
+                "asset_pairs_analyzed": len(asset_cooccurrence),
+                "recommendations_generated": len(recommendations),
+                "recommendations_saved": saved_count,
+                "top_recommendations": self._get_top_recommendations(recommendations, 10)
+            }
+            
+        except Exception as e:
+            self.logger.error(f"Error in wallet similarity analysis: {str(e)}")
+            raise
+    
+    def _get_wallets_data(self) -> List[Dict[str, Any]]:
+        """
+        Retrieve all wallets and their assets from database
+        """
+        conn = psycopg2.connect(self.db_url)
+        cur = conn.cursor()
+        
+        try:
+            query = """
+                SELECT 
+                    w.id as wallet_id,
+                    w."userId" as user_id,
+                    a.ticker,
+                    a.type,
+                    a.quantity,
+                    a."averagePrice"
+                FROM wallets w
+                JOIN assets a ON w.id = a."walletId"
+                WHERE a.quantity > 0
+                ORDER BY w.id
+            """
+            
+            cur.execute(query)
+            rows = cur.fetchall()
+            
+            # Group by wallet
+            wallets = defaultdict(lambda: {"user_id": None, "assets": []})
+            
+            for row in rows:
+                wallet_id, user_id, ticker, asset_type, quantity, avg_price = row
+                
+                if wallets[wallet_id]["user_id"] is None:
+                    wallets[wallet_id]["user_id"] = user_id
+                
+                wallets[wallet_id]["assets"].append({
+                    "ticker": ticker,
+                    "type": asset_type,
+                    "quantity": quantity,
+                    "average_price": float(avg_price),
+                    "total_value": quantity * float(avg_price)
+                })
+            
+            return [
+                {
+                    "wallet_id": wallet_id,
+                    "user_id": data["user_id"],
+                    "assets": data["assets"]
+                }
+                for wallet_id, data in wallets.items()
+            ]
+            
+        finally:
+            cur.close()
+            conn.close()
+    
+    def _calculate_asset_cooccurrence(self, wallets_data: List[Dict[str, Any]]) -> Dict[Tuple[str, str], Dict[str, Any]]:
+        """
+        Calculate how often assets appear together in wallets
+        """
+        asset_cooccurrence = defaultdict(lambda: {
+            "count": 0,
+            "total_wallets_with_first": 0,
+            "total_wallets_with_second": 0,
+            "users_with_both": set(),
+            "users_with_first": set(),
+            "users_with_second": set()
+        })
+        
+        # Count individual asset occurrences
+        asset_counts = Counter()
+        
+        for wallet in wallets_data:
+            user_id = wallet["user_id"]
+            tickers = [asset["ticker"] for asset in wallet["assets"]]
+            
+            # Count individual assets
+            for ticker in tickers:
+                asset_counts[ticker] += 1
+            
+            # Count co-occurrences
+            for i, ticker1 in enumerate(tickers):
+                for ticker2 in tickers[i+1:]:
+                    # Ensure consistent ordering
+                    pair = tuple(sorted([ticker1, ticker2]))
+                    
+                    asset_cooccurrence[pair]["count"] += 1
+                    asset_cooccurrence[pair]["users_with_both"].add(user_id)
+        
+        # Add individual counts
+        for wallet in wallets_data:
+            user_id = wallet["user_id"]
+            tickers = [asset["ticker"] for asset in wallet["assets"]]
+            
+            for ticker in tickers:
+                # Update all pairs involving this ticker
+                for pair, data in asset_cooccurrence.items():
+                    if ticker in pair:
+                        if ticker == pair[0]:
+                            data["users_with_first"].add(user_id)
+                        else:
+                            data["users_with_second"].add(user_id)
+        
+        # Calculate final metrics
+        for pair, data in asset_cooccurrence.items():
+            data["total_wallets_with_first"] = len(data["users_with_first"])
+            data["total_wallets_with_second"] = len(data["users_with_second"])
+            
+            # Calculate similarity metrics
+            data["jaccard_similarity"] = self._calculate_jaccard_similarity(
+                data["users_with_both"],
+                data["users_with_first"],
+                data["users_with_second"]
+            )
+            
+            data["support"] = len(data["users_with_both"]) / len(wallets_data)
+            data["confidence_first_to_second"] = len(data["users_with_both"]) / len(data["users_with_first"]) if data["users_with_first"] else 0
+            data["confidence_second_to_first"] = len(data["users_with_both"]) / len(data["users_with_second"]) if data["users_with_second"] else 0
+        
+        return dict(asset_cooccurrence)
+    
+    def _calculate_jaccard_similarity(self, both: set, first: set, second: set) -> float:
+        """
+        Calculate Jaccard similarity coefficient
+        """
+        union_size = len(first.union(second))
+        if union_size == 0:
+            return 0.0
+        return len(both) / union_size
+    
+    def _generate_recommendations(self, asset_cooccurrence: Dict[Tuple[str, str], Dict[str, Any]], wallets_data: List[Dict[str, Any]]) -> List[Dict[str, Any]]:
+        """
+        Generate asset recommendations based on similarity analysis
+        """
+        recommendations = []
+        
+        for pair, metrics in asset_cooccurrence.items():
+            ticker1, ticker2 = pair
+            
+            # Filter by minimum thresholds
+            if (metrics["jaccard_similarity"] >= self.config["min_similarity_threshold"] and
+                len(metrics["users_with_both"]) >= self.config["min_users_for_recommendation"]):
+                
+                # Create bidirectional recommendations
+                recommendations.extend([
+                    {
+                        "base_asset": ticker1,
+                        "recommended_asset": ticker2,
+                        "similarity_score": metrics["jaccard_similarity"],
+                        "support": metrics["support"],
+                        "confidence": metrics["confidence_first_to_second"],
+                        "users_with_both": len(metrics["users_with_both"]),
+                        "users_with_base": len(metrics["users_with_first"]),
+                        "percentage_also_invest": round(metrics["confidence_first_to_second"] * 100, 2),
+                        "recommendation_strength": self._calculate_recommendation_strength(metrics)
+                    },
+                    {
+                        "base_asset": ticker2,
+                        "recommended_asset": ticker1,
+                        "similarity_score": metrics["jaccard_similarity"],
+                        "support": metrics["support"],
+                        "confidence": metrics["confidence_second_to_first"],
+                        "users_with_both": len(metrics["users_with_both"]),
+                        "users_with_base": len(metrics["users_with_second"]),
+                        "percentage_also_invest": round(metrics["confidence_second_to_first"] * 100, 2),
+                        "recommendation_strength": self._calculate_recommendation_strength(metrics)
+                    }
+                ])
+        
+        # Sort by recommendation strength
+        recommendations.sort(key=lambda x: x["recommendation_strength"], reverse=True)
+        
+        return recommendations
+    
+    def _calculate_recommendation_strength(self, metrics: Dict[str, Any]) -> float:
+        """
+        Calculate overall recommendation strength combining multiple metrics
+        """
+        # Weighted combination of different metrics
+        jaccard_weight = 0.4
+        support_weight = 0.3
+        confidence_weight = 0.3
+        
+        return (
+            metrics["jaccard_similarity"] * jaccard_weight +
+            metrics["support"] * support_weight +
+            max(metrics["confidence_first_to_second"], metrics["confidence_second_to_first"]) * confidence_weight
+        )
+    
+    def _save_recommendations(self, recommendations: List[Dict[str, Any]]) -> int:
+        """
+        Save recommendations to database
+        """
+        if not recommendations:
+            return 0
+        
+        conn = psycopg2.connect(self.db_url)
+        cur = conn.cursor()
+        
+        try:
+            # Create table if not exists
+            cur.execute("""
+                CREATE TABLE IF NOT EXISTS asset_recommendations (
+                    id SERIAL PRIMARY KEY,
+                    base_asset VARCHAR(10) NOT NULL,
+                    recommended_asset VARCHAR(10) NOT NULL,
+                    similarity_score DECIMAL(5,4) NOT NULL,
+                    support DECIMAL(5,4) NOT NULL,
+                    confidence DECIMAL(5,4) NOT NULL,
+                    users_with_both INTEGER NOT NULL,
+                    users_with_base INTEGER NOT NULL,
+                    percentage_also_invest DECIMAL(5,2) NOT NULL,
+                    recommendation_strength DECIMAL(5,4) NOT NULL,
+                    created_at TIMESTAMP DEFAULT NOW(),
+                    updated_at TIMESTAMP DEFAULT NOW(),
+                    UNIQUE(base_asset, recommended_asset)
+                );
+            """)
+            
+            # Clear old recommendations
+            cur.execute("DELETE FROM asset_recommendations")
+            
+            # Insert new recommendations
+            insert_query = """
+                INSERT INTO asset_recommendations (
+                    base_asset, recommended_asset, similarity_score, support, confidence,
+                    users_with_both, users_with_base, percentage_also_invest, recommendation_strength
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+            """
+            
+            batch_size = self.config["batch_size"]
+            saved_count = 0
+            
+            for i in range(0, len(recommendations), batch_size):
+                batch = recommendations[i:i + batch_size]
+                
+                batch_data = [
+                    (
+                        rec["base_asset"],
+                        rec["recommended_asset"],
+                        rec["similarity_score"],
+                        rec["support"],
+                        rec["confidence"],
+                        rec["users_with_both"],
+                        rec["users_with_base"],
+                        rec["percentage_also_invest"],
+                        rec["recommendation_strength"]
+                    )
+                    for rec in batch
+                ]
+                
+                cur.executemany(insert_query, batch_data)
+                saved_count += len(batch_data)
+            
+            conn.commit()
+            self.logger.info(f"Saved {saved_count} recommendations to database")
+            return saved_count
+            
+        except Exception as e:
+            conn.rollback()
+            self.logger.error(f"Error saving recommendations: {str(e)}")
+            raise
+        finally:
+            cur.close()
+            conn.close()
+    
+    def _get_top_recommendations(self, recommendations: List[Dict[str, Any]], limit: int) -> List[Dict[str, Any]]:
+        """
+        Get top recommendations for summary
+        """
+        return recommendations[:limit]
