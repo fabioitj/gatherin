@@ -358,7 +358,7 @@ class WalletSimilarityAgent(BaseAgent):
             # Create table if not exists
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS asset_recommendations (
-                    id SERIAL PRIMARY KEY,
+                    id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
                     "baseAsset" VARCHAR(10) NOT NULL,
                     "recommendedAsset" VARCHAR(10) NOT NULL,
                     "similarityScore" DECIMAL(5,4) NOT NULL,
@@ -368,8 +368,8 @@ class WalletSimilarityAgent(BaseAgent):
                     "usersWithBase" INTEGER NOT NULL,
                     "percentageAlsoInvest" DECIMAL(5,2) NOT NULL,
                     "recommendationStrength" DECIMAL(5,4) NOT NULL,
-                    "createdAt" TIMESTAMP DEFAULT NOW(),
-                    "updatedAt" TIMESTAMP DEFAULT NOW(),
+                    "createdAt" TIMESTAMP DEFAULT NOW() NOT NULL,
+                    "updatedAt" TIMESTAMP DEFAULT NOW() NOT NULL,
                     UNIQUE("baseAsset", "recommendedAsset")
                 );
             """)
