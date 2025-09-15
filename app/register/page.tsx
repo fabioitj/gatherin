@@ -182,60 +182,92 @@ export default function RegisterPage() {
   const progress = (currentStep / 3) * 100;
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-gray-50 to-purple-50 flex items-center justify-center p-4">
-      <div className="w-full max-w-md">
+    <div className="min-h-screen bg-gradient-to-br from-gray-50 via-purple-50 to-indigo-50 flex items-center justify-center p-4">
+      <div className="w-full max-w-lg">
         {/* Logo */}
         <div className="text-center mb-8">
-          <div className="flex items-center justify-center mb-4">
-            <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-purple-600 to-purple-700 rounded-2xl shadow-lg">
-              <TrendingUp className="w-8 h-8 text-white" />
+          <div className="flex items-center justify-center mb-6">
+            <div className="flex items-center justify-center w-20 h-20 bg-gradient-to-br from-purple-600 to-purple-700 rounded-3xl shadow-xl">
+              <TrendingUp className="w-10 h-10 text-white" />
             </div>
           </div>
-          <h1 className="text-3xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent">
+          <h1 className="text-4xl font-bold bg-gradient-to-r from-purple-600 to-purple-700 bg-clip-text text-transparent mb-2">
             GatherIn
           </h1>
-          <p className="text-gray-600 mt-2">Crie sua conta</p>
+          <p className="text-gray-600 text-lg">Crie sua conta e comece a investir com conhecimento</p>
         </div>
 
-        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
-          <CardHeader className="space-y-1">
-            <div className="flex items-center justify-between mb-4">
+        <Card className="border-0 shadow-2xl bg-white/90 backdrop-blur-sm">
+          <CardHeader className="space-y-6 pb-8">
+            <div className="flex items-center justify-between">
               <div>
-                <CardTitle className="text-2xl font-bold">{getStepTitle()}</CardTitle>
-                <CardDescription>{getStepDescription()}</CardDescription>
+                <CardTitle className="text-2xl font-bold text-gray-900">{getStepTitle()}</CardTitle>
+                <CardDescription className="text-gray-600 mt-1">{getStepDescription()}</CardDescription>
               </div>
-              <div className="text-sm text-gray-500 bg-gray-100 px-3 py-1 rounded-full">
-                {currentStep}/3
+              <div className="flex items-center justify-center w-12 h-12 bg-gradient-to-br from-purple-100 to-purple-200 rounded-xl">
+                <span className="text-purple-700 font-bold text-lg">{currentStep}</span>
               </div>
             </div>
-            <Progress value={progress} className="w-full" />
+            
+            {/* Progress Bar */}
+            <div className="space-y-2">
+              <div className="flex justify-between text-sm text-gray-500">
+                <span>Progresso</span>
+                <span>{currentStep}/3 etapas</span>
+              </div>
+              <Progress value={progress} className="h-2" />
+            </div>
+
+            {/* Step Indicators */}
+            <div className="flex items-center justify-center space-x-4">
+              {[1, 2, 3].map((step) => (
+                <div key={step} className="flex items-center">
+                  <div className={`flex items-center justify-center w-8 h-8 rounded-full text-sm font-medium transition-all duration-200 ${
+                    step < currentStep 
+                      ? 'bg-green-500 text-white' 
+                      : step === currentStep 
+                        ? 'bg-purple-600 text-white' 
+                        : 'bg-gray-200 text-gray-500'
+                  }`}>
+                    {step < currentStep ? <Check className="w-4 h-4" /> : step}
+                  </div>
+                  {step < 3 && (
+                    <div className={`w-12 h-0.5 mx-2 transition-all duration-200 ${
+                      step < currentStep ? 'bg-green-500' : 'bg-gray-200'
+                    }`} />
+                  )}
+                </div>
+              ))}
+            </div>
           </CardHeader>
-          <CardContent>
-            <form onSubmit={handleSubmit} className="space-y-4">
+          
+          <CardContent className="pb-8">
+            <form onSubmit={handleSubmit} className="space-y-6">
               {error && (
-                <Alert variant="destructive">
-                  <AlertDescription>{error}</AlertDescription>
+                <Alert variant="destructive" className="border-red-200 bg-red-50">
+                  <AlertDescription className="text-red-800">{error}</AlertDescription>
                 </Alert>
               )}
 
               {/* Step 1: Account Information */}
               {currentStep === 1 && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="name">Nome completo</Label>
+                    <Label htmlFor="name" className="text-sm font-medium text-gray-700">Nome completo</Label>
                     <Input
                       id="name"
                       type="text"
-                      placeholder="Seu nome completo"
+                      placeholder="Digite seu nome completo"
                       value={formData.name}
                       onChange={(e) => updateFormData('name', e.target.value)}
                       required
                       disabled={loading}
+                      className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="email">Email</Label>
+                    <Label htmlFor="email" className="text-sm font-medium text-gray-700">Email</Label>
                     <Input
                       id="email"
                       type="email"
@@ -244,11 +276,12 @@ export default function RegisterPage() {
                       onChange={(e) => updateFormData('email', e.target.value)}
                       required
                       disabled={loading}
+                      className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="password">Senha</Label>
+                    <Label htmlFor="password" className="text-sm font-medium text-gray-700">Senha</Label>
                     <div className="relative">
                       <Input
                         id="password"
@@ -258,26 +291,27 @@ export default function RegisterPage() {
                         onChange={(e) => updateFormData('password', e.target.value)}
                         required
                         disabled={loading}
+                        className="h-12 pr-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-12 px-3 hover:bg-transparent"
                         onClick={() => setShowPassword(!showPassword)}
                         disabled={loading}
                       >
                         {showPassword ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-4 w-4 text-gray-400" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-4 w-4 text-gray-400" />
                         )}
                       </Button>
                     </div>
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="confirmPassword">Confirmar senha</Label>
+                    <Label htmlFor="confirmPassword" className="text-sm font-medium text-gray-700">Confirmar senha</Label>
                     <div className="relative">
                       <Input
                         id="confirmPassword"
@@ -287,19 +321,20 @@ export default function RegisterPage() {
                         onChange={(e) => updateFormData('confirmPassword', e.target.value)}
                         required
                         disabled={loading}
+                        className="h-12 pr-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                       />
                       <Button
                         type="button"
                         variant="ghost"
                         size="sm"
-                        className="absolute right-0 top-0 h-full px-3 py-2 hover:bg-transparent"
+                        className="absolute right-0 top-0 h-12 px-3 hover:bg-transparent"
                         onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                         disabled={loading}
                       >
                         {showConfirmPassword ? (
-                          <EyeOff className="h-4 w-4" />
+                          <EyeOff className="h-4 w-4 text-gray-400" />
                         ) : (
-                          <Eye className="h-4 w-4" />
+                          <Eye className="h-4 w-4 text-gray-400" />
                         )}
                       </Button>
                     </div>
@@ -309,9 +344,9 @@ export default function RegisterPage() {
 
               {/* Step 2: Personal Information */}
               {currentStep === 2 && (
-                <div className="space-y-4">
+                <div className="space-y-5">
                   <div className="space-y-2">
-                    <Label htmlFor="cpf">CPF</Label>
+                    <Label htmlFor="cpf" className="text-sm font-medium text-gray-700">CPF</Label>
                     <InputMask
                       id="cpf"
                       mask="999.999.999-99"
@@ -320,11 +355,12 @@ export default function RegisterPage() {
                       onChange={(e) => updateFormData('cpf', e.target.value)}
                       required
                       disabled={loading}
+                      className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="birthDate">Data de nascimento</Label>
+                    <Label htmlFor="birthDate" className="text-sm font-medium text-gray-700">Data de nascimento</Label>
                     <Input
                       id="birthDate"
                       type="date"
@@ -332,11 +368,12 @@ export default function RegisterPage() {
                       onChange={(e) => updateFormData('birthDate', e.target.value)}
                       required
                       disabled={loading}
+                      className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
                   </div>
 
                   <div className="space-y-2">
-                    <Label htmlFor="phoneNumber">Telefone</Label>
+                    <Label htmlFor="phoneNumber" className="text-sm font-medium text-gray-700">Telefone</Label>
                     <InputMask
                       id="phoneNumber"
                       mask="(99) 99999-9999"
@@ -345,6 +382,7 @@ export default function RegisterPage() {
                       onChange={(e) => updateFormData('phoneNumber', e.target.value)}
                       required
                       disabled={loading}
+                      className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
                   </div>
                 </div>
@@ -352,47 +390,67 @@ export default function RegisterPage() {
 
               {/* Step 3: Confirmation */}
               {currentStep === 3 && (
-                <div className="space-y-4">
-                  <div className="bg-purple-50 rounded-lg p-4 space-y-3">
-                    <h3 className="font-semibold text-purple-900 mb-3">Confirme suas informações:</h3>
+                <div className="space-y-6">
+                  <div className="bg-gradient-to-r from-purple-50 to-indigo-50 rounded-2xl p-6 border border-purple-100">
+                    <h3 className="font-bold text-purple-900 mb-4 text-lg">Confirme suas informações:</h3>
                     
-                    <div className="space-y-2 text-sm">
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Nome:</span>
-                        <span className="font-medium">{formData.name}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Email:</span>
-                        <span className="font-medium">{formData.email}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">CPF:</span>
-                        <span className="font-medium">{formData.cpf}</span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Data de nascimento:</span>
-                        <span className="font-medium">
-                          {formData.birthDate ? new Date(formData.birthDate).toLocaleDateString('pt-BR') : ''}
-                        </span>
-                      </div>
-                      <div className="flex justify-between">
-                        <span className="text-gray-600">Telefone:</span>
-                        <span className="font-medium">{formData.phoneNumber}</span>
+                    <div className="space-y-4">
+                      <div className="grid grid-cols-1 gap-4">
+                        <div className="bg-white rounded-lg p-4 shadow-sm">
+                          <h4 className="font-semibold text-gray-900 mb-3">Informações da Conta</h4>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Nome:</span>
+                              <span className="font-medium text-gray-900">{formData.name}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Email:</span>
+                              <span className="font-medium text-gray-900">{formData.email}</span>
+                            </div>
+                          </div>
+                        </div>
+                        
+                        <div className="bg-white rounded-lg p-4 shadow-sm">
+                          <h4 className="font-semibold text-gray-900 mb-3">Dados Pessoais</h4>
+                          <div className="space-y-2 text-sm">
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">CPF:</span>
+                              <span className="font-medium text-gray-900">{formData.cpf}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Data de nascimento:</span>
+                              <span className="font-medium text-gray-900">
+                                {formData.birthDate ? new Date(formData.birthDate).toLocaleDateString('pt-BR') : ''}
+                              </span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-gray-600">Telefone:</span>
+                              <span className="font-medium text-gray-900">{formData.phoneNumber}</span>
+                            </div>
+                          </div>
+                        </div>
                       </div>
                     </div>
+                  </div>
+
+                  <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">
+                    <p className="text-blue-800 text-sm">
+                      <strong>Quase lá!</strong> Ao clicar em "Criar conta", você terá acesso completo à plataforma GatherIn 
+                      e poderá começar a acompanhar as melhores notícias do mercado financeiro brasileiro.
+                    </p>
                   </div>
                 </div>
               )}
 
               {/* Navigation Buttons */}
-              <div className="flex gap-3 pt-4">
+              <div className="flex gap-4 pt-6">
                 {currentStep > 1 && (
                   <Button
                     type="button"
                     variant="outline"
                     onClick={handleBack}
                     disabled={loading}
-                    className="flex-1"
+                    className="flex-1 h-12 border-gray-200 hover:bg-gray-50"
                   >
                     <ArrowLeft className="w-4 h-4 mr-2" />
                     Voltar
@@ -404,7 +462,7 @@ export default function RegisterPage() {
                     type="button"
                     onClick={handleNext}
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                    className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg"
                   >
                     Próximo
                     <ArrowRight className="w-4 h-4 ml-2" />
@@ -413,7 +471,7 @@ export default function RegisterPage() {
                   <Button
                     type="submit"
                     disabled={loading}
-                    className="flex-1 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800"
+                    className="flex-1 h-12 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg"
                   >
                     {loading ? (
                       <div className="flex items-center">
@@ -422,7 +480,7 @@ export default function RegisterPage() {
                       </div>
                     ) : (
                       <div className="flex items-center">
-                        <Check className="w-4 h-4 mr-2" />
+                        <UserPlus className="w-4 h-4 mr-2" />
                         Criar conta
                       </div>
                     )}
@@ -431,7 +489,7 @@ export default function RegisterPage() {
               </div>
             </form>
 
-            <div className="mt-6 text-center">
+            <div className="mt-8 text-center">
               <p className="text-sm text-gray-600">
                 Já tem uma conta?{' '}
                 <Link
