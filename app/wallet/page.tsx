@@ -273,11 +273,10 @@ export default function WalletPage() {
           </CardHeader>
           <CardContent className="p-3 sm:p-6 pt-0">
             <div className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900">
-              <span className="hidden sm:inline">R$ </span>
-              <span className="sm:hidden">R$</span>
-              {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-              <span className="sm:hidden">R$</span>
-              {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              R$ {totalValue.toLocaleString('pt-BR', { 
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
             </div>
           </CardContent>
         </Card>
