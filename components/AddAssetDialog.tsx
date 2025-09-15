@@ -47,7 +47,17 @@ const assetFormSchema = z.object({
   ticker: z.string().min(1, 'O ticker é obrigatório'),
   type: z.enum(['STOCK', 'FII']),
   quantity: z.coerce.number().int().positive('A quantidade deve ser um número positivo'),
-  averagePrice: z.coerce.number().positive('O preço médio deve ser um número positivo'),
+  averagePrice: z.string()
+    .min(1, 'O preço médio é obrigatório')
+    .transform((val) => {
+      // Handle Brazilian decimal format (comma as decimal separator)
+      const normalizedValue = val.replace(',', '.');
+      const parsed = parseFloat(normalizedValue);
+      if (isNaN(parsed) || parsed <= 0) {
+        throw new Error('O preço médio deve ser um número positivo');
+      }
+      return parsed;
+    }),
 });
 
 type AssetFormValues = z.infer<typeof assetFormSchema>;
@@ -90,7 +100,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
       ticker: '',
       type: 'STOCK',
       quantity: 0,
-      averagePrice: 0,
+      averagePrice: '',
     },
   });
 
@@ -168,7 +178,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
     
     // Auto-fill average price if available
     if (asset.close && asset.close > 0) {
-      form.setValue('averagePrice', asset.close);
+      form.setValue('averagePrice', formatPriceInput(asset.close));
     }
   };
 
@@ -179,6 +189,12 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
     }).format(price);
   };
 
+  const formatPriceInput = (price: number) => {
+    return price.toLocaleString('pt-BR', { 
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2 
+    });
+  };
   const formatVolume = (volume: number) => {
     if (volume >= 1000000) {
       return `${(volume / 1000000).toFixed(1)}M`;
@@ -287,9 +303,8 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                     </PopoverTrigger>
                     <PopoverContent className="w-[--radix-popover-trigger-width] p-0" align="start">
                       <Command shouldFilter={false}>
-                        <CommandInput
-                          placeholder={`Buscar ${assetType === 'STOCK' ? 'ações' : 'FIIs'}...`}
-                          value={searchQuery}
+                          type="text" 
+                          placeholder="0,00"
                           onValueChange={setSearchQuery}
                         />
                         <CommandList>
@@ -434,7 +449,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => form.setValue('averagePrice', selectedAsset.close!)}
+                    onClick={() => form.setValue('averagePrice', formatPriceInput(selectedAsset.close!))}
                     className="text-blue-600 border-blue-200 hover:bg-blue-100"
                   >
                     Usar preço atual
