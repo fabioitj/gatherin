@@ -200,80 +200,82 @@ export default function WalletPage() {
       {/* Header */}
       <div className="text-center mb-12">
         <div className="flex items-center justify-center mb-6">
-          <div className="flex items-center justify-center w-16 h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
-            <Wallet className="w-8 h-8 text-white" />
+          <div className="flex items-center justify-center w-12 h-12 sm:w-16 sm:h-16 bg-gradient-to-br from-blue-600 to-blue-700 rounded-2xl shadow-lg">
+            <Wallet className="w-6 h-6 sm:w-8 sm:h-8 text-white" />
           </div>
         </div>
-        <h1 className="text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4">
+        <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold bg-gradient-to-r from-blue-600 to-blue-700 bg-clip-text text-transparent mb-4 px-4">
           Minha Carteira
         </h1>
-        <p className="text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed">
+        <p className="text-lg sm:text-xl text-gray-600 max-w-2xl mx-auto leading-relaxed px-4">
           Gerencie seus investimentos em ações e fundos imobiliários de forma organizada.
         </p>
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
               Total de Ativos
             </CardTitle>
-            <div className="p-2 rounded-lg bg-blue-100">
-              <Wallet className="w-4 h-4 text-blue-600" />
+            <div className="p-1 sm:p-2 rounded-lg bg-blue-100">
+              <Wallet className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-gray-900">
               {totalAssets}
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
               Ações
             </CardTitle>
-            <div className="p-2 rounded-lg bg-purple-100">
-              <TrendingUp className="w-4 h-4 text-purple-600" />
+            <div className="p-1 sm:p-2 rounded-lg bg-purple-100">
+              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-gray-900">
               {stocksCount}
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
               FIIs
             </CardTitle>
-            <div className="p-2 rounded-lg bg-indigo-100">
-              <Building2 className="w-4 h-4 text-indigo-600" />
+            <div className="p-1 sm:p-2 rounded-lg bg-indigo-100">
+              <Building2 className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-600" />
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-xl sm:text-2xl font-bold text-gray-900">
               {fiisCount}
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium text-gray-600">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
               Valor Total
             </CardTitle>
-            <div className="p-2 rounded-lg bg-green-100">
-              <span className="text-green-600 font-bold text-sm">R$</span>
+            <div className="p-1 sm:p-2 rounded-lg bg-green-100">
+              <span className="text-green-600 font-bold text-xs sm:text-sm">R$</span>
             </div>
           </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-gray-900">
-              R$ {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900">
+              <span className="hidden sm:inline">R$ </span>
+              <span className="sm:hidden">R$</span>
+              {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
           </CardContent>
         </Card>
@@ -281,30 +283,31 @@ export default function WalletPage() {
 
       {/* Assets Table */}
       <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
-        <CardHeader className="flex flex-row items-center justify-between">
+        <CardHeader className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 p-4 sm:p-6">
           <div>
-            <CardTitle className="text-2xl font-bold text-gray-900">Meus Ativos</CardTitle>
-            <p className="text-gray-600 mt-1">Gerencie sua carteira de investimentos</p>
+            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900">Meus Ativos</CardTitle>
+            <p className="text-sm sm:text-base text-gray-600 mt-1">Gerencie sua carteira de investimentos</p>
           </div>
-          <div className="flex flex-col sm:flex-row gap-4">
+          <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 w-full sm:w-auto">
             {/* B3 Import Button - More Prominent */}
             <div className="relative group">
               <Button 
-                size="lg"
-                className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-6 py-3 text-base font-semibold"
+                size="default"
+                className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-4 sm:px-6 py-2 sm:py-3 text-sm sm:text-base font-semibold w-full sm:w-auto"
               >
                 {/* Animated Background Glow */}
                 <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
                 
                 {/* B3 Logo */}
-                <div className="flex items-center justify-center w-8 h-8 bg-white rounded-lg mr-3 shadow-md">
-                  <span className="text-blue-600 font-black text-sm tracking-tight">B3</span>
+                <div className="flex items-center justify-center w-6 h-6 sm:w-8 sm:h-8 bg-white rounded-lg mr-2 sm:mr-3 shadow-md">
+                  <span className="text-blue-600 font-black text-xs sm:text-sm tracking-tight">B3</span>
                 </div>
                 
                 {/* Button Text */}
                 <span className="flex items-center">
-                  Importar da B3
-                  <div className="ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                  <span className="hidden sm:inline">Importar da B3</span>
+                  <span className="sm:hidden">Importar B3</span>
+                  <div className="ml-1 sm:ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 </span>
                 
                 {/* Shine Effect */}
@@ -312,7 +315,7 @@ export default function WalletPage() {
               </Button>
               
               {/* Tooltip/Badge */}
-              <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-bounce">
+              <div className="absolute -top-1 sm:-top-2 -right-1 sm:-right-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-1 sm:px-2 py-0.5 sm:py-1 rounded-full shadow-lg animate-bounce">
                 NOVO
               </div>
             </div>
@@ -321,11 +324,215 @@ export default function WalletPage() {
             <AddAssetDialog onAssetAdded={handleAssetAdded} />
           </div>
         </CardHeader>
-        <CardContent>
+        <CardContent className="p-4 sm:p-6">
           {wallet?.assets && wallet.assets.length > 0 ? (
-            <div className="overflow-x-auto">
-              <table className="w-full">
-                <thead>
+            <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700">Ticker</th>
+                      <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700">Tipo</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Quantidade</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Preço Médio</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Valor Total</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {wallet.assets.map((asset) => (
+                      <tr key={asset.id} className="hover:bg-gray-50 transition-colors duration-200">
+                        <td className="px-4 py-4">
+                          <div className="font-semibold text-gray-900">{asset.ticker}</div>
+                        </td>
+                        <td className="px-4 py-4">
+                          <Badge 
+                            variant="secondary" 
+                            className={`${
+                              asset.type === 'STOCK' 
+                                ? 'bg-purple-100 text-purple-800' 
+                                : 'bg-indigo-100 text-indigo-800'
+                            } font-medium`}
+                          >
+                            {asset.type === 'STOCK' ? 'Ação' : 'FII'}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-4 text-right text-gray-700 font-medium">
+                          {asset.quantity.toLocaleString()}
+                        </td>
+                        <td className="px-4 py-4 text-right text-gray-700 font-medium">
+                          R$ {asset.averagePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="px-4 py-4 text-right text-gray-900 font-semibold">
+                          R$ {(asset.quantity * asset.averagePrice).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="px-4 py-4 text-right">
+                          <div className="flex items-center justify-end gap-2">
+                            <EditAssetDialog asset={asset} onAssetUpdated={handleAssetUpdated} />
+                            <AlertDialog>
+                              <AlertDialogTrigger asChild>
+                                <Button 
+                                  variant="ghost" 
+                                  size="icon" 
+                                  onClick={() => setAssetToDelete(asset)}
+                                  className="text-red-600 hover:text-red-700 hover:bg-red-50"
+                                >
+                                  <Trash2 className="w-4 h-4" />
+                                </Button>
+                              </AlertDialogTrigger>
+                              <AlertDialogContent>
+                                <AlertDialogHeader>
+                                  <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                  <AlertDialogDescription>
+                                    Tem certeza que deseja excluir <strong>{asset.ticker}</strong> da sua carteira? 
+                                    Esta ação não pode ser desfeita.
+                                  </AlertDialogDescription>
+                                </AlertDialogHeader>
+                                <AlertDialogFooter>
+                                  <AlertDialogCancel onClick={() => setAssetToDelete(null)}>
+                                    Cancelar
+                                  </AlertDialogCancel>
+                                  <AlertDialogAction 
+                                    onClick={handleDeleteAsset} 
+                                    className="bg-red-600 hover:bg-red-700"
+                                  >
+                                    Excluir
+                                  </AlertDialogAction>
+                                </AlertDialogFooter>
+                              </AlertDialogContent>
+                            </AlertDialog>
+                          </div>
+                        </td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-4">
+                {wallet.assets.map((asset) => (
+                  <Card key={asset.id} className="border border-gray-200 shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="font-bold text-lg text-gray-900">{asset.ticker}</div>
+                          <Badge 
+                            variant="secondary" 
+                            className={`${
+                              asset.type === 'STOCK' 
+                                ? 'bg-purple-100 text-purple-800' 
+                                : 'bg-indigo-100 text-indigo-800'
+                            } font-medium text-xs`}
+                          >
+                            {asset.type === 'STOCK' ? 'Ação' : 'FII'}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <EditAssetDialog asset={asset} onAssetUpdated={handleAssetUpdated} />
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setAssetToDelete(asset)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="mx-4">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir <strong>{asset.ticker}</strong> da sua carteira? 
+                                  Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setAssetToDelete(null)}>
+                                  Cancelar
+                                </AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={handleDeleteAsset} 
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-500">Quantidade:</span>
+                          <div className="font-medium text-gray-900">{asset.quantity.toLocaleString()}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Preço Médio:</span>
+                          <div className="font-medium text-gray-900">
+                            R$ {asset.averagePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 text-sm">Valor Total:</span>
+                          <div className="font-bold text-lg text-gray-900">
+                            R$ {(asset.quantity * asset.averagePrice).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            </>
+          ) : (
+            <div className="text-center py-8 sm:py-12">
+              <div className="text-gray-400 mb-4">
+                <Wallet className="w-12 h-12 sm:w-16 sm:h-16 mx-auto opacity-50" />
+              </div>
+              <h3 className="text-lg sm:text-xl font-semibold text-gray-600 mb-2">
+                Sua carteira está vazia
+              </h3>
+              <p className="text-sm sm:text-base text-gray-500 mb-6 px-4">
+                Comece adicionando seus primeiros ativos para acompanhar seus investimentos.
+              </p>
+              <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4">
+                {/* B3 Import Button for Empty State */}
+                <div className="relative group">
+                  <Button 
+                    size="default"
+                    className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-4 py-2 text-sm font-semibold w-full sm:w-auto"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
+                    <div className="flex items-center justify-center w-6 h-6 bg-white rounded-lg mr-2 shadow-md">
+                      <span className="text-blue-600 font-black text-xs tracking-tight">B3</span>
+                    </div>
+                    <span className="flex items-center">
+                      Importar da B3
+                      <div className="ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+                  </Button>
+                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-1 py-0.5 rounded-full shadow-lg animate-bounce">
+                    NOVO
+                  </div>
+                </div>
+                <AddAssetDialog onAssetAdded={handleAssetAdded} />
+              </div>
+            </div>
+          )}
+        </CardContent>
+      </Card>
+    </div>
+  );
+}
                   <tr className="border-b border-gray-200">
                     <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700">Ticker</th>
                     <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700">Tipo</th>
