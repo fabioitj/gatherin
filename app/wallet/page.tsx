@@ -286,16 +286,38 @@ export default function WalletPage() {
             <CardTitle className="text-2xl font-bold text-gray-900">Meus Ativos</CardTitle>
             <p className="text-gray-600 mt-1">Gerencie sua carteira de investimentos</p>
           </div>
-          <div className="flex gap-3">
-            <Button 
-              variant="outline"
-              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white border-0 hover:from-blue-700 hover:to-blue-800 shadow-lg"
-            >
-              <div className="flex items-center justify-center w-5 h-5 bg-white rounded-sm mr-2">
-                <span className="text-blue-600 font-bold text-xs">B3</span>
+          <div className="flex flex-col sm:flex-row gap-4">
+            {/* B3 Import Button - More Prominent */}
+            <div className="relative group">
+              <Button 
+                size="lg"
+                className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-6 py-3 text-base font-semibold"
+              >
+                {/* Animated Background Glow */}
+                <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
+                
+                {/* B3 Logo */}
+                <div className="flex items-center justify-center w-8 h-8 bg-white rounded-lg mr-3 shadow-md">
+                  <span className="text-blue-600 font-black text-sm tracking-tight">B3</span>
+                </div>
+                
+                {/* Button Text */}
+                <span className="flex items-center">
+                  Importar da B3
+                  <div className="ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                </span>
+                
+                {/* Shine Effect */}
+                <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+              </Button>
+              
+              {/* Tooltip/Badge */}
+              <div className="absolute -top-2 -right-2 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-2 py-1 rounded-full shadow-lg animate-bounce">
+                NOVO
               </div>
-              Adicionar Carteira
-            </Button>
+            </div>
+            
+            {/* Regular Add Asset Button */}
             <AddAssetDialog onAssetAdded={handleAssetAdded} />
           </div>
         </CardHeader>
