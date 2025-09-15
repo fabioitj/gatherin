@@ -39,7 +39,7 @@ if __name__ == "__main__":
             
             for agent_name, agent_status in status['agents'].items():
                 last_exec = agent_status.get('last_execution', 'Never')
-                if last_exec != 'Never':
+                if last_exec != 'Never' and isinstance(last_exec, str):
                     from datetime import datetime
                     last_exec = datetime.fromisoformat(last_exec).strftime('%H:%M:%S')
                 
