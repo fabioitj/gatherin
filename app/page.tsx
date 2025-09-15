@@ -2,6 +2,7 @@
 
 import { useState, useEffect, useMemo } from 'react';
 import dynamic from 'next/dynamic';
+import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
 import { NewsCard } from '@/components/NewsCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
@@ -27,6 +28,14 @@ export default function HomePage() {
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+
+  // Initialize search query from URL params
+  useEffect(() => {
+    const searchFromUrl = searchParams.get('search');
+    if (searchFromUrl) {
+      setSearchQuery(searchFromUrl);
+    }
+  }, [searchParams]);
 
   // Fetch news data
   const fetchNews = async (page = 1, category?: Category | null, search?: string) => {
