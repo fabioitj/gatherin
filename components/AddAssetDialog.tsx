@@ -186,13 +186,16 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
     return new Intl.NumberFormat('pt-BR', {
       style: 'currency',
       currency: 'BRL',
+      minimumFractionDigits: 2,
+      maximumFractionDigits: 2,
     }).format(price);
   };
 
   const formatPriceInput = (price: number) => {
-    return price.toLocaleString('pt-BR', { 
+    return price.toLocaleString('pt-BR', {
       minimumFractionDigits: 2,
-      maximumFractionDigits: 2 
+      maximumFractionDigits: 2,
+      useGrouping: true
     });
   };
   const formatVolume = (volume: number) => {
@@ -418,9 +421,8 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                     <FormLabel>Preço Médio</FormLabel>
                     <FormControl>
                       <Input 
-                        type="number" 
-                        step="0.01" 
-                        placeholder="0.00"
+                        type="text"
+                        placeholder="0,00"
                         {...field} 
                       />
                     </FormControl>
