@@ -2,6 +2,7 @@ from typing import Dict, Any, List, Tuple
 import psycopg2
 from collections import defaultdict, Counter
 import os
+import uuid
 from dotenv import load_dotenv
 from agents.base_agent import BaseAgent
 
@@ -358,7 +359,7 @@ class WalletSimilarityAgent(BaseAgent):
             # Create table if not exists
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS asset_recommendations (
-                    id TEXT PRIMARY KEY DEFAULT gen_random_uuid(),
+                    id TEXT PRIMARY KEY,
                     "baseAsset" VARCHAR(10) NOT NULL,
                     "recommendedAsset" VARCHAR(10) NOT NULL,
                     "similarityScore" DECIMAL(5,4) NOT NULL,
@@ -368,8 +369,8 @@ class WalletSimilarityAgent(BaseAgent):
                     "usersWithBase" INTEGER NOT NULL,
                     "percentageAlsoInvest" DECIMAL(5,2) NOT NULL,
                     "recommendationStrength" DECIMAL(5,4) NOT NULL,
-                    "createdAt" TIMESTAMP DEFAULT NOW() NOT NULL,
-                    "updatedAt" TIMESTAMP DEFAULT NOW() NOT NULL,
+                    "createdAt" TIMESTAMP NOT NULL,
+                    "updatedAt" TIMESTAMP NOT NULL,
                     UNIQUE("baseAsset", "recommendedAsset")
                 );
             """)
@@ -384,15 +385,19 @@ class WalletSimilarityAgent(BaseAgent):
             # Insert new recommendations
             insert_query = """
                 INSERT INTO asset_recommendations (
-                    "baseAsset", "recommendedAsset", "similarityScore", support, confidence,
-                    "usersWithBoth", "usersWithBase", "percentageAlsoInvest", "recommendationStrength"
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
+                    id, "baseAsset", "recommendedAsset", "similarityScore", support, confidence,
+                    "usersWithBoth", "usersWithBase", "percentageAlsoInvest", "recommendationStrength",
+                    "createdAt", "updatedAt"
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             
             batch_size = self.config["batch_size"]
             saved_count = 0
             total_batches = (len(recommendations) + batch_size - 1) // batch_size
             self.logger.info(f"💾 Saving {len(recommendations)} recommendations in {total_batches} batches of {batch_size}...")
+            
+            from datetime import datetime
+            current_time = datetime.now()
             
             for i in range(0, len(recommendations), batch_size):
                 batch = recommendations[i:i + batch_size]
@@ -401,6 +406,7 @@ class WalletSimilarityAgent(BaseAgent):
                 
                 batch_data = [
                     (
+                        str(uuid.uuid4()),  # Generate UUID for id
                         rec["base_asset"],
                         rec["recommended_asset"],
                         rec["similarity_score"],
@@ -409,7 +415,9 @@ class WalletSimilarityAgent(BaseAgent):
                         rec["users_with_both"],
                         rec["users_with_base"],
                         rec["percentage_also_invest"],
-                        rec["recommendation_strength"]
+                        rec["recommendation_strength"],
+                        current_time,  # createdAt
+                        current_time   # updatedAt
                     )
                     for rec in batch
                 ]
