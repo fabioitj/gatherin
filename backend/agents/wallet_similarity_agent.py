@@ -359,18 +359,18 @@ class WalletSimilarityAgent(BaseAgent):
             cur.execute("""
                 CREATE TABLE IF NOT EXISTS asset_recommendations (
                     id SERIAL PRIMARY KEY,
-                    base_asset VARCHAR(10) NOT NULL,
-                    recommended_asset VARCHAR(10) NOT NULL,
-                    similarity_score DECIMAL(5,4) NOT NULL,
+                    "baseAsset" VARCHAR(10) NOT NULL,
+                    "recommendedAsset" VARCHAR(10) NOT NULL,
+                    "similarityScore" DECIMAL(5,4) NOT NULL,
                     support DECIMAL(5,4) NOT NULL,
                     confidence DECIMAL(5,4) NOT NULL,
-                    users_with_both INTEGER NOT NULL,
-                    users_with_base INTEGER NOT NULL,
-                    percentage_also_invest DECIMAL(5,2) NOT NULL,
-                    recommendation_strength DECIMAL(5,4) NOT NULL,
-                    created_at TIMESTAMP DEFAULT NOW(),
-                    updated_at TIMESTAMP DEFAULT NOW(),
-                    UNIQUE(base_asset, recommended_asset)
+                    "usersWithBoth" INTEGER NOT NULL,
+                    "usersWithBase" INTEGER NOT NULL,
+                    "percentageAlsoInvest" DECIMAL(5,2) NOT NULL,
+                    "recommendationStrength" DECIMAL(5,4) NOT NULL,
+                    "createdAt" TIMESTAMP DEFAULT NOW(),
+                    "updatedAt" TIMESTAMP DEFAULT NOW(),
+                    UNIQUE("baseAsset", "recommendedAsset")
                 );
             """)
             self.logger.debug("✅ Table creation/verification completed")
@@ -384,8 +384,8 @@ class WalletSimilarityAgent(BaseAgent):
             # Insert new recommendations
             insert_query = """
                 INSERT INTO asset_recommendations (
-                    base_asset, recommended_asset, similarity_score, support, confidence,
-                    users_with_both, users_with_base, percentage_also_invest, recommendation_strength
+                    "baseAsset", "recommendedAsset", "similarityScore", support, confidence,
+                    "usersWithBoth", "usersWithBase", "percentageAlsoInvest", "recommendationStrength"
                 ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
             """
             
@@ -448,15 +448,15 @@ class WalletSimilarityAgent(BaseAgent):
             formatted_recs = []
             for rec in recommendations:
                 formatted_recs.append({
-                    "base_asset": rec["base_asset"],
-                    "recommended_asset": rec["recommended_asset"],
-                    "similarity_score": rec["similarity_score"],
+                    "baseAsset": rec["base_asset"],
+                    "recommendedAsset": rec["recommended_asset"],
+                    "similarityScore": rec["similarity_score"],
                     "support": rec["support"],
                     "confidence": rec["confidence"],
-                    "users_with_both": rec["users_with_both"],
-                    "users_with_base": rec["users_with_base"],
-                    "percentage_also_invest": rec["percentage_also_invest"],
-                    "recommendation_strength": rec["recommendation_strength"]
+                    "usersWithBoth": rec["users_with_both"],
+                    "usersWithBase": rec["users_with_base"],
+                    "percentageAlsoInvest": rec["percentage_also_invest"],
+                    "recommendationStrength": rec["recommendation_strength"]
                 })
             
             # Send to Next.js API (you might need to adjust the URL)
