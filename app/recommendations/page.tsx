@@ -282,8 +282,7 @@ export default function RecommendationsPage() {
                       <Button 
                         className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
                         onClick={() => {
-                          // TODO: Add to watchlist or research functionality
-                          console.log('Research asset:', rec.recommendedAsset);
+                          router.push(`/?search=${encodeURIComponent(rec.recommendedAsset)}`);
                         }}
                       >
                         Pesquisar {rec.recommendedAsset}
