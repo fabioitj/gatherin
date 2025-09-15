@@ -6,7 +6,10 @@ import { prisma } from '@/lib/prisma';
 const registerSchema = z.object({
   name: z.string().min(2, 'Nome deve ter pelo menos 2 caracteres'),
   email: z.string().email('Email inválido'),
-  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres')
+  password: z.string().min(6, 'Senha deve ter pelo menos 6 caracteres'),
+  cpf: z.string().optional(),
+  birthDate: z.string().optional(),
+  phoneNumber: z.string().optional()
 });
 
 export async function POST(request: NextRequest) {
@@ -35,12 +38,18 @@ export async function POST(request: NextRequest) {
       data: {
         name: validatedData.name,
         email: validatedData.email,
-        passwordHash
+        passwordHash,
+        cpf: validatedData.cpf || null,
+        birthDate: validatedData.birthDate ? new Date(validatedData.birthDate) : null,
+        phoneNumber: validatedData.phoneNumber || null
       },
       select: {
         id: true,
         name: true,
         email: true,
+        cpf: true,
+        birthDate: true,
+        phoneNumber: true,
         createdAt: true,
         updatedAt: true
       }
