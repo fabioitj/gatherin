@@ -256,7 +256,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                                 )}
                                 <div className="text-left">
                                   <div className="font-semibold">{selectedAsset.stock}</div>
-                                  <div className="text-sm text-gray-500 truncate max-w-[200px]">
+                                  <div className="text-sm text-gray-500 truncate max-w-[180px]">
                                     {selectedAsset.name}
                                   </div>
                                 </div>
@@ -311,9 +311,9 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                                 key={asset.stock}
                                 value={asset.stock}
                                 onSelect={() => handleAssetSelect(asset)}
-                                className="flex items-center justify-between p-3 cursor-pointer"
+                                className="flex items-center justify-between p-3 cursor-pointer min-h-[60px]"
                               >
-                                <div className="flex items-center gap-3 flex-1">
+                                <div className="flex items-center gap-3 flex-1 min-w-0">
                                   {asset.logo && (
                                     <img 
                                       src={asset.logo} 
@@ -328,12 +328,12 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                                     <div className="flex items-center gap-2">
                                       <span className="font-semibold">{asset.stock}</span>
                                       {asset.sector && (
-                                        <Badge variant="secondary" className="text-xs">
+                                        <Badge variant="secondary" className="text-xs shrink-0">
                                           {asset.sector}
                                         </Badge>
                                       )}
                                     </div>
-                                    <div className="text-sm text-gray-500 truncate">
+                                    <div className="text-sm text-gray-500 truncate max-w-[200px]">
                                       {asset.name}
                                     </div>
                                     {asset.volume && (
@@ -344,7 +344,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                                   </div>
                                 </div>
                                 
-                                <div className="text-right ml-2">
+                                <div className="text-right ml-2 shrink-0">
                                   {asset.close && (
                                     <>
                                       <div className="font-medium">
@@ -364,7 +364,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                                 
                                 <Check
                                   className={cn(
-                                    "ml-2 h-4 w-4",
+                                    "ml-2 h-4 w-4 shrink-0",
                                     selectedAsset?.stock === asset.stock ? "opacity-100" : "opacity-0"
                                   )}
                                 />
