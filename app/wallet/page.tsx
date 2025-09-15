@@ -286,7 +286,18 @@ export default function WalletPage() {
             <CardTitle className="text-2xl font-bold text-gray-900">Meus Ativos</CardTitle>
             <p className="text-gray-600 mt-1">Gerencie sua carteira de investimentos</p>
           </div>
-          <AddAssetDialog onAssetAdded={handleAssetAdded} />
+          <div className="flex gap-3">
+            <Button 
+              variant="outline"
+              className="bg-gradient-to-r from-blue-600 to-blue-700 text-white border-0 hover:from-blue-700 hover:to-blue-800 shadow-lg"
+            >
+              <div className="flex items-center justify-center w-5 h-5 bg-white rounded-sm mr-2">
+                <span className="text-blue-600 font-bold text-xs">B3</span>
+              </div>
+              Adicionar Carteira
+            </Button>
+            <AddAssetDialog onAssetAdded={handleAssetAdded} />
+          </div>
         </CardHeader>
         <CardContent>
           {wallet?.assets && wallet.assets.length > 0 ? (
