@@ -276,6 +276,8 @@ export default function WalletPage() {
               <span className="hidden sm:inline">R$ </span>
               <span className="sm:hidden">R$</span>
               {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+              <span className="sm:hidden">R$</span>
+              {totalValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
             </div>
           </CardContent>
         </Card>
@@ -305,8 +307,9 @@ export default function WalletPage() {
                 
                 {/* Button Text */}
                 <span className="flex items-center">
-                  <span className="hidden sm:inline">Importar da B3</span>
-                  <span className="sm:hidden">Importar B3</span>
+                  <span className="hidden sm:inline">Adicionar Carteira</span>
+                  <span className="sm:hidden">Adicionar B3</span>
+                  <div className="ml-1 sm:ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                   <div className="ml-1 sm:ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
                 </span>
                 
@@ -327,6 +330,8 @@ export default function WalletPage() {
         <CardContent className="p-4 sm:p-6">
           {wallet?.assets && wallet.assets.length > 0 ? (
             <>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
@@ -491,6 +496,89 @@ export default function WalletPage() {
                   </Card>
                 ))}
               </div>
+              </div>
+
+              {/* Mobile Card View */}
+              <div className="md:hidden space-y-4">
+                {wallet.assets.map((asset) => (
+                  <Card key={asset.id} className="border border-gray-200 shadow-sm">
+                    <CardContent className="p-4">
+                      <div className="flex items-start justify-between mb-3">
+                        <div className="flex items-center gap-3">
+                          <div className="font-bold text-lg text-gray-900">{asset.ticker}</div>
+                          <Badge 
+                            variant="secondary" 
+                            className={`${
+                              asset.type === 'STOCK' 
+                                ? 'bg-purple-100 text-purple-800' 
+                                : 'bg-indigo-100 text-indigo-800'
+                            } font-medium text-xs`}
+                          >
+                            {asset.type === 'STOCK' ? 'Ação' : 'FII'}
+                          </Badge>
+                        </div>
+                        <div className="flex items-center gap-1">
+                          <EditAssetDialog asset={asset} onAssetUpdated={handleAssetUpdated} />
+                          <AlertDialog>
+                            <AlertDialogTrigger asChild>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                onClick={() => setAssetToDelete(asset)}
+                                className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8"
+                              >
+                                <Trash2 className="w-4 h-4" />
+                              </Button>
+                            </AlertDialogTrigger>
+                            <AlertDialogContent className="mx-4">
+                              <AlertDialogHeader>
+                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
+                                <AlertDialogDescription>
+                                  Tem certeza que deseja excluir <strong>{asset.ticker}</strong> da sua carteira? 
+                                  Esta ação não pode ser desfeita.
+                                </AlertDialogDescription>
+                              </AlertDialogHeader>
+                              <AlertDialogFooter>
+                                <AlertDialogCancel onClick={() => setAssetToDelete(null)}>
+                                  Cancelar
+                                </AlertDialogCancel>
+                                <AlertDialogAction 
+                                  onClick={handleDeleteAsset} 
+                                  className="bg-red-600 hover:bg-red-700"
+                                >
+                                  Excluir
+                                </AlertDialogAction>
+                              </AlertDialogFooter>
+                            </AlertDialogContent>
+                          </AlertDialog>
+                        </div>
+                      </div>
+                      
+                      <div className="grid grid-cols-2 gap-4 text-sm">
+                        <div>
+                          <span className="text-gray-500">Quantidade:</span>
+                          <div className="font-medium text-gray-900">{asset.quantity.toLocaleString()}</div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Preço Médio:</span>
+                          <div className="font-medium text-gray-900">
+                            R$ {asset.averagePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </div>
+                        </div>
+                      </div>
+                      
+                      <div className="mt-3 pt-3 border-t border-gray-100">
+                        <div className="flex justify-between items-center">
+                          <span className="text-gray-500 text-sm">Valor Total:</span>
+                          <div className="font-bold text-lg text-gray-900">
+                            R$ {(asset.quantity * asset.averagePrice).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          </div>
+                        </div>
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
             </>
           ) : (
             <div className="text-center py-8 sm:py-12">
@@ -504,6 +592,26 @@ export default function WalletPage() {
                 Comece adicionando seus primeiros ativos para acompanhar seus investimentos.
               </p>
               <div className="flex flex-col sm:flex-row gap-3 justify-center items-center px-4">
+                {/* B3 Import Button for Empty State */}
+                <div className="relative group">
+                  <Button 
+                    size="default"
+                    className="relative bg-gradient-to-r from-blue-500 via-blue-600 to-blue-700 hover:from-blue-600 hover:via-blue-700 hover:to-blue-800 text-white border-0 shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300 px-4 py-2 text-sm font-semibold w-full sm:w-auto"
+                  >
+                    <div className="absolute inset-0 bg-gradient-to-r from-blue-400 to-blue-600 rounded-lg blur-lg opacity-30 group-hover:opacity-50 transition-opacity duration-300 -z-10"></div>
+                    <div className="flex items-center justify-center w-6 h-6 bg-white rounded-lg mr-2 shadow-md">
+                      <span className="text-blue-600 font-black text-xs tracking-tight">B3</span>
+                    </div>
+                    <span className="flex items-center">
+                      Adicionar Carteira
+                      <div className="ml-2 w-2 h-2 bg-green-400 rounded-full animate-pulse"></div>
+                    </span>
+                    <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white/20 to-transparent -skew-x-12 transform translate-x-[-100%] group-hover:translate-x-[200%] transition-transform duration-1000"></div>
+                  </Button>
+                  <div className="absolute -top-1 -right-1 bg-gradient-to-r from-green-500 to-green-600 text-white text-xs font-bold px-1 py-0.5 rounded-full shadow-lg animate-bounce">
+                    NOVO
+                  </div>
+                </div>
                 {/* B3 Import Button for Empty State */}
                 <div className="relative group">
                   <Button 
