@@ -45,11 +45,30 @@ export default function RegisterPage() {
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
+  const [isFormValid, setIsFormValid] = useState(false);
 
   const router = useRouter();
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
+    
+    // Check if all form data is valid when we're on step 3
+    if (currentStep === 3) {
+      checkFormValidity();
+    }
+  };
+
+  const checkFormValidity = () => {
+    const isValid = 
+      formData.name.trim().length >= 2 &&
+      /\S+@\S+\.\S+/.test(formData.email) &&
+      formData.password.length >= 6 &&
+      formData.password === formData.confirmPassword &&
+      formData.cpf.replace(/\D/g, '').length === 11 &&
+      formData.birthDate &&
+      formData.phoneNumber.replace(/\D/g, '').length === 11;
+    
+    setIsFormValid(isValid);
   };
 
   const validateStep1 = () => {
@@ -144,7 +163,13 @@ export default function RegisterPage() {
       return;
     }
     
-    setCurrentStep(prev => prev + 1);
+    const nextStep = currentStep + 1;
+    setCurrentStep(nextStep);
+    
+    // Check form validity when reaching step 3
+    if (nextStep === 3) {
+      setTimeout(checkFormValidity, 100);
+    }
   };
 
   const handleBack = () => {
@@ -478,6 +503,37 @@ export default function RegisterPage() {
                       e poderá começar a acompanhar as melhores notícias do mercado financeiro brasileiro.
                     </p>
                   </div>
+
+                  {/* Validation Status */}
+                  {isFormValid ? (
+                    <div className="bg-green-50 rounded-lg p-4 border border-green-200 flex items-center">
+                      <div className="flex items-center justify-center w-8 h-8 bg-green-500 rounded-full mr-3">
+                        <Check className="w-5 h-5 text-white" />
+                      </div>
+                      <div>
+                        <p className="text-green-800 font-semibold text-sm">
+                          Tudo pronto! ✨
+                        </p>
+                        <p className="text-green-700 text-sm">
+                          Suas informações estão válidas. Clique em "Criar conta" para finalizar.
+                        </p>
+                      </div>
+                    </div>
+                  ) : (
+                    <div className="bg-amber-50 rounded-lg p-4 border border-amber-200 flex items-center">
+                      <div className="flex items-center justify-center w-8 h-8 bg-amber-500 rounded-full mr-3">
+                        <span className="text-white font-bold text-sm">!</span>
+                      </div>
+                      <div>
+                        <p className="text-amber-800 font-semibold text-sm">
+                          Verificando informações...
+                        </p>
+                        <p className="text-amber-700 text-sm">
+                          Aguarde enquanto validamos seus dados.
+                        </p>
+                      </div>
+                    </div>
+                  )}
                 </div>
               )}
 
@@ -509,18 +565,27 @@ export default function RegisterPage() {
                 ) : (
                   <Button
                     type="submit"
-                    disabled={loading}
-                    className="flex-1 h-12 bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 shadow-lg"
+                    disabled={loading || !isFormValid}
+                    className={`flex-1 h-12 shadow-lg transition-all duration-300 ${
+                      isFormValid 
+                        ? 'bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 hover:scale-105 hover:shadow-xl' 
+                        : 'bg-gray-400 cursor-not-allowed'
+                    }`}
                   >
                     {loading ? (
                       <div className="flex items-center">
                         <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
                         Criando conta...
                       </div>
+                    ) : !isFormValid ? (
+                      <div className="flex items-center">
+                        <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin mr-2" />
+                        Validando...
+                      </div>
                     ) : (
                       <div className="flex items-center">
                         <UserPlus className="w-4 h-4 mr-2" />
-                        Criar conta
+                        🚀 Criar minha conta
                       </div>
                     )}
                   </Button>
