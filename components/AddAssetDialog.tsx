@@ -79,12 +79,20 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
 
   useEffect(() => {
     const fetchAssets = async () => {
-      if (searchQuery.length > 1) {
+      if (searchQuery.length >= 2) {
         const type = assetType === 'STOCK' ? 'stock' : 'fund';
-        const response = await fetch(`/api/assets/search?type=${type}&search=${searchQuery}`);
-        if (response.ok) {
-          const data = await response.json();
-          setAssets(data);
+        try {
+          const response = await fetch(`/api/assets/search?type=${type}&search=${encodeURIComponent(searchQuery)}`);
+          if (response.ok) {
+            const data = await response.json();
+            setAssets(data || []);
+          } else {
+            console.error('Failed to fetch assets:', response.status);
+            setAssets([]);
+          }
+        } catch (error) {
+          console.error('Error fetching assets:', error);
+          setAssets([]);
         }
       } else {
         setAssets([]);
@@ -191,7 +199,9 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                           value={searchQuery}
                           onValueChange={setSearchQuery}
                         />
-                        <CommandEmpty>Nenhum ativo encontrado.</CommandEmpty>
+                        <CommandEmpty>
+                          {searchQuery.length >= 2 ? 'Nenhum ativo encontrado.' : 'Digite pelo menos 2 caracteres para buscar.'}
+                        </CommandEmpty>
                         <CommandGroup>
                           {assets.map((asset) => (
                             <CommandItem
@@ -200,6 +210,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                               onSelect={() => {
                                 field.onChange(asset.stock);
                                 setComboboxOpen(false);
+                                setSearchQuery('');
                               }}
                             >
                               {asset.stock} - {asset.name}
