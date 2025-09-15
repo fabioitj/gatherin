@@ -124,64 +124,51 @@ class WalletSimilarityAgent(BaseAgent):
         """
         Calculate how often assets appear together in wallets
         """
+        # Track individual asset occurrences
+        asset_users = defaultdict(set)  # asset -> set of user_ids
         asset_cooccurrence = defaultdict(lambda: {
-            "count": 0,
-            "total_wallets_with_first": 0,
-            "total_wallets_with_second": 0,
-            "users_with_both": set(),
-            "users_with_first": set(),
-            "users_with_second": set()
+            "users_with_both": set()
         })
         
-        # Count individual asset occurrences
-        asset_counts = Counter()
-        
+        # First pass: collect all asset-user relationships
         for wallet in wallets_data:
             user_id = wallet["user_id"]
             tickers = [asset["ticker"] for asset in wallet["assets"]]
             
-            # Count individual assets
+            # Track which users have each asset
             for ticker in tickers:
-                asset_counts[ticker] += 1
+                asset_users[ticker].add(user_id)
             
-            # Count co-occurrences
+            # Track co-occurrences (users who have both assets)
             for i, ticker1 in enumerate(tickers):
                 for ticker2 in tickers[i+1:]:
                     # Ensure consistent ordering
                     pair = tuple(sorted([ticker1, ticker2]))
-                    
-                    asset_cooccurrence[pair]["count"] += 1
                     asset_cooccurrence[pair]["users_with_both"].add(user_id)
         
-        # Add individual counts
-        for wallet in wallets_data:
-            user_id = wallet["user_id"]
-            tickers = [asset["ticker"] for asset in wallet["assets"]]
-            
-            for ticker in tickers:
-                # Update all pairs involving this ticker
-                for pair, data in asset_cooccurrence.items():
-                    if ticker in pair:
-                        if ticker == pair[0]:
-                            data["users_with_first"].add(user_id)
-                        else:
-                            data["users_with_second"].add(user_id)
-        
-        # Calculate final metrics
+        # Second pass: calculate metrics for each pair
         for pair, data in asset_cooccurrence.items():
-            data["total_wallets_with_first"] = len(data["users_with_first"])
-            data["total_wallets_with_second"] = len(data["users_with_second"])
+            ticker1, ticker2 = pair
+            
+            users_with_first = asset_users[ticker1]
+            users_with_second = asset_users[ticker2]
+            users_with_both = data["users_with_both"]
+            
+            data["users_with_first"] = users_with_first
+            data["users_with_second"] = users_with_second
+            data["total_wallets_with_first"] = len(users_with_first)
+            data["total_wallets_with_second"] = len(users_with_second)
             
             # Calculate similarity metrics
             data["jaccard_similarity"] = self._calculate_jaccard_similarity(
-                data["users_with_both"],
-                data["users_with_first"],
-                data["users_with_second"]
+                users_with_both,
+                users_with_first,
+                users_with_second
             )
             
-            data["support"] = len(data["users_with_both"]) / len(wallets_data)
-            data["confidence_first_to_second"] = len(data["users_with_both"]) / len(data["users_with_first"]) if data["users_with_first"] else 0
-            data["confidence_second_to_first"] = len(data["users_with_both"]) / len(data["users_with_second"]) if data["users_with_second"] else 0
+            data["support"] = len(users_with_both) / len(wallets_data)
+            data["confidence_first_to_second"] = len(users_with_both) / len(users_with_first) if users_with_first else 0
+            data["confidence_second_to_first"] = len(users_with_both) / len(users_with_second) if users_with_second else 0
         
         return dict(asset_cooccurrence)
     
@@ -204,41 +191,58 @@ class WalletSimilarityAgent(BaseAgent):
             ticker1, ticker2 = pair
             
             # Filter by minimum thresholds
+            users_with_both_count = len(metrics["users_with_both"])
+            
             if (metrics["jaccard_similarity"] >= self.config["min_similarity_threshold"] and
-                len(metrics["users_with_both"]) >= self.config["min_users_for_recommendation"]):
+                users_with_both_count >= self.config["min_users_for_recommendation"]):
                 
-                # Create bidirectional recommendations
-                recommendations.extend([
-                    {
+                # Create bidirectional recommendations with proper confidence calculations
+                
+                # Recommendation 1: ticker1 -> ticker2
+                confidence_1_to_2 = metrics["confidence_first_to_second"]
+                if confidence_1_to_2 > 0:  # Only add if there's actual confidence
+                    recommendations.append({
                         "base_asset": ticker1,
                         "recommended_asset": ticker2,
                         "similarity_score": metrics["jaccard_similarity"],
                         "support": metrics["support"],
-                        "confidence": metrics["confidence_first_to_second"],
-                        "users_with_both": len(metrics["users_with_both"]),
-                        "users_with_base": len(metrics["users_with_first"]),
-                        "percentage_also_invest": round(metrics["confidence_first_to_second"] * 100, 2),
-                        "recommendation_strength": self._calculate_recommendation_strength(metrics)
-                    },
-                    {
+                        "confidence": confidence_1_to_2,
+                        "users_with_both": users_with_both_count,
+                        "users_with_base": metrics["total_wallets_with_first"],
+                        "percentage_also_invest": round(confidence_1_to_2 * 100, 2),
+                        "recommendation_strength": self._calculate_recommendation_strength(metrics, confidence_1_to_2)
+                    })
+                
+                # Recommendation 2: ticker2 -> ticker1
+                confidence_2_to_1 = metrics["confidence_second_to_first"]
+                if confidence_2_to_1 > 0:  # Only add if there's actual confidence
+                    recommendations.append({
                         "base_asset": ticker2,
                         "recommended_asset": ticker1,
                         "similarity_score": metrics["jaccard_similarity"],
                         "support": metrics["support"],
-                        "confidence": metrics["confidence_second_to_first"],
-                        "users_with_both": len(metrics["users_with_both"]),
-                        "users_with_base": len(metrics["users_with_second"]),
-                        "percentage_also_invest": round(metrics["confidence_second_to_first"] * 100, 2),
-                        "recommendation_strength": self._calculate_recommendation_strength(metrics)
-                    }
-                ])
+                        "confidence": confidence_2_to_1,
+                        "users_with_both": users_with_both_count,
+                        "users_with_base": metrics["total_wallets_with_second"],
+                        "percentage_also_invest": round(confidence_2_to_1 * 100, 2),
+                        "recommendation_strength": self._calculate_recommendation_strength(metrics, confidence_2_to_1)
+                    })
         
         # Sort by recommendation strength
         recommendations.sort(key=lambda x: x["recommendation_strength"], reverse=True)
         
+        # Log some examples for debugging
+        self.logger.info("Generated recommendations examples:")
+        for i, rec in enumerate(recommendations[:5]):
+            self.logger.info(
+                f"  {i+1}. {rec['percentage_also_invest']:.1f}% dos usuários que investem em "
+                f"{rec['base_asset']} também investem em {rec['recommended_asset']} "
+                f"({rec['users_with_both']}/{rec['users_with_base']} usuários)"
+            )
+        
         return recommendations
     
-    def _calculate_recommendation_strength(self, metrics: Dict[str, Any]) -> float:
+    def _calculate_recommendation_strength(self, metrics: Dict[str, Any], confidence: float) -> float:
         """
         Calculate overall recommendation strength combining multiple metrics
         """
@@ -250,7 +254,7 @@ class WalletSimilarityAgent(BaseAgent):
         return (
             metrics["jaccard_similarity"] * jaccard_weight +
             metrics["support"] * support_weight +
-            max(metrics["confidence_first_to_second"], metrics["confidence_second_to_first"]) * confidence_weight
+            confidence * confidence_weight
         )
     
     def _save_recommendations(self, recommendations: List[Dict[str, Any]]) -> int:
