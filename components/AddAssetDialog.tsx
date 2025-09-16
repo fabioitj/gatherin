@@ -66,7 +66,7 @@ interface AddAssetDialogProps {
   onAssetAdded: (asset: any) => void;
 }
 
-interface BrapiAsset {
+interface LocalAsset {
   stock: string;
   name: string;
   close?: number;
@@ -78,21 +78,22 @@ interface BrapiAsset {
   type: string;
 }
 
-interface BrapiResponse {
-  stocks: BrapiAsset[];
+interface LocalAssetResponse {
+  stocks: LocalAsset[];
   totalCount: number;
   hasNextPage: boolean;
   currentPage: number;
   totalPages: number;
+  source: string;
 }
 
 export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
   const [open, setOpen] = useState(false);
   const [comboboxOpen, setComboboxOpen] = useState(false);
-  const [assets, setAssets] = useState<BrapiAsset[]>([]);
+  const [assets, setAssets] = useState<LocalAsset[]>([]);
   const [searchQuery, setSearchQuery] = useState('');
   const [loading, setLoading] = useState(false);
-  const [selectedAsset, setSelectedAsset] = useState<BrapiAsset | null>(null);
+  const [selectedAsset, setSelectedAsset] = useState<LocalAsset | null>(null);
 
   const form = useForm<AssetFormValues>({
     resolver: zodResolver(assetFormSchema),
@@ -106,7 +107,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
 
   const assetType = form.watch('type');
 
-  // Fetch assets from Brapi
+  // Fetch assets from local database
   useEffect(() => {
     const fetchAssets = async () => {
       if (searchQuery.length >= 2) {
@@ -114,14 +115,14 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
         try {
           const response = await fetch(`/api/assets/search?type=${assetType}&search=${encodeURIComponent(searchQuery)}`);
           if (response.ok) {
-            const data: BrapiResponse = await response.json();
+            const data: LocalAssetResponse = await response.json();
             setAssets(data.stocks || []);
           } else {
-            console.error('Failed to fetch assets:', response.status);
+            console.error('Failed to fetch assets from local database:', response.status);
             setAssets([]);
           }
         } catch (error) {
-          console.error('Error fetching assets:', error);
+          console.error('Error fetching assets from local database:', error);
           setAssets([]);
         } finally {
           setLoading(false);
@@ -171,7 +172,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
     }
   };
 
-  const handleAssetSelect = (asset: BrapiAsset) => {
+  const handleAssetSelect = (asset: LocalAsset) => {
     setSelectedAsset(asset);
     form.setValue('ticker', asset.stock);
     setComboboxOpen(false);
