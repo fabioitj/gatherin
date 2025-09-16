@@ -420,6 +420,16 @@ export default function WalletPage() {
                           </Badge>
                         </div>
                         <div className="flex items-center gap-1">
+                          <Link href={`/?search=${encodeURIComponent(asset.ticker)}`}>
+                            <Button 
+                              variant="ghost" 
+                              size="icon" 
+                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8 w-8"
+                              title={`Buscar notícias sobre ${asset.ticker}`}
+                            >
+                              <Search className="w-4 h-4" />
+                            </Button>
+                          </Link>
                           <EditAssetDialog asset={asset} onAssetUpdated={handleAssetUpdated} />
                           <AlertDialog>
                             <AlertDialogTrigger asChild>
