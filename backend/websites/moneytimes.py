@@ -4,12 +4,14 @@ import requests
 from lib.openai import gerar_resumo_com_ia, validar_conteudo_com_ia, capturar_tipo_por_conteudo
 from lib.https import HEADERS
 from abstract.website import Website
+from lib.ticker_extractor import TickerExtractor
 
 class MoneyTimes(Website):
     BASE_URL = "https://www.moneytimes.com.br/ultimas-noticias/"
 
     def __init__(self):
         super().__init__("MoneyTimes")
+        self.ticker_extractor = TickerExtractor()
 
     def extract(self):
         noticias = []
@@ -36,6 +38,11 @@ class MoneyTimes(Website):
                 conteudo_limpo = validar_conteudo_com_ia(titulo, corpo)
                 resumo = gerar_resumo_com_ia(conteudo_limpo)
                 tipo_categoria = capturar_tipo_por_conteudo(conteudo_limpo)
+                
+                # Extract tickers from title and content
+                tickers_from_title = self.ticker_extractor.extract_tickers(titulo)
+                tickers_from_content = self.ticker_extractor.extract_tickers(conteudo_limpo)
+                all_tickers = list(set(tickers_from_title + tickers_from_content))
 
                 noticias.append({
                     "title": titulo,
@@ -47,10 +54,10 @@ class MoneyTimes(Website):
                     "publishedAt": data_pub.isoformat(),
                     "category": tipo_categoria.upper().replace(' ', ''),
                     "tags": [],
-                    "tickers": []
+                    "tickers": all_tickers
                 })
 
-                print("Adicionado o", titulo)
+                print(f"Adicionado: {titulo} | Tickers: {all_tickers}")
             except Exception as e:
                 print(f"[ERRO] {e}")
 
