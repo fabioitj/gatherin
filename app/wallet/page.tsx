@@ -30,12 +30,21 @@ interface Asset {
   type: 'STOCK' | 'FII';
   quantity: number;
   averagePrice: number;
+  currentPrice?: number;
+  currentValue?: number;
+  totalInvested?: number;
+  gainLoss?: number;
+  gainLossPercentage?: number;
 }
 
 interface Wallet {
   id: string;
   userId: string;
   assets: Asset[];
+  totalValue?: number;
+  totalInvested?: number;
+  totalGainLoss?: number;
+  totalGainLossPercentage?: number;
 }
 
 export default function WalletPage() {
@@ -183,7 +192,10 @@ export default function WalletPage() {
   const totalAssets = wallet?.assets?.length || 0;
   const stocksCount = wallet?.assets?.filter(asset => asset.type === 'STOCK').length || 0;
   const fiisCount = wallet?.assets?.filter(asset => asset.type === 'FII').length || 0;
-  const totalValue = wallet?.assets?.reduce((sum, asset) => sum + (asset.quantity * asset.averagePrice), 0) || 0;
+  const totalCurrentValue = wallet?.totalValue || 0;
+  const totalInvested = wallet?.totalInvested || 0;
+  const totalGainLoss = wallet?.totalGainLoss || 0;
+  const totalGainLossPercentage = wallet?.totalGainLossPercentage || 0;
 
   return (
     <div className="container mx-auto px-4 py-8">
@@ -273,14 +285,78 @@ export default function WalletPage() {
           </CardHeader>
           <CardContent className="p-3 sm:p-6 pt-0">
             <div className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900">
-              R$ {totalValue.toLocaleString('pt-BR', { 
+              R$ {totalCurrentValue.toLocaleString('pt-BR', { 
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
               })}
             </div>
           </CardContent>
         </Card>
+
+        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
+            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
+              Ganho/Perda
+            </CardTitle>
+            <div className={`p-1 sm:p-2 rounded-lg ${totalGainLoss >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
+              <span className={`font-bold text-xs sm:text-sm ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {totalGainLoss >= 0 ? '+' : ''}%
+              </span>
+            </div>
+          </CardHeader>
+          <CardContent className="p-3 sm:p-6 pt-0">
+            <div className={`text-base sm:text-xl lg:text-2xl font-bold ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {totalGainLoss >= 0 ? '+' : ''}R$ {Math.abs(totalGainLoss).toLocaleString('pt-BR', { 
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </div>
+            <div className={`text-xs sm:text-sm ${totalGainLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+              {totalGainLoss >= 0 ? '+' : ''}{totalGainLossPercentage.toFixed(2)}%
+            </div>
+          </CardContent>
+        </Card>
       </div>
+
+      {/* Portfolio Performance Card */}
+      {wallet?.assets && wallet.assets.length > 0 && (
+        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm mb-8">
+          <CardHeader className="p-4 sm:p-6">
+            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
+              📊 Performance da Carteira
+            </CardTitle>
+          </CardHeader>
+          <CardContent className="p-4 sm:p-6 pt-0">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+              <div className="text-center p-4 bg-blue-50 rounded-xl">
+                <div className="text-sm text-blue-600 font-medium mb-1">Valor Investido</div>
+                <div className="text-xl font-bold text-blue-900">
+                  R$ {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+              
+              <div className="text-center p-4 bg-gray-50 rounded-xl">
+                <div className="text-sm text-gray-600 font-medium mb-1">Valor Atual</div>
+                <div className="text-xl font-bold text-gray-900">
+                  R$ {totalCurrentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </div>
+              </div>
+              
+              <div className={`text-center p-4 rounded-xl ${totalGainLoss >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
+                <div className={`text-sm font-medium mb-1 ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {totalGainLoss >= 0 ? 'Ganho Total' : 'Perda Total'}
+                </div>
+                <div className={`text-xl font-bold ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                  {totalGainLoss >= 0 ? '+' : ''}R$ {Math.abs(totalGainLoss).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                </div>
+                <div className={`text-sm ${totalGainLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                  {totalGainLoss >= 0 ? '+' : ''}{totalGainLossPercentage.toFixed(2)}%
+                </div>
+              </div>
+            </div>
+          </CardContent>
+        </Card>
+      )}
 
       {/* Assets Table */}
       <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
@@ -314,7 +390,9 @@ export default function WalletPage() {
                       <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700">Tipo</th>
                       <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Quantidade</th>
                       <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Preço Médio</th>
-                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Valor Total</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Preço Atual</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Valor Atual</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Ganho/Perda</th>
                       <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Ações</th>
                     </tr>
                   </thead>
@@ -342,8 +420,29 @@ export default function WalletPage() {
                         <td className="px-4 py-4 text-right text-gray-700 font-medium">
                           R$ {asset.averagePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                         </td>
+                        <td className="px-4 py-4 text-right text-gray-700 font-medium">
+                          {asset.currentPrice ? (
+                            `R$ ${asset.currentPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                          ) : (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </td>
                         <td className="px-4 py-4 text-right text-gray-900 font-semibold">
-                          R$ {(asset.quantity * asset.averagePrice).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                          R$ {(asset.currentValue || (asset.quantity * asset.averagePrice)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                        </td>
+                        <td className="px-4 py-4 text-right font-semibold">
+                          {asset.gainLoss !== undefined ? (
+                            <div className="text-right">
+                              <div className={`${asset.gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {asset.gainLoss >= 0 ? '+' : ''}R$ {Math.abs(asset.gainLoss).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </div>
+                              <div className={`text-xs ${asset.gainLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {asset.gainLoss >= 0 ? '+' : ''}{asset.gainLossPercentage?.toFixed(2)}%
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">N/A</span>
+                          )}
                         </td>
                         <td className="px-4 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
@@ -475,13 +574,38 @@ export default function WalletPage() {
                             R$ {asset.averagePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </div>
                         </div>
+                        <div>
+                          <span className="text-gray-500">Preço Atual:</span>
+                          <div className="font-medium text-gray-900">
+                            {asset.currentPrice ? (
+                              `R$ ${asset.currentPrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}`
+                            ) : (
+                              <span className="text-gray-400">N/A</span>
+                            )}
+                          </div>
+                        </div>
+                        <div>
+                          <span className="text-gray-500">Ganho/Perda:</span>
+                          {asset.gainLoss !== undefined ? (
+                            <div>
+                              <div className={`font-medium ${asset.gainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                                {asset.gainLoss >= 0 ? '+' : ''}R$ {Math.abs(asset.gainLoss).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                              </div>
+                              <div className={`text-xs ${asset.gainLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                                {asset.gainLoss >= 0 ? '+' : ''}{asset.gainLossPercentage?.toFixed(2)}%
+                              </div>
+                            </div>
+                          ) : (
+                            <span className="text-gray-400">N/A</span>
+                          )}
+                        </div>
                       </div>
                       
                       <div className="mt-3 pt-3 border-t border-gray-100">
                         <div className="flex justify-between items-center">
                           <span className="text-gray-500 text-sm">Valor Total:</span>
                           <div className="font-bold text-lg text-gray-900">
-                            R$ {(asset.quantity * asset.averagePrice).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
+                            R$ {(asset.currentValue || (asset.quantity * asset.averagePrice)).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                           </div>
                         </div>
                       </div>
