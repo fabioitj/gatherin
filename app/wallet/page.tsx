@@ -225,66 +225,66 @@ export default function WalletPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-6 mb-8">
+      <div className="grid grid-cols-5 gap-2 sm:gap-4 lg:gap-6 mb-8">
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-2 sm:p-4 lg:p-6">
+            <CardTitle className="text-xs font-medium text-gray-600">
               Total de Ativos
             </CardTitle>
-            <div className="p-1 sm:p-2 rounded-lg bg-blue-100">
-              <Wallet className="w-3 h-3 sm:w-4 sm:h-4 text-blue-600" />
+            <div className="p-1 rounded-lg bg-blue-100">
+              <Wallet className="w-3 h-3 text-blue-600" />
             </div>
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-gray-900">
+          <CardContent className="p-2 sm:p-4 lg:p-6 pt-0">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
               {totalAssets}
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-2 sm:p-4 lg:p-6">
+            <CardTitle className="text-xs font-medium text-gray-600">
               Ações
             </CardTitle>
-            <div className="p-1 sm:p-2 rounded-lg bg-purple-100">
-              <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 text-purple-600" />
+            <div className="p-1 rounded-lg bg-purple-100">
+              <TrendingUp className="w-3 h-3 text-purple-600" />
             </div>
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-gray-900">
+          <CardContent className="p-2 sm:p-4 lg:p-6 pt-0">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
               {stocksCount}
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-2 sm:p-4 lg:p-6">
+            <CardTitle className="text-xs font-medium text-gray-600">
               FIIs
             </CardTitle>
-            <div className="p-1 sm:p-2 rounded-lg bg-indigo-100">
-              <Building2 className="w-3 h-3 sm:w-4 sm:h-4 text-indigo-600" />
+            <div className="p-1 rounded-lg bg-indigo-100">
+              <Building2 className="w-3 h-3 text-indigo-600" />
             </div>
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
-            <div className="text-xl sm:text-2xl font-bold text-gray-900">
+          <CardContent className="p-2 sm:p-4 lg:p-6 pt-0">
+            <div className="text-lg sm:text-xl lg:text-2xl font-bold text-gray-900">
               {fiisCount}
             </div>
           </CardContent>
         </Card>
 
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-2 sm:p-4 lg:p-6">
+            <CardTitle className="text-xs font-medium text-gray-600">
               Valor Total
             </CardTitle>
-            <div className="p-1 sm:p-2 rounded-lg bg-green-100">
-              <span className="text-green-600 font-bold text-xs sm:text-sm">R$</span>
+            <div className="p-1 rounded-lg bg-green-100">
+              <span className="text-green-600 font-bold text-xs">R$</span>
             </div>
           </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
-            <div className="text-base sm:text-xl lg:text-2xl font-bold text-gray-900">
+          <CardContent className="p-2 sm:p-4 lg:p-6 pt-0">
+            <div className="text-sm sm:text-lg lg:text-xl font-bold text-gray-900">
               R$ {totalCurrentValue.toLocaleString('pt-BR', { 
                 minimumFractionDigits: 2,
                 maximumFractionDigits: 2
@@ -292,72 +292,56 @@ export default function WalletPage() {
             </div>
           </CardContent>
         </Card>
-      </div>
 
-      {/* Portfolio Performance Card */}
-      {wallet?.assets && wallet.assets.length > 0 && (
-        <Card className={`border-0 shadow-xl mb-8 ${
-          totalGainLoss >= 0 
-            ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
-            : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200'
+        <Card className={`border-0 shadow-lg bg-white/80 backdrop-blur-sm ${
+          totalGainLoss >= 0 ? 'bg-green-50' : 'bg-red-50'
         }`}>
-          <CardHeader className="p-4 sm:p-6">
-            <CardTitle className={`text-xl sm:text-2xl font-bold flex items-center ${
-              totalGainLoss >= 0 ? 'text-green-900' : 'text-red-900'
-            }`}>
-              {totalGainLoss >= 0 ? '📈' : '📉'} Performance da Carteira
+          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-2 sm:p-4 lg:p-6">
+            <CardTitle className="text-xs font-medium text-gray-600">
+              Ganho/Perda
             </CardTitle>
-          </CardHeader>
-          <CardContent className="p-4 sm:p-6 pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
-              <div className="text-center p-4 bg-blue-50 rounded-xl">
-                <div className="text-sm text-blue-700 font-medium mb-1">💰 Valor Investido</div>
-                <div className="text-lg sm:text-xl font-bold text-blue-900">
-                  R$ {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-              </div>
-              
-              <div className="text-center p-4 bg-indigo-50 rounded-xl">
-                <div className="text-sm text-indigo-700 font-medium mb-1">💎 Valor Atual</div>
-                <div className="text-lg sm:text-xl font-bold text-indigo-900">
-                  R$ {totalCurrentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-              </div>
-              
-              <div className={`text-center p-4 rounded-xl ${totalGainLoss >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
-                <div className={`text-sm font-medium mb-1 ${totalGainLoss >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                  {totalGainLoss >= 0 ? '🚀 Ganho Total' : '📉 Perda Total'}
-                </div>
-                <div className={`text-lg sm:text-xl font-bold ${totalGainLoss >= 0 ? 'text-green-700' : 'text-red-700'}`}>
-                  {totalGainLoss >= 0 ? '+' : ''}R$ {Math.abs(totalGainLoss).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                </div>
-                <div className={`text-sm font-medium ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {totalGainLoss >= 0 ? '+' : ''}{totalGainLossPercentage.toFixed(2)}%
-                </div>
-              </div>
+            <div className={`p-1 rounded-lg ${totalGainLoss >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
+              <span className={`font-bold text-xs ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                {totalGainLoss >= 0 ? '+' : ''}%
+              </span>
             </div>
-            
-            {/* Quick Actions for Portfolio */}
-            <div className="flex flex-col sm:flex-row gap-3 justify-center">
-              <Link href="/recommendations">
-                <Button 
-                  variant="outline" 
-                  className="border-yellow-200 text-yellow-700 hover:bg-yellow-50 bg-yellow-50/50"
-                >
-                  💡 Ver Recomendações Personalizadas
-                </Button>
-              </Link>
-              <Link href="/?search=&wallet=true">
-                <Button 
-                  variant="outline" 
-                  className="border-purple-200 text-purple-700 hover:bg-purple-50 bg-purple-50/50"
-                >
-                  📰 Notícias da Minha Carteira
-                </Button>
-              </Link>
+          </CardHeader>
+          <CardContent className="p-2 sm:p-4 lg:p-6 pt-0">
+            <div className={`text-sm sm:text-lg lg:text-xl font-bold ${totalGainLoss >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+              {totalGainLoss >= 0 ? '+' : ''}R$ {Math.abs(totalGainLoss).toLocaleString('pt-BR', { 
+                minimumFractionDigits: 2,
+                maximumFractionDigits: 2
+              })}
+            </div>
+            <div className={`text-xs ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+              {totalGainLoss >= 0 ? '+' : ''}{totalGainLossPercentage.toFixed(2)}%
             </div>
           </CardContent>
         </Card>
+      </div>
+
+      {/* Portfolio Performance Card */}
+      
+      {/* Quick Actions for Portfolio - Only show when user has assets */}
+      {wallet?.assets && wallet.assets.length > 0 && (
+        <div className="flex flex-col sm:flex-row gap-3 justify-center mb-8">
+          <Link href="/recommendations">
+            <Button 
+              variant="outline" 
+              className="border-yellow-200 text-yellow-700 hover:bg-yellow-50 bg-yellow-50/50"
+            >
+              💡 Ver Recomendações Personalizadas
+            </Button>
+          </Link>
+          <Link href="/?search=&wallet=true">
+            <Button 
+              variant="outline" 
+              className="border-purple-200 text-purple-700 hover:bg-purple-50 bg-purple-50/50"
+            >
+              📰 Notícias da Minha Carteira
+            </Button>
+          </Link>
+        </div>
       )}
 
       {/* Assets Table */}
