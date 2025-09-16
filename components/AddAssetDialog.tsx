@@ -317,7 +317,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                             {loading ? (
                               <div className="flex items-center justify-center py-6">
                                 <Loader2 className="w-4 h-4 animate-spin mr-2" />
-                                Buscando ativos...
+                                Buscando no cache local...
                               </div>
                             ) : searchQuery.length < 2 ? (
                               'Digite pelo menos 2 caracteres para buscar.'
