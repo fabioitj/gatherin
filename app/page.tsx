@@ -23,20 +23,12 @@ export default function HomePage() {
   const searchParams = useSearchParams();
   const [newsData, setNewsData] = useState<PaginatedNews | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
-
-  // Initialize search query from URL params
-  useEffect(() => {
-    const searchFromUrl = searchParams.get('search');
-    if (searchFromUrl) {
-      setSearchQuery(searchFromUrl);
-    }
-  }, [searchParams]);
 
   // Fetch news data
   const fetchNews = async (page = 1, category?: Category | null, search?: string) => {
