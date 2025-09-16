@@ -12,12 +12,14 @@ export async function GET(request: Request) {
     const search = searchParams.get('search');
     const dateFrom = searchParams.get('dateFrom') ? new Date(searchParams.get('dateFrom')!) : undefined;
     const dateTo = searchParams.get('dateTo') ? new Date(searchParams.get('dateTo')!) : undefined;
+    const tickers = searchParams.get('tickers');
 
     const filters = {
       category,
       search,
       dateFrom,
-      dateTo
+      dateTo,
+      tickers: tickers ? tickers.split(',') : undefined
     };
 
     // Remove undefined values

@@ -10,8 +10,9 @@ import { SearchBar } from '@/components/SearchBar';
 import { Pagination } from '@/components/Pagination';
 import { StatsCard } from '@/components/StatsCard';
 import { Category, NewsPreview, PaginatedNews } from '@/types/news';
-import { Loader2, AlertCircle, TrendingUp } from 'lucide-react';
+import { Loader2, AlertCircle, TrendingUp, Wallet } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Button } from '@/components/ui/button';
 
 // Lazy load components that are not immediately visible
 const LazyNewsCard = dynamic(() => import('@/components/NewsCard').then(mod => ({ default: mod.NewsCard })), {
@@ -23,15 +24,17 @@ export default function HomePage() {
   const searchParams = useSearchParams();
   const [newsData, setNewsData] = useState<PaginatedNews | null>(null);
   const [selectedCategory, setSelectedCategory] = useState<Category | null>(null);
+  const [walletFilter, setWalletFilter] = useState(false);
   const [searchQuery, setSearchQuery] = useState(searchParams.get('search') || '');
   const [currentPage, setCurrentPage] = useState(1);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [stats, setStats] = useState<any>(null);
   const [favoriteIds, setFavoriteIds] = useState<string[]>([]);
+  const [userAssets, setUserAssets] = useState<string[]>([]);
 
   // Fetch news data
-  const fetchNews = async (page = 1, category?: Category | null, search?: string) => {
+  const fetchNews = async (page = 1, category?: Category | null, search?: string, walletOnly = false) => {
     try {
       setLoading(true);
       const params = new URLSearchParams({
@@ -41,6 +44,9 @@ export default function HomePage() {
       
       if (category) params.append('category', category);
       if (search) params.append('search', search);
+      if (walletOnly && userAssets.length > 0) {
+        params.append('tickers', userAssets.join(','));
+      }
 
       const response = await fetch(`/api/news?${params}`, {
         headers: {
@@ -98,14 +104,41 @@ export default function HomePage() {
     }
   };
 
+  // Fetch user assets for wallet filter
+  const fetchUserAssets = async () => {
+    if (!session?.user) {
+      setUserAssets([]);
+      return;
+    }
+
+    try {
+      const response = await fetch('/api/wallet');
+      if (response.ok) {
+        const wallet = await response.json();
+        const assets = wallet.assets?.map((asset: any) => asset.ticker) || [];
+        setUserAssets(assets);
+      }
+    } catch (err) {
+      console.error('Error loading user assets:', err);
+      setUserAssets([]);
+    }
+  };
+
   useEffect(() => {
-    fetchNews(1, selectedCategory, searchQuery);
+    fetchNews(1, selectedCategory, searchQuery, walletFilter);
     setCurrentPage(1);
-  }, [selectedCategory, searchQuery]);
+  }, [selectedCategory, searchQuery, walletFilter, userAssets]);
 
   useEffect(() => {
     fetchStats();
+    fetchUserAssets();
   }, []);
+
+  useEffect(() => {
+    if (session?.user) {
+      fetchUserAssets();
+    }
+  }, [session]);
 
   // Fetch favorite IDs when news data changes and user is authenticated
   useEffect(() => {
@@ -120,16 +153,24 @@ export default function HomePage() {
   const handleCategoryChange = (category: Category | null) => {
     setSelectedCategory(category);
     setSearchQuery('');
+    setWalletFilter(false);
   };
 
   const handleSearch = (query: string) => {
     setSearchQuery(query);
     setSelectedCategory(null);
+    setWalletFilter(false);
+  };
+
+  const handleWalletFilter = () => {
+    setWalletFilter(!walletFilter);
+    setSelectedCategory(null);
+    setSearchQuery('');
   };
 
   const handlePageChange = (page: number) => {
     setCurrentPage(page);
-    fetchNews(page, selectedCategory, searchQuery);
+    fetchNews(page, selectedCategory, searchQuery, walletFilter);
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
 
@@ -198,6 +239,26 @@ export default function HomePage() {
             />
           </div>
         </div>
+        
+        {/* Wallet Filter */}
+        {session?.user && userAssets.length > 0 && (
+          <div className="flex justify-center">
+            <div className="bg-white rounded-2xl shadow-lg p-4 border-0">
+              <Button
+                variant={walletFilter ? "default" : "outline"}
+                onClick={handleWalletFilter}
+                className={`transition-all duration-200 ${
+                  walletFilter
+                    ? 'bg-blue-600 text-white border-blue-600 hover:bg-blue-700'
+                    : 'bg-blue-50 text-blue-700 border-blue-200 hover:bg-blue-100 hover:border-blue-300'
+                }`}
+              >
+                <Wallet className="w-4 h-4 mr-2" />
+                Minha Carteira ({userAssets.length} ativos)
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
 
       {/* News Grid */}
@@ -224,6 +285,8 @@ export default function HomePage() {
             <h2 className="text-2xl font-bold text-gray-900">
               {searchQuery 
                 ? `Resultados para "${searchQuery}"`
+                : walletFilter
+                  ? 'Notícias da Minha Carteira'
                 : selectedCategory 
                   ? `Notícias de ${selectedCategory === Category.ACOES ? 'Ações' : 'FIIs'}`
                   : 'Todas as notícias'
