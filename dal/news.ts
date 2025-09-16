@@ -27,6 +27,17 @@ export class NewsDAL {
           where.publishedAt.lte = filters.dateTo;
         }
       }
+      
+      if (filters?.tickers && filters.tickers.length > 0) {
+        where.OR = [
+          ...(where.OR || []),
+          {
+            tickers: {
+              hasSome: filters.tickers
+            }
+          }
+        ];
+      }
 
       const [news, total] = await Promise.all([
         prisma.news.findMany({
