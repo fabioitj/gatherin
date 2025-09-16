@@ -1,4 +1,5 @@
 from typing import Dict, Any, List
+import uuid
 import requests
 import psycopg2
 from datetime import datetime
@@ -81,7 +82,7 @@ class AssetCacheAgent(BaseAgent):
         Fetch assets from Brapi API
         """
         try:
-            url = f"https://brapi.dev/api/quote/list?type={asset_type}&limit=0"
+            url = f"https://brapi.dev/api/quote/list?type={asset_type}"
             
             headers = {
                 'Authorization': f'Bearer {self.config["brapi_token"]}',
@@ -162,9 +163,9 @@ class AssetCacheAgent(BaseAgent):
             # Prepare batch insert
             insert_query = """
                 INSERT INTO asset_data (
-                    ticker, name, type, sector, "logoUrl", "currentPrice", 
+                    id, ticker, name, type, sector, "logoUrl", "currentPrice", 
                     change, volume, "marketCap", "isActive", "lastUpdated", "updatedAt"
-                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
+                ) VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s, %s)
                 ON CONFLICT (ticker) DO UPDATE SET
                     name = EXCLUDED.name,
                     sector = EXCLUDED.sector,
@@ -193,6 +194,7 @@ class AssetCacheAgent(BaseAgent):
                 for asset in batch:
                     try:
                         batch_data.append((
+                            str(uuid.uuid4()),               # id
                             asset.get('stock', '').upper(),  # ticker
                             asset.get('name', ''),           # name
                             db_asset_type,                   # type

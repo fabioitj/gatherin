@@ -7,6 +7,8 @@ from agents.news_scraper_agent import NewsScraperAgent
 from agents.wallet_similarity_agent import WalletSimilarityAgent
 import logging
 
+from agents.asset_cache_agent import AssetCacheAgent
+
 class AgentManager:
     """
     Manages all agents in the system, handles scheduling and execution
@@ -48,7 +50,12 @@ class AgentManager:
         similarity_agent = WalletSimilarityAgent()
         self.register_agent(similarity_agent)
         self.schedule_agent("WalletSimilarityAgent", interval_hours=6)
-    
+        
+        # Brapi Cache Agent - runs every 1 hours
+        asset_cache_agent = AssetCacheAgent()
+        self.register_agent(asset_cache_agent)
+        self.schedule_agent("AssetCacheAgent", interval_hours=1)
+
     def register_agent(self, agent: BaseAgent):
         """
         Register a new agent with the manager
