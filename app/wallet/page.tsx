@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, Trash2, ArrowLeft, Wallet, TrendingUp, Building2, Plus } from 'lucide-react';
+import { Loader2, Trash2, ArrowLeft, Wallet, TrendingUp, Building2, Plus, Search } from 'lucide-react';
 import { AddAssetDialog } from '@/components/AddAssetDialog';
 import { EditAssetDialog } from '@/components/EditAssetDialog';
 import {
@@ -349,6 +349,16 @@ export default function WalletPage() {
                         </td>
                         <td className="px-4 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
+                            <Link href={`/?search=${encodeURIComponent(asset.ticker)}`}>
+                              <Button 
+                                variant="ghost" 
+                                size="icon" 
+                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+                                title={`Buscar notícias sobre ${asset.ticker}`}
+                              >
+                                <Search className="w-4 h-4" />
+                              </Button>
+                            </Link>
                             <EditAssetDialog asset={asset} onAssetUpdated={handleAssetUpdated} />
                             <AlertDialog>
                               <AlertDialogTrigger asChild>
