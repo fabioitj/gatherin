@@ -19,7 +19,7 @@ export async function GET(request: Request) {
       search,
       dateFrom,
       dateTo,
-      tickers: tickers ? tickers.split(',') : undefined
+      tickers: tickers ? tickers.split(',').map(t => t.trim()).filter(t => t.length > 0) : undefined
     };
 
     // Remove undefined values

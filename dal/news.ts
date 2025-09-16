@@ -29,14 +29,9 @@ export class NewsDAL {
       }
       
       if (filters?.tickers && filters.tickers.length > 0) {
-        where.OR = [
-          ...(where.OR || []),
-          {
-            tickers: {
-              hasSome: filters.tickers
-            }
-          }
-        ];
+        where.tickers = {
+          hasSome: filters.tickers
+        };
       }
 
       const [news, total] = await Promise.all([
