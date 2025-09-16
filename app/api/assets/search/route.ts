@@ -43,7 +43,7 @@ export async function GET(req: NextRequest) {
           ticker: 'asc'
         }
       ],
-      take: 50, // Limit results for performance
+      take: 100, // Increased limit for better search results
       select: {
         ticker: true,
         name: true,
@@ -94,6 +94,9 @@ export async function GET(req: NextRequest) {
       if (search) {
         url += `&search=${encodeURIComponent(search)}`;
       }
+      
+      // Don't limit Brapi results either
+      url += `&limit=0`;
 
       const response = await fetch(url, {
         headers: {

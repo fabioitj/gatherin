@@ -81,7 +81,7 @@ class AssetCacheAgent(BaseAgent):
         Fetch assets from Brapi API
         """
         try:
-            url = f"https://brapi.dev/api/quote/list?type={asset_type}"
+            url = f"https://brapi.dev/api/quote/list?type={asset_type}&limit=0"
             
             headers = {
                 'Authorization': f'Bearer {self.config["brapi_token"]}',
@@ -89,7 +89,7 @@ class AssetCacheAgent(BaseAgent):
             }
             
             self.logger.info(f"🌐 Making request to Brapi: {url}")
-            response = requests.get(url, headers=headers, timeout=30)
+            response = requests.get(url, headers=headers, timeout=60)
             
             if not response.ok:
                 self.logger.error(f"❌ Brapi API error: {response.status_code} - {response.text}")
@@ -105,6 +105,9 @@ class AssetCacheAgent(BaseAgent):
                 examples = assets[:3]
                 for i, asset in enumerate(examples):
                     self.logger.debug(f"  Example {i+1}: {asset.get('stock', 'N/A')} - {asset.get('name', 'N/A')}")
+                
+                # Log total count for verification
+                self.logger.info(f"🎯 Successfully fetched ALL {len(assets)} {asset_type} assets from Brapi")
             
             return assets
             
