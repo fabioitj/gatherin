@@ -307,8 +307,6 @@ export default function WalletPage() {
             <>
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
-              {/* Desktop Table View */}
-              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead>
                     <tr className="border-b border-gray-200">
@@ -349,16 +347,6 @@ export default function WalletPage() {
                         </td>
                         <td className="px-4 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Link href={`/?search=${encodeURIComponent(asset.ticker)}`}>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
-                                title={`Buscar notícias sobre ${asset.ticker}`}
-                              >
-                                <Search className="w-4 h-4" />
-                              </Button>
-                            </Link>
                             <Link href={`/?search=${encodeURIComponent(asset.ticker)}`}>
                               <Button 
                                 variant="ghost" 
@@ -501,99 +489,6 @@ export default function WalletPage() {
                   </Card>
                 ))}
               </div>
-              </div>
-
-              {/* Mobile Card View */}
-              <div className="md:hidden space-y-4">
-                {wallet.assets.map((asset) => (
-                  <Card key={asset.id} className="border border-gray-200 shadow-sm">
-                    <CardContent className="p-4">
-                      <div className="flex items-start justify-between mb-3">
-                        <div className="flex items-center gap-3">
-                          <div className="font-bold text-lg text-gray-900">{asset.ticker}</div>
-                          <Badge 
-                            variant="secondary" 
-                            className={`${
-                              asset.type === 'STOCK' 
-                                ? 'bg-purple-100 text-purple-800' 
-                                : 'bg-indigo-100 text-indigo-800'
-                            } font-medium text-xs`}
-                          >
-                            {asset.type === 'STOCK' ? 'Ação' : 'FII'}
-                          </Badge>
-                        </div>
-                        <div className="flex items-center gap-1">
-                          <Link href={`/?search=${encodeURIComponent(asset.ticker)}`}>
-                            <Button 
-                              variant="ghost" 
-                              size="icon" 
-                              className="text-blue-600 hover:text-blue-700 hover:bg-blue-50 h-8 w-8"
-                              title={`Buscar notícias sobre ${asset.ticker}`}
-                            >
-                              <Search className="w-4 h-4" />
-                            </Button>
-                          </Link>
-                          <EditAssetDialog asset={asset} onAssetUpdated={handleAssetUpdated} />
-                          <AlertDialog>
-                            <AlertDialogTrigger asChild>
-                              <Button 
-                                variant="ghost" 
-                                size="icon" 
-                                onClick={() => setAssetToDelete(asset)}
-                                className="text-red-600 hover:text-red-700 hover:bg-red-50 h-8 w-8"
-                              >
-                                <Trash2 className="w-4 h-4" />
-                              </Button>
-                            </AlertDialogTrigger>
-                            <AlertDialogContent className="mx-4">
-                              <AlertDialogHeader>
-                                <AlertDialogTitle>Confirmar exclusão</AlertDialogTitle>
-                                <AlertDialogDescription>
-                                  Tem certeza que deseja excluir <strong>{asset.ticker}</strong> da sua carteira? 
-                                  Esta ação não pode ser desfeita.
-                                </AlertDialogDescription>
-                              </AlertDialogHeader>
-                              <AlertDialogFooter>
-                                <AlertDialogCancel onClick={() => setAssetToDelete(null)}>
-                                  Cancelar
-                                </AlertDialogCancel>
-                                <AlertDialogAction 
-                                  onClick={handleDeleteAsset} 
-                                  className="bg-red-600 hover:bg-red-700"
-                                >
-                                  Excluir
-                                </AlertDialogAction>
-                              </AlertDialogFooter>
-                            </AlertDialogContent>
-                          </AlertDialog>
-                        </div>
-                      </div>
-                      
-                      <div className="grid grid-cols-2 gap-4 text-sm">
-                        <div>
-                          <span className="text-gray-500">Quantidade:</span>
-                          <div className="font-medium text-gray-900">{asset.quantity.toLocaleString()}</div>
-                        </div>
-                        <div>
-                          <span className="text-gray-500">Preço Médio:</span>
-                          <div className="font-medium text-gray-900">
-                            R$ {asset.averagePrice.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </div>
-                        </div>
-                      </div>
-                      
-                      <div className="mt-3 pt-3 border-t border-gray-100">
-                        <div className="flex justify-between items-center">
-                          <span className="text-gray-500 text-sm">Valor Total:</span>
-                          <div className="font-bold text-lg text-gray-900">
-                            R$ {(asset.quantity * asset.averagePrice).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
-                          </div>
-                        </div>
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
-              </div>
             </>
           ) : (
             <div className="text-center py-8 sm:py-12">
@@ -614,11 +509,11 @@ export default function WalletPage() {
                   </div>
                   Adicionar Carteira
                 </Button>
-                  <Link href="/recommendations">
-                    <Button variant="outline" className="border-yellow-200 text-yellow-700 hover:bg-yellow-50">
-                      Ver recomendações
-                    </Button>
-                  </Link>
+                <Link href="/recommendations">
+                  <Button variant="outline" className="border-yellow-200 text-yellow-700 hover:bg-yellow-50">
+                    Ver recomendações
+                  </Button>
+                </Link>
                 <AddAssetDialog onAssetAdded={handleAssetAdded} />
               </div>
             </div>
