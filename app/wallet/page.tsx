@@ -225,7 +225,7 @@ export default function WalletPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-6 mb-8">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-5 gap-3 sm:gap-6 mb-8">
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
             <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
@@ -292,67 +292,69 @@ export default function WalletPage() {
             </div>
           </CardContent>
         </Card>
-
-        <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-3 sm:p-6">
-            <CardTitle className="text-xs sm:text-sm font-medium text-gray-600">
-              Ganho/Perda
-            </CardTitle>
-            <div className={`p-1 sm:p-2 rounded-lg ${totalGainLoss >= 0 ? 'bg-green-100' : 'bg-red-100'}`}>
-              <span className={`font-bold text-xs sm:text-sm ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                {totalGainLoss >= 0 ? '+' : ''}%
-              </span>
-            </div>
-          </CardHeader>
-          <CardContent className="p-3 sm:p-6 pt-0">
-            <div className={`text-base sm:text-xl lg:text-2xl font-bold ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-              {totalGainLoss >= 0 ? '+' : ''}R$ {Math.abs(totalGainLoss).toLocaleString('pt-BR', { 
-                minimumFractionDigits: 2,
-                maximumFractionDigits: 2
-              })}
-            </div>
-            <div className={`text-xs sm:text-sm ${totalGainLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
-              {totalGainLoss >= 0 ? '+' : ''}{totalGainLossPercentage.toFixed(2)}%
-            </div>
-          </CardContent>
-        </Card>
       </div>
 
       {/* Portfolio Performance Card */}
       {wallet?.assets && wallet.assets.length > 0 && (
-        <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm mb-8">
+        <Card className={`border-0 shadow-xl mb-8 ${
+          totalGainLoss >= 0 
+            ? 'bg-gradient-to-r from-green-50 to-emerald-50 border-green-200' 
+            : 'bg-gradient-to-r from-red-50 to-rose-50 border-red-200'
+        }`}>
           <CardHeader className="p-4 sm:p-6">
-            <CardTitle className="text-xl sm:text-2xl font-bold text-gray-900 flex items-center">
-              📊 Performance da Carteira
+            <CardTitle className={`text-xl sm:text-2xl font-bold flex items-center ${
+              totalGainLoss >= 0 ? 'text-green-900' : 'text-red-900'
+            }`}>
+              {totalGainLoss >= 0 ? '📈' : '📉'} Performance da Carteira
             </CardTitle>
           </CardHeader>
           <CardContent className="p-4 sm:p-6 pt-0">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
               <div className="text-center p-4 bg-blue-50 rounded-xl">
-                <div className="text-sm text-blue-600 font-medium mb-1">Valor Investido</div>
-                <div className="text-xl font-bold text-blue-900">
+                <div className="text-sm text-blue-700 font-medium mb-1">💰 Valor Investido</div>
+                <div className="text-lg sm:text-xl font-bold text-blue-900">
                   R$ {totalInvested.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
               
-              <div className="text-center p-4 bg-gray-50 rounded-xl">
-                <div className="text-sm text-gray-600 font-medium mb-1">Valor Atual</div>
-                <div className="text-xl font-bold text-gray-900">
+              <div className="text-center p-4 bg-indigo-50 rounded-xl">
+                <div className="text-sm text-indigo-700 font-medium mb-1">💎 Valor Atual</div>
+                <div className="text-lg sm:text-xl font-bold text-indigo-900">
                   R$ {totalCurrentValue.toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
               </div>
               
               <div className={`text-center p-4 rounded-xl ${totalGainLoss >= 0 ? 'bg-green-50' : 'bg-red-50'}`}>
-                <div className={`text-sm font-medium mb-1 ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
-                  {totalGainLoss >= 0 ? 'Ganho Total' : 'Perda Total'}
+                <div className={`text-sm font-medium mb-1 ${totalGainLoss >= 0 ? 'text-green-700' : 'text-red-700'}`}>
+                  {totalGainLoss >= 0 ? '🚀 Ganho Total' : '📉 Perda Total'}
                 </div>
-                <div className={`text-xl font-bold ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
+                <div className={`text-lg sm:text-xl font-bold ${totalGainLoss >= 0 ? 'text-green-700' : 'text-red-700'}`}>
                   {totalGainLoss >= 0 ? '+' : ''}R$ {Math.abs(totalGainLoss).toLocaleString('pt-BR', { minimumFractionDigits: 2 })}
                 </div>
-                <div className={`text-sm ${totalGainLoss >= 0 ? 'text-green-500' : 'text-red-500'}`}>
+                <div className={`text-sm font-medium ${totalGainLoss >= 0 ? 'text-green-600' : 'text-red-600'}`}>
                   {totalGainLoss >= 0 ? '+' : ''}{totalGainLossPercentage.toFixed(2)}%
                 </div>
               </div>
+            </div>
+            
+            {/* Quick Actions for Portfolio */}
+            <div className="flex flex-col sm:flex-row gap-3 justify-center">
+              <Link href="/recommendations">
+                <Button 
+                  variant="outline" 
+                  className="border-yellow-200 text-yellow-700 hover:bg-yellow-50 bg-yellow-50/50"
+                >
+                  💡 Ver Recomendações Personalizadas
+                </Button>
+              </Link>
+              <Link href="/?search=&wallet=true">
+                <Button 
+                  variant="outline" 
+                  className="border-purple-200 text-purple-700 hover:bg-purple-50 bg-purple-50/50"
+                >
+                  📰 Notícias da Minha Carteira
+                </Button>
+              </Link>
             </div>
           </CardContent>
         </Card>
@@ -633,11 +635,6 @@ export default function WalletPage() {
                   </div>
                   Adicionar Carteira
                 </Button>
-                <Link href="/recommendations">
-                  <Button variant="outline" className="border-yellow-200 text-yellow-700 hover:bg-yellow-50">
-                    Ver recomendações
-                  </Button>
-                </Link>
                 <AddAssetDialog onAssetAdded={handleAssetAdded} />
               </div>
             </div>
