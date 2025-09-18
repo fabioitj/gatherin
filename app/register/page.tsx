@@ -49,11 +49,6 @@ export default function RegisterPage() {
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData(prev => ({ ...prev, [field]: value }));
-    
-    // Check if all form data is valid when we're on step 3
-    if (currentStep === 3) {
-      checkFormValidity();
-    }
   };
 
   const checkFormValidity = () => {
@@ -68,6 +63,13 @@ export default function RegisterPage() {
     
     setIsFormValid(!!isValid);
   };
+
+  // Check form validity whenever formData changes and we're on step 3
+  useEffect(() => {
+    if (currentStep === 3) {
+      checkFormValidity();
+    }
+  }, [formData, currentStep]);
 
   const validateStep1 = () => {
     if (!formData.name.trim()) {
@@ -163,11 +165,6 @@ export default function RegisterPage() {
     
     const nextStep = currentStep + 1;
     setCurrentStep(nextStep);
-    
-    // Check form validity when reaching step 3
-    if (nextStep === 3) {
-      setTimeout(checkFormValidity, 100);
-    }
   };
 
   const handleBack = () => {
