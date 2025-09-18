@@ -6,9 +6,13 @@ services:
     container_name: gatherin-frontend
     ports:
       - "3000:3000"
-    env_file:
-      - /opt/gatherin/.env
-    restart: unless-stopped
+    environment:
+      DATABASE_URL_FRONT: ${DATABASE_URL_FRONT}
+      NEXTAUTH_URL: ${NEXTAUTH_URL}
+      NEXTAUTH_SECRET: ${NEXTAUTH_SECRET}
+      DATABASE_URL_BACK: ${DATABASE_URL_BACK}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    restart: always
 
   backend:
     build:
@@ -17,7 +21,7 @@ services:
     container_name: gatherin-backend
     ports:
       - "8000:8000"
-    env_file:
-      - /opt/gatherin/.env
-    restart: unless-stopped
-
+    environment:
+      DATABASE_URL_BACK: ${DATABASE_URL_BACK}
+      OPENAI_API_KEY: ${OPENAI_API_KEY}
+    restart: always
