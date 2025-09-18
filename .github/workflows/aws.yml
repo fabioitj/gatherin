@@ -10,72 +10,57 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout código
+      # 1. Checkout do código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      # 3. Instalar dependências e buildar
-      - name: Install dependencies
-        run: npm ci
-
-      - name: Build Next.js
-        run: npm run build -- --no-lint
-
-      # 4. Preparar pasta no servidor
-      - name: Prepare server folder
+      # 2. Limpar pasta antiga no servidor
+      - name: Clean old files from EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            sudo rm -rf /var/www/gatherin/*
-            sudo mkdir -p /var/www/gatherin/backend
-            sudo chown -R ubuntu:ubuntu /var/www/gatherin
+            sudo rm -rf /home/ubuntu/gatherin
+            mkdir -p /home/ubuntu/gatherin
+            sudo chown ubuntu:ubuntu /home/ubuntu/gatherin
 
-      # 5. Copiar arquivos buildados
-      - name: Copy files to EC2
+      # 3. Copiar código do projeto para o servidor
+      - name: Copy project files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: ".next,public,package.json,package-lock.json,node_modules,next.config.js,backend"
-          target: "/var/www/gatherin"
+          source: "."
+          target: "/home/ubuntu/gatherin"
 
-      # 6. Iniciar com PM2 usando variáveis de ambiente
-      - name: Start frontend with PM2 (using environment vars)
+      # 4. Subir containers com Docker Compose
+      - name: Build and start Docker containers
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           envs: |
-            DATABASE_URL_FRONT=${{ secrets.DATABASE_URL_FRONT }}
-            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
-            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
             DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
             OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
           script: |
-            cd /var/www/gatherin
-            npm install --omit=dev
+            cd /home/ubuntu/gatherin
 
-            pm2 delete gatherin || true
-            # Usa --update-env para forçar salvar as variáveis no processo
-            DATABASE_URL_FRONT=$DATABASE_URL_FRONT \
-            NEXTAUTH_URL=$NEXTAUTH_URL \
-            NEXTAUTH_SECRET=$NEXTAUTH_SECRET \
-            DATABASE_URL_BACK=$DATABASE_URL_BACK \
-            OPENAI_API_KEY=$OPENAI_API_KEY \
-            pm2 start "node_modules/.bin/next start -p 3000 -H 0.0.0.0" \
-              --name gatherin --update-env
+            # Criar arquivo .env no diretório seguro
+            mkdir -p /opt/gatherin
+            cat <<EOF | sudo tee /opt/gatherin/.env
+              DATABASE_URL=${DATABASE_URL}
+              DATABASE_URL_BACK=${DATABASE_URL_BACK}
+              OPENAI_API_KEY=${OPENAI_API_KEY}
+              NEXTAUTH_URL=${NEXTAUTH_URL}
+              NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+            EOF
 
-            pm2 save
-
+            # Subir os containers
+            docker compose --env-file /opt/gatherin/.env up -d --build
