@@ -63,16 +63,16 @@ jobs:
 
             # Criar .env do frontend
             cat <<EOF > .env
-DATABASE_URL_FRONT=${{ secrets.DATABASE_URL_FRONT }}
-NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
-NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-EOF
+              DATABASE_URL_FRONT=${{ secrets.DATABASE_URL_FRONT }}
+              NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+              NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+              EOF
 
             # Criar .env do backend
             cat <<EOF > backend/.env
-DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
-OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}
-EOF
+              DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
+              OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}
+              EOF
 
             # Subir com PM2 usando dotenv
             pm2 delete gatherin || true
