@@ -29,14 +29,13 @@ jobs:
         run: npm run build -- --no-lint
 
       # 4. Parar PM2 e limpar pasta antiga na EC2
-      - name: Stop and clean old files
+      - name: Prepare server folder
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            pm2 stop gatherin || true
             sudo rm -rf /var/www/gatherin/*
             sudo mkdir -p /var/www/gatherin/backend
             sudo chown -R ubuntu:ubuntu /var/www/gatherin
