@@ -26,7 +26,7 @@ class WalletSimilarityAgent(BaseAgent):
             default_config.update(config)
             
         super().__init__("WalletSimilarityAgent", default_config)
-        self.db_url = os.getenv("DATABASE_URL")
+        self.db_url = os.getenv("DATABASE_URL_BACK")
     
     def _execute(self) -> Dict[str, Any]:
         """
