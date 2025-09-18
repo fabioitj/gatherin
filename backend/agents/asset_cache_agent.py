@@ -27,7 +27,7 @@ class AssetCacheAgent(BaseAgent):
             default_config.update(config)
             
         super().__init__("AssetCacheAgent", default_config)
-        self.db_url = os.getenv("DATABASE_URL_BACK")
+        self.db_url = os.getenv("DATABASE_URL")
     
     def _execute(self) -> Dict[str, Any]:
         """

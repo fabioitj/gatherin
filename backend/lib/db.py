@@ -5,10 +5,10 @@ from dotenv import load_dotenv
 # Configurações
 load_dotenv()
 
-DATABASE_URL_BACK = os.getenv("DATABASE_URL_BACK")
+DATABASE_URL = os.getenv("DATABASE_URL")
 
 def salvar_noticias_no_postgres(noticias):
-    conn = psycopg2.connect(DATABASE_URL_BACK)
+    conn = psycopg2.connect(DATABASE_URL)
     cur = conn.cursor()
 
     for noticia in noticias:
