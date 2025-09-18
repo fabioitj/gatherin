@@ -8,12 +8,12 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-
+    
     steps:
       # 1. Checkout do código
       - name: Checkout code
         uses: actions/checkout@v4
-
+      
       # 2. Limpar pasta antiga no servidor
       - name: Clean old files from EC2
         uses: appleboy/ssh-action@v1.2.0
@@ -22,10 +22,15 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
+            # Para os containers existentes
+            cd /home/ubuntu/gatherin || true
+            docker compose down || true
+            
+            # Limpa a pasta
             sudo rm -rf /home/ubuntu/gatherin
             mkdir -p /home/ubuntu/gatherin
-            sudo chown ubuntu:ubuntu /home/ubuntu/gatherin
-
+            sudo chown -R ubuntu:ubuntu /home/ubuntu/gatherin
+      
       # 3. Copiar código do projeto para o servidor
       - name: Copy project files to EC2
         uses: appleboy/scp-action@v0.1.7
@@ -35,32 +40,39 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           source: "."
           target: "/home/ubuntu/gatherin"
-
-      # 4. Subir containers com Docker Compose
-      - name: Build and start Docker containers
+          rm: true
+      
+      # 4. Criar arquivo .env e subir containers
+      - name: Setup environment and deploy
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          envs: |
-            DATABASE_URL=${{ secrets.DATABASE_URL }}
-            DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
-            OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}
-            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
-            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
           script: |
             cd /home/ubuntu/gatherin
-
-            # Criar arquivo .env no diretório seguro
-            mkdir -p /opt/gatherin
-            cat <<EOF | sudo tee /opt/gatherin/.env
-              DATABASE_URL=${DATABASE_URL}
-              DATABASE_URL_BACK=${DATABASE_URL_BACK}
-              OPENAI_API_KEY=${OPENAI_API_KEY}
-              NEXTAUTH_URL=${NEXTAUTH_URL}
-              NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+            
+            # Criar arquivo .env
+            cat > .env << 'EOF'
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            NODE_ENV=production
             EOF
-
-            # Subir os containers
-            docker compose --env-file /opt/gatherin/.env up -d --build
+            
+            # Limpar recursos Docker antigos
+            docker system prune -f
+            
+            # Build e subir os containers
+            docker compose up -d --build --force-recreate
+            
+            # Aguardar os serviços subirem
+            sleep 10
+            
+            # Verificar status dos containers
+            docker compose ps
+            
+            # Mostrar logs dos últimos 50 linhas (útil para debug)
+            docker compose logs --tail=50
