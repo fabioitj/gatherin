@@ -51,29 +51,24 @@ jobs:
           target: "/var/www/gatherin"
 
       # 6. Criar os .envs e subir com PM2
-      - name: Setup envs and restart frontend
+      - name: Start frontend with PM2 (using environment vars)
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: |
+            DATABASE_URL_FRONT=${{ secrets.DATABASE_URL_FRONT }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
+            OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}
           script: |
             cd /var/www/gatherin
+            npm install --omit=dev
 
-            # Criar .env do frontend
-            cat <<EOF > .env
-              DATABASE_URL_FRONT=${{ secrets.DATABASE_URL_FRONT }}
-              NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
-              NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-              EOF
-
-            # Criar .env do backend
-            cat <<EOF > backend/.env
-              DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
-              OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}
-              EOF
-
-            # Subir com PM2 usando dotenv
             pm2 delete gatherin || true
-            npx dotenv -e .env -- pm2 start "node_modules/.bin/next start -p 3000 -H 0.0.0.0" --name gatherin
+            pm2 start "node_modules/.bin/next start -p 3000 -H 0.0.0.0" \
+              --name gatherin \
+              --env-production
             pm2 save
