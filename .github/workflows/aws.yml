@@ -10,11 +10,23 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout repo
+      # 1. Checkout do código
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Copy project to EC2
+      # 2. Limpar pasta antiga no servidor
+      - name: Clean old files from EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            sudo rm -rf /home/ubuntu/gatherin
+            mkdir -p /home/ubuntu/gatherin
+            sudo chown ubuntu:ubuntu /home/ubuntu/gatherin
+
+      # 3. Copiar código do projeto para o servidor
       - name: Copy project files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -24,8 +36,8 @@ jobs:
           source: "."
           target: "/home/ubuntu/gatherin"
 
-      # 3. Build and restart containers on EC2
-      - name: Build and restart Docker containers
+      # 4. Subir containers com Docker Compose
+      - name: Build and start Docker containers
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -34,10 +46,21 @@ jobs:
           envs: |
             DATABASE_URL=${{ secrets.DATABASE_URL }}
             DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
+            OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}
             NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-            OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}
           script: |
             cd /home/ubuntu/gatherin
-            docker compose down
-            docker compose --env-file <(env | grep -E 'DATABASE_URL|DATABASE_URL_BACK|NEXTAUTH_URL|NEXTAUTH_SECRET|OPENAI_API_KEY') up -d --build
+
+            # Criar arquivo .env no diretório seguro
+            mkdir -p /opt/gatherin
+            cat <<EOF | sudo tee /opt/gatherin/.env
+              DATABASE_URL=${DATABASE_URL}
+              DATABASE_URL_BACK=${DATABASE_URL_BACK}
+              OPENAI_API_KEY=${OPENAI_API_KEY}
+              NEXTAUTH_URL=${NEXTAUTH_URL}
+              NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+            EOF
+
+            # Subir os containers
+            docker compose --env-file /opt/gatherin/.env up -d --build
