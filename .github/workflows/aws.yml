@@ -10,67 +10,34 @@ jobs:
     runs-on: ubuntu-latest
 
     steps:
-      # 1. Checkout código
+      # 1. Checkout repo
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js
-      - name: Setup Node.js
-        uses: actions/setup-node@v4
-        with:
-          node-version: '20'
-          cache: 'npm'
-
-      # 3. Instala dependências
-      - name: Install dependencies
-        run: npm ci
-
-      # 4. Build Next.js
-      - name: Build Next.js
-        run: npm run build -- --no-lint
-
-      # 5. Parar PM2 e limpar pasta antiga
-      - name: Stop frontend and clean old files
-        uses: appleboy/ssh-action@v1.2.0
-        with:
-          host: ${{ secrets.EC2_HOST }}
-          username: ubuntu
-          key: ${{ secrets.EC2_SSH_KEY }}
-          script: |
-            pm2 stop gatherin || true
-            sudo rm -rf /var/www/gatherin/*
-            sudo mkdir -p /var/www/gatherin
-            sudo chown ubuntu:ubuntu /var/www/gatherin
-
-      # 6. Copiar arquivos buildados para a EC2
-      - name: Copy files to EC2
+      # 2. Copy project to EC2
+      - name: Copy project files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: ".next,public,package.json,package-lock.json,next.config.ts,backend"
-          target: "/var/www/gatherin"
+          source: "."
+          target: "/home/ubuntu/gatherin"
 
-      # 7. Criar .env e iniciar com PM2
-      - name: Restart frontend on EC2
+      # 3. Build and restart containers on EC2
+      - name: Build and restart Docker containers
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
+          envs: |
+            DATABASE_URL_FRONT=${{ secrets.DATABASE_URL_FRONT }}
+            DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}
           script: |
-            cd /var/www/gatherin
-
-            # Criar .env com todas as variáveis do projeto
-            echo "DATABASE_URL_FRONT=${{ secrets.DATABASE_URL_FRONT }}" > .env
-            echo "DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}" >> .env
-            echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env
-            echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
-            echo "OPEN_API_KEY=${{ secrets.OPEN_API_KEY }}" >> .env
-
-            npm install --omit=dev
-
-            pm2 delete gatherin || true
-            pm2 start "npx dotenv -e .env -- npm run start -- -p 3000 -H 0.0.0.0" --name gatherin
-            pm2 save
+            cd /home/ubuntu/gatherin
+            docker compose down
+            docker compose --env-file <(env | grep -E 'DATABASE_URL_FRONT|DATABASE_URL_BACK|NEXTAUTH_URL|NEXTAUTH_SECRET|OPENAI_API_KEY') up -d --build
