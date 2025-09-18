@@ -2,9 +2,7 @@ version: '3.8'
 
 services:
   frontend:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: YOUR_DOCKERHUB_USERNAME/gatherin-frontend:latest
     container_name: gatherin-frontend
     ports:
       - "3000:3000"
@@ -12,17 +10,12 @@ services:
       - DATABASE_URL=${DATABASE_URL}
       - NEXTAUTH_URL=${NEXTAUTH_URL}
       - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
-    depends_on:
-      backend:
-        condition: service_healthy
     restart: unless-stopped
     networks:
       - gatherin-network
 
   backend:
-    build:
-      context: ./backend
-      dockerfile: Dockerfile
+    image: YOUR_DOCKERHUB_USERNAME/gatherin-backend:latest
     container_name: gatherin-backend
     ports:
       - "8000:8000"

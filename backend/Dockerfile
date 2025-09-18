@@ -1,21 +1,29 @@
-# Usar imagem Python slim para menor tamanho
-FROM python:3.11-slim
+# 1. Etapa de Build
+FROM python:3.11-slim AS builder
 
-# Instalar dependências do sistema necessárias
-RUN apt-get update && apt-get install -y \
-    gcc \
-    curl \
-    && rm -rf /var/lib/apt/lists/*
+# Instalar dependências de build
+RUN apt-get update && apt-get install -y --no-install-recommends gcc
 
-# Definir diretório de trabalho
+# Criar diretório de trabalho
 WORKDIR /app
 
-# Copiar arquivo de requisitos
-COPY requirements.txt .
-
 # Instalar dependências Python
-RUN pip install --no-cache-dir --upgrade pip && \
-    pip install --no-cache-dir -r requirements.txt
+COPY requirements.txt .
+RUN pip wheel --no-cache-dir --wheel-dir /wheels -r requirements.txt
+
+# 2. Etapa Final (Produção)
+FROM python:3.11-slim
+
+# Instalar dependências de tempo de execução
+RUN apt-get update && apt-get install -y --no-install-recommends curl && \
+    rm -rf /var/lib/apt/lists/*
+
+# Criar diretório de trabalho
+WORKDIR /app
+
+# Copiar wheels da etapa de build e instalar
+COPY --from=builder /wheels /wheels
+RUN pip install --no-cache /wheels/*
 
 # Copiar código da aplicação
 COPY . .
@@ -27,16 +35,12 @@ RUN useradd -m -u 1001 python && \
 # Mudar para usuário não-root
 USER python
 
-# Expor porta
+# Expor a porta
 EXPOSE 8000
 
-# Variáveis de ambiente para Python
-ENV PYTHONUNBUFFERED=1
-ENV PYTHONDONTWRITEBYTECODE=1
+# Healthcheck para verificar se a API está rodando
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD curl -f http://localhost:8000/api/health || exit 1
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD curl -f http://localhost:8000/health || exit 1
-
-# Comando para iniciar o servidor
-CMD ["python", "-u", "main.py"]
+# Comando para iniciar a aplicação
+CMD ["uvicorn", "main:app", "--host", "0.0.0.0", "--port", "8000"]

@@ -1,69 +1,58 @@
-# Etapa de build
-FROM node:20-alpine AS builder
-
-# Instalar dependências necessárias para compilação
-RUN apk add --no-cache libc6-compat
+# 1. Etapa de Instalação de Dependências
+FROM node:20-alpine AS deps
 
 WORKDIR /app
 
-# Copiar arquivos de dependências
-COPY package*.json ./
-COPY prisma ./prisma/
+# Copiar package.json e lockfile
+COPY package.json package-lock.json ./
 
-# Instalar dependências
-RUN npm ci --only=production && \
-    npm install -D @types/node @types/react @types/react-dom typescript
+# Instalar dependências de produção
+RUN npm ci --only=production
 
-# Copiar o resto do código
+# 2. Etapa de Build
+FROM node:20-alpine AS builder
+
+WORKDIR /app
+
+# Copiar dependências da etapa anterior
+COPY --from=deps /app/node_modules ./node_modules
+
+# Copiar todo o código
 COPY . .
 
-# Gerar cliente Prisma
+# Gerar Prisma Client
 RUN npx prisma generate
 
 # Build da aplicação
 RUN npm run build
 
-# Etapa final de produção
+# 3. Etapa Final (Produção)
 FROM node:20-alpine AS runner
-
-# Instalar dependências necessárias
-RUN apk add --no-cache libc6-compat
 
 WORKDIR /app
 
-# Criar usuário não-root
+# Definir variáveis de ambiente
+ENV NODE_ENV=production
+ENV NEXT_TELEMETRY_DISABLED 1
+
+# Criar usuário e grupo não-root
 RUN addgroup -g 1001 -S nodejs && \
     adduser -S nextjs -u 1001
 
-# Copiar arquivos necessários do builder
+# Copiar arquivos da build (standalone)
 COPY --from=builder /app/public ./public
-COPY --from=builder /app/.next/standalone ./
-COPY --from=builder /app/.next/static ./.next/static
-COPY --from=builder /app/prisma ./prisma
-COPY --from=builder /app/node_modules/.prisma ./node_modules/.prisma
-COPY --from=builder /app/node_modules/@prisma ./node_modules/@prisma
-COPY --from=builder /app/package*.json ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
+COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Instalar apenas Prisma CLI para migrations
-RUN npm install prisma --save-dev
-
-# Ajustar permissões
-RUN chown -R nextjs:nodejs /app
-
-# Mudar para usuário não-root
+# Mudar para o usuário não-root
 USER nextjs
 
-# Expor porta
+# Expor a porta
 EXPOSE 3000
 
-ENV NODE_ENV=production
-ENV HOSTNAME="0.0.0.0"
-ENV PORT=3000
+# Healthcheck para verificar se a aplicação está rodando
+HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
+  CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
-# Healthcheck
-HEALTHCHECK --interval=30s --timeout=3s --start-period=5s --retries=3 \
-  CMD node -e "require('http').get('http://localhost:3000/api/health', (r) => {r.statusCode === 200 ? process.exit(0) : process.exit(1)})" || exit 1
-
-# Comando para iniciar (migrations + servidor)
-CMD npx prisma migrate deploy && \
-    node server.js
+# Comando para iniciar a aplicação
+CMD ["node", "server.js"]
