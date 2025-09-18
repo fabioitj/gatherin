@@ -24,7 +24,7 @@ const nextConfig = {
   compiler: {
     removeConsole: process.env.NODE_ENV === 'production',
   },
-  swcMinify: true,
+  swcMinify: false,
   output: 'standalone',
   modularizeImports: {
     'lucide-react': {

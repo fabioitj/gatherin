@@ -66,7 +66,7 @@ export default function RegisterPage() {
       formData.birthDate &&
       formData.phoneNumber.replace(/\D/g, '').length === 11;
     
-    setIsFormValid(isValid);
+    setIsFormValid(!!isValid);
   };
 
   const validateStep1 = () => {

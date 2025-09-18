@@ -5,10 +5,11 @@ import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card'
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { FavoriteButton } from '@/components/FavoriteButton';
-import { NewsPreview, Category } from '@/types/news';
+import { NewsPreview } from '@/types/news';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { memo } from 'react';
+import { Category } from '@prisma/client';
 
 interface NewsCardProps {
   news: NewsPreview;

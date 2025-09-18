@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { NewsDAL } from '@/dal/news';
-import { Category } from '@/types/news';
+import { Category } from '@prisma/client';
 
 export async function GET(request: Request) {
   try {

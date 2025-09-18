@@ -8,11 +8,11 @@ import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 import { TagList } from "@/components/TagList";
 import { FavoriteButton } from "@/components/FavoriteButton";
-import { Category } from "@/types/news";
 import { format } from "date-fns";
 import { ptBR } from "date-fns/locale";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
+import { Category } from "@prisma/client";
 
 interface NewsDetailPageProps {
   params: {

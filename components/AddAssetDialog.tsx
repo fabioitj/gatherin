@@ -101,7 +101,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
       ticker: '',
       type: 'STOCK',
       quantity: 0,
-      averagePrice: '',
+      averagePrice: 0,
     },
   });
 
@@ -179,7 +179,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
     
     // Auto-fill average price if available
     if (asset.close && asset.close > 0) {
-      form.setValue('averagePrice', formatPriceInput(asset.close));
+      form.setValue('averagePrice', Number(formatPriceInput(asset.close)));
     }
   };
 
@@ -453,7 +453,7 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => form.setValue('averagePrice', formatPriceInput(selectedAsset.close!))}
+                    onClick={() => form.setValue('averagePrice', Number(formatPriceInput(selectedAsset.close!)))}
                     className="text-blue-600 border-blue-200 hover:bg-blue-100"
                   >
                     Usar preço atual

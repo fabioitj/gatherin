@@ -1,23 +1,28 @@
-import { prisma } from '@/lib/prisma';
-import { News, Category, NewsFilters, PaginatedNews } from '@/types/news';
+import { prisma } from "@/lib/prisma";
+import { News, NewsFilters, PaginatedNews } from "@/types/news";
+import { Category, Prisma } from "@prisma/client";
 
 export class NewsDAL {
-  static async getAllNews(filters?: NewsFilters, page = 1, limit = 10): Promise<PaginatedNews> {
+  static async getAllNews(
+    filters?: NewsFilters,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedNews> {
     try {
-      const where: any = {};
-      
+      const where: Prisma.NewsWhereInput = {};
+
       if (filters?.category) {
         where.category = filters.category;
       }
-      
+
       if (filters?.search) {
         where.OR = [
-          { title: { contains: filters.search, mode: 'insensitive' } },
-          { summary: { contains: filters.search, mode: 'insensitive' } },
-          { content: { contains: filters.search, mode: 'insensitive' } }
+          { title: { contains: filters.search, mode: "insensitive" } },
+          { summary: { contains: filters.search, mode: "insensitive" } },
+          { content: { contains: filters.search, mode: "insensitive" } },
         ];
       }
-      
+
       if (filters?.dateFrom || filters?.dateTo) {
         where.publishedAt = {};
         if (filters.dateFrom) {
@@ -27,10 +32,10 @@ export class NewsDAL {
           where.publishedAt.lte = filters.dateTo;
         }
       }
-      
+
       if (filters?.tickers && filters.tickers.length > 0) {
         where.tickers = {
-          hasSome: filters.tickers
+          hasSome: filters.tickers,
         };
       }
 
@@ -38,64 +43,68 @@ export class NewsDAL {
         prisma.news.findMany({
           where,
           orderBy: {
-            publishedAt: 'desc'
+            publishedAt: "desc",
           },
           skip: (page - 1) * limit,
           take: limit,
         }),
-        prisma.news.count({ where })
+        prisma.news.count({ where }),
       ]);
-      
+
       return {
         news,
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       };
     } catch (error) {
-      console.error('Error fetching news:', error);
-      throw new Error('Failed to load news');
+      console.error("Error fetching news:", error);
+      throw new Error("Failed to load news");
     }
   }
 
   static async getNewsById(id: string): Promise<News | null> {
     try {
       const news = await prisma.news.findUnique({
-        where: { id }
+        where: { id },
       });
-      
+
       return news;
     } catch (error) {
-      console.error('Error fetching news by ID:', error);
-      throw new Error('Failed to load news');
+      console.error("Error fetching news by ID:", error);
+      throw new Error("Failed to load news");
     }
   }
 
-  static async getNewsByCategory(category: Category, page = 1, limit = 10): Promise<PaginatedNews> {
+  static async getNewsByCategory(
+    category: Category,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedNews> {
     try {
       const [news, total] = await Promise.all([
         prisma.news.findMany({
           where: { category },
           orderBy: {
-            publishedAt: 'desc'
+            publishedAt: "desc",
           },
           skip: (page - 1) * limit,
           take: limit,
         }),
-        prisma.news.count({ where: { category } })
+        prisma.news.count({ where: { category } }),
       ]);
-      
+
       return {
         news,
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       };
     } catch (error) {
-      console.error('Error fetching news by category:', error);
-      throw new Error('Failed to load news by category');
+      console.error("Error fetching news by category:", error);
+      throw new Error("Failed to load news by category");
     }
   }
 
@@ -104,49 +113,53 @@ export class NewsDAL {
       const news = await prisma.news.findMany({
         take: limit,
         orderBy: {
-          publishedAt: 'desc'
-        }
+          publishedAt: "desc",
+        },
       });
-      
+
       return news;
     } catch (error) {
-      console.error('Error fetching latest news:', error);
-      throw new Error('Failed to load latest news');
+      console.error("Error fetching latest news:", error);
+      throw new Error("Failed to load latest news");
     }
   }
 
-  static async searchNews(query: string, page = 1, limit = 10): Promise<PaginatedNews> {
+  static async searchNews(
+    query: string,
+    page = 1,
+    limit = 10
+  ): Promise<PaginatedNews> {
     try {
-      const where = {
+      const where: Prisma.NewsWhereInput = {
         OR: [
-          { title: { contains: query, mode: 'insensitive' } },
-          { summary: { contains: query, mode: 'insensitive' } },
-          { content: { contains: query, mode: 'insensitive' } }
-        ]
+          { title: { contains: query, mode: "insensitive" } },
+          { summary: { contains: query, mode: "insensitive" } },
+          { content: { contains: query, mode: "insensitive" } },
+        ],
       };
 
       const [news, total] = await Promise.all([
         prisma.news.findMany({
           where,
           orderBy: {
-            publishedAt: 'desc'
+            publishedAt: "desc",
           },
           skip: (page - 1) * limit,
           take: limit,
         }),
-        prisma.news.count({ where })
+        prisma.news.count({ where }),
       ]);
-      
+
       return {
         news,
         total,
         page,
         limit,
-        totalPages: Math.ceil(total / limit)
+        totalPages: Math.ceil(total / limit),
       };
     } catch (error) {
-      console.error('Error searching news:', error);
-      throw new Error('Failed to search news');
+      console.error("Error searching news:", error);
+      throw new Error("Failed to search news");
     }
   }
 
@@ -163,23 +176,23 @@ export class NewsDAL {
         prisma.news.count({
           where: {
             publishedAt: {
-              gte: new Date(Date.now() - 24 * 60 * 60 * 1000) // Last 24 hours
-            }
-          }
-        })
+              gte: new Date(Date.now() - 24 * 60 * 60 * 1000), // Last 24 hours
+            },
+          },
+        }),
       ]);
 
       return {
         total,
         byCategory: {
           [Category.ACOES]: ACOES,
-          [Category.FII]: FII
+          [Category.FII]: FII,
         },
-        recentCount: recent
+        recentCount: recent,
       };
     } catch (error) {
-      console.error('Error fetching stats:', error);
-      throw new Error('Failed to load stats');
+      console.error("Error fetching stats:", error);
+      throw new Error("Failed to load stats");
     }
   }
 }

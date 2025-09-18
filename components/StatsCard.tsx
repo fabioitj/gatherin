@@ -1,8 +1,8 @@
 'use client';
 
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Category } from '@prisma/client';
 import { TrendingUp, Building2, Clock, BarChart3 } from 'lucide-react';
-import { Category } from '@/types/news';
 
 interface StatsCardProps {
   stats: {

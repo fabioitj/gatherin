@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useEffect } from 'react';
 import dynamic from 'next/dynamic';
 import { useSearchParams } from 'next/navigation';
 import { useSession } from 'next-auth/react';
@@ -8,11 +8,11 @@ import { NewsCard } from '@/components/NewsCard';
 import { CategoryFilter } from '@/components/CategoryFilter';
 import { SearchBar } from '@/components/SearchBar';
 import { Pagination } from '@/components/Pagination';
-import { StatsCard } from '@/components/StatsCard';
-import { Category, NewsPreview, PaginatedNews } from '@/types/news';
+import { PaginatedNews } from '@/types/news';
 import { Loader2, AlertCircle, TrendingUp, Wallet } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Button } from '@/components/ui/button';
+import { Category } from '@prisma/client';
 
 // Lazy load components that are not immediately visible
 const LazyNewsCard = dynamic(() => import('@/components/NewsCard').then(mod => ({ default: mod.NewsCard })), {

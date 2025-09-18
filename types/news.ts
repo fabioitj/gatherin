@@ -1,14 +1,11 @@
-export enum Category {
-  ACOES = 'ACOES',
-  FII = 'FII'
-}
+import { Category } from "@prisma/client";
 
 export interface News {
   id: string;
   title: string;
   summary: string;
   content: string;
-  imageUrl?: string;
+  imageUrl?: string | null;
   source: string;
   sourceUrl: string;
   publishedAt: Date;
@@ -25,7 +22,7 @@ export type NewsPreview = Pick<News,
 
 export interface NewsFilters {
   category?: Category;
-  search?: string;
+  search?: string | null;
   dateFrom?: Date;
   dateTo?: Date;
   tags?: string[];

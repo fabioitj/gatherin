@@ -1,9 +1,9 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useForm } from 'react-hook-form';
-import { zodResolver } from '@hookform/resolvers/zod';
-import * as z from 'zod';
+import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import * as z from "zod";
 import {
   Dialog,
   DialogContent,
@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogTrigger,
   DialogFooter,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 import {
   Form,
   FormControl,
@@ -19,22 +19,26 @@ import {
   FormItem,
   FormLabel,
   FormMessage,
-} from '@/components/ui/form';
-import { Input } from '@/components/ui/input';
-import { Button } from '@/components/ui/button';
-import { Edit } from 'lucide-react';
-import { toast } from 'sonner';
+} from "@/components/ui/form";
+import { Input } from "@/components/ui/input";
+import { Button } from "@/components/ui/button";
+import { Edit } from "lucide-react";
+import { toast } from "sonner";
 
 const assetFormSchema = z.object({
-  quantity: z.coerce.number().int().positive('A quantidade deve ser um número positivo'),
-  averagePrice: z.string()
-    .min(1, 'O preço médio é obrigatório')
+  quantity: z.coerce
+    .number()
+    .int()
+    .positive("A quantidade deve ser um número positivo"),
+  averagePrice: z
+    .string()
+    .min(1, "O preço médio é obrigatório")
     .transform((val) => {
       // Handle Brazilian decimal format (comma as decimal separator)
-      const normalizedValue = val.replace(/\./g, '').replace(',', '.');
+      const normalizedValue = val.replace(/\./g, "").replace(",", ".");
       const parsed = parseFloat(normalizedValue);
       if (isNaN(parsed) || parsed <= 0) {
-        throw new Error('O preço médio deve ser um número positivo');
+        throw new Error("O preço médio deve ser um número positivo");
       }
       return parsed;
     }),
@@ -46,50 +50,59 @@ interface EditAssetDialogProps {
   asset: {
     id: string;
     ticker: string;
-    type: 'STOCK' | 'FII';
+    type: "STOCK" | "FII";
     quantity: number;
     averagePrice: number;
   };
   onAssetUpdated: (updatedAsset: any) => void;
 }
 
-export function EditAssetDialog({ asset, onAssetUpdated }: EditAssetDialogProps) {
+export function EditAssetDialog({
+  asset,
+  onAssetUpdated,
+}: EditAssetDialogProps) {
   const [open, setOpen] = useState(false);
   const form = useForm<AssetFormValues>({
     resolver: zodResolver(assetFormSchema),
     defaultValues: {
       quantity: asset.quantity,
-      averagePrice: asset.averagePrice.toLocaleString('pt-BR', {
-        minimumFractionDigits: 2,
-        maximumFractionDigits: 2,
-        useGrouping: true
-      }),
+      averagePrice: Number(
+        asset.averagePrice.toLocaleString("pt-BR", {
+          minimumFractionDigits: 2,
+          maximumFractionDigits: 2,
+          useGrouping: true,
+        })
+      ),
     },
   });
 
   const onSubmit = async (values: AssetFormValues) => {
     const response = await fetch(`/api/wallet/assets/${asset.id}`, {
-      method: 'PUT',
+      method: "PUT",
       headers: {
-        'Content-Type': 'application/json',
+        "Content-Type": "application/json",
       },
       body: JSON.stringify(values),
     });
 
     if (response.ok) {
       const updatedAsset = await response.json();
-      toast.success('Ativo atualizado com sucesso!');
+      toast.success("Ativo atualizado com sucesso!");
       onAssetUpdated(updatedAsset);
       setOpen(false);
     } else {
-      toast.error('Falha ao atualizar o ativo.');
+      toast.error("Falha ao atualizar o ativo.");
     }
   };
 
   return (
     <Dialog open={open} onOpenChange={setOpen}>
       <DialogTrigger asChild>
-        <Button variant="ghost" size="icon" className="text-blue-600 hover:text-blue-700 hover:bg-blue-50">
+        <Button
+          variant="ghost"
+          size="icon"
+          className="text-blue-600 hover:text-blue-700 hover:bg-blue-50"
+        >
           <Edit className="w-4 h-4" />
         </Button>
       </DialogTrigger>
@@ -121,19 +134,15 @@ export function EditAssetDialog({ asset, onAssetUpdated }: EditAssetDialogProps)
                 <FormItem>
                   <FormLabel>Preço Médio</FormLabel>
                   <FormControl>
-                    <Input 
-                      type="text" 
-                      placeholder="0,00"
-                      {...field} 
-                    />
+                    <Input type="text" placeholder="0,00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
               )}
             />
             <DialogFooter>
-              <Button 
-                type="submit" 
+              <Button
+                type="submit"
                 className="bg-gradient-to-r from-blue-600 to-blue-700 hover:from-blue-700 hover:to-blue-800 w-full"
               >
                 Salvar Alterações
