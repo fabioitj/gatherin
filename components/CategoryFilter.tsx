@@ -3,7 +3,7 @@
 import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { TrendingUp, Building2, Filter } from 'lucide-react';
-import { Category } from '@/types/news';
+import { Category } from '@prisma/client';
 
 interface CategoryFilterProps {
   selectedCategory: Category | null;

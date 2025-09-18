@@ -1,20 +1,21 @@
-'use client';
-
 import Link from 'next/link';
 import Image from 'next/image';
 import { Calendar, ExternalLink, Tag } from 'lucide-react';
 import { Card, CardContent, CardFooter, CardHeader } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
-import { NewsPreview, Category } from '@/types/news';
+import { FavoriteButton } from '@/components/FavoriteButton';
+import { NewsPreview } from '@/types/news';
 import { format } from 'date-fns';
 import { ptBR } from 'date-fns/locale';
 import { memo } from 'react';
+import { Category } from '@prisma/client';
 
 interface NewsCardProps {
   news: NewsPreview;
   linkPrefix?: string;
   priority?: boolean;
+  isFavorited?: boolean;
 }
 
 const categoryLabels = {
@@ -27,7 +28,7 @@ const categoryColors = {
   [Category.FII]: 'bg-indigo-100 text-indigo-800 hover:bg-indigo-200'
 };
 
-function NewsCardComponent({ news, linkPrefix = '/noticia', priority = false }: NewsCardProps) {
+function NewsCardComponent({ news, linkPrefix = '/news', priority = false, isFavorited = false }: NewsCardProps) {
   const formattedDate = format(new Date(news.publishedAt), "dd 'de' MMMM, yyyy", {
     locale: ptBR
   });
@@ -49,6 +50,17 @@ function NewsCardComponent({ news, linkPrefix = '/noticia', priority = false }: 
             blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
           />
           <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+          
+          {/* Favorite Button Overlay */}
+          <div className="absolute top-3 right-3">
+            <FavoriteButton 
+              newsId={news.id} 
+              initialIsFavorited={isFavorited}
+              size="sm"
+              variant="ghost"
+              className="bg-white/80 backdrop-blur-sm hover:bg-white/90"
+            />
+          </div>
         </div>
       )}
       
@@ -60,9 +72,18 @@ function NewsCardComponent({ news, linkPrefix = '/noticia', priority = false }: 
           >
             {categoryLabels[news.category]}
           </Badge>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Calendar className="w-4 h-4 mr-1" />
-            {formattedDate}
+          <div className="flex items-center gap-2">
+            <div className="flex items-center text-sm text-muted-foreground">
+              <Calendar className="w-4 h-4 mr-1" />
+              {formattedDate}
+            </div>
+            {!news.imageUrl && (
+              <FavoriteButton 
+                newsId={news.id} 
+                initialIsFavorited={isFavorited}
+                size="sm"
+              />
+            )}
           </div>
         </div>
         
