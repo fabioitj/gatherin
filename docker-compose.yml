@@ -1,18 +1,56 @@
+version: '3.8'
+
 services:
+  # Frontend Next.js
   frontend:
     build:
       context: .
       dockerfile: Dockerfile
-    env_file:
-      - /opt/gatherin/.env
+    container_name: gatherin-frontend
     ports:
       - "3000:3000"
+    environment:
+      - DATABASE_URL=${DATABASE_URL}
+      - NEXTAUTH_URL=${NEXTAUTH_URL}
+      - NEXTAUTH_SECRET=${NEXTAUTH_SECRET}
+      - NODE_ENV=production
+    depends_on:
+      - backend
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "wget", "--quiet", "--tries=1", "--spider", "http://localhost:3000"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    networks:
+      - gatherin-network
 
+  # Backend Python
   backend:
     build:
       context: ./backend
       dockerfile: Dockerfile
-    env_file:
-      - /opt/gatherin/.env
+    container_name: gatherin-backend
     ports:
       - "8000:8000"
+    environment:
+      - DATABASE_URL_BACK=${DATABASE_URL_BACK}
+      - OPENAI_API_KEY=${OPENAI_API_KEY}
+    restart: unless-stopped
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8000/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 30s
+    networks:
+      - gatherin-network
+
+networks:
+  gatherin-network:
+    driver: bridge
+
+volumes:
+  postgres_data:
+  redis_data:
