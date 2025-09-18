@@ -14,56 +14,45 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      # 2. Setup Node.js
+      # 2. Setup Node.js (para build do frontend)
       - name: Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
           cache: 'npm'
 
-      # 3. Instala dependências
+      # 3. Instala dependências e builda o frontend
       - name: Install dependencies
         run: npm ci
 
-      # 4. Build Next.js (sem travar por lint)
       - name: Build Next.js
-        env:
-          DATABASE_URL_FRONT: ${{ secrets.DATABASE_URL_FRONT }}
-          DATABASE_URL_BACK: ${{ secrets.DATABASE_URL_BACK }}
-          OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
         run: npm run build -- --no-lint
 
-      # 5. Parar PM2 e limpar pasta antiga
-      - name: Stop frontend and clean old files
+      # 4. Parar PM2 e limpar pasta antiga
+      - name: Stop and clean old files
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            pm2 stop frontend || true
+            pm2 stop gatherin || true
             sudo rm -rf /var/www/gatherin/*
-            sudo mkdir -p /var/www/gatherin
-            sudo chown ubuntu:ubuntu /var/www/gatherin
+            sudo mkdir -p /var/www/gatherin/backend
+            sudo chown -R ubuntu:ubuntu /var/www/gatherin
 
-      # 5.5. List files for debugging
-      - name: List files in workspace
-        run: ls -laR
-
-      # 6. Copiar arquivos buildados para o servidor
+      # 5. Copiar frontend buildado e backend para a EC2
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: ".next,public,package.json,package-lock.json,next.config.ts"
+          source: ".next,public,package.json,package-lock.json,next.config.ts,backend"
           target: "/var/www/gatherin"
 
-      # 7. Instalar dependências no servidor e reiniciar PM2
-      - name: Restart frontend on EC2
+      # 6. Criar os .envs e subir o frontend com PM2
+      - name: Setup envs and restart frontend
         uses: appleboy/ssh-action@v1.2.0
         with:
           host: ${{ secrets.EC2_HOST }}
@@ -71,6 +60,18 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /var/www/gatherin
+
+            # Criar .env do frontend
+            echo "DATABASE_URL_FRONT=${{ secrets.DATABASE_URL_FRONT }}" > .env
+            echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env
+            echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
+
+            # Criar .env do backend
+            echo "DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}" > backend/.env
+            echo "OPENAI_API_KEY=${{ secrets.OPEN_API_KEY }}" >> backend/.env
+
+            # Instalar dependências e reiniciar o frontend
             npm install --omit=dev
-            pm2 start "npm run start -- -p 3000 -H 0.0.0.0" --name gatherin || pm2 restart gatherin
+            pm2 delete gatherin || true
+            npx dotenv -e .env -- pm2 start "npm run start -- -p 3000 -H 0.0.0.0" --name gatherin
             pm2 save
