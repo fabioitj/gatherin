@@ -47,7 +47,7 @@ jobs:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: ".next,public,package.json,package-lock.json,node_modules,next.config.ts,backend"
+          source: ".next,public,package.json,package-lock.json,node_modules,next.config.js,backend"
           target: "/var/www/gatherin"
 
       # 6. Criar os .envs e subir com PM2
