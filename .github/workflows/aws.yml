@@ -28,7 +28,7 @@ jobs:
       - name: Build Next.js
         run: npm run build -- --no-lint
 
-      # 4. Parar PM2 e limpar pasta antiga na EC2
+      # 4. Preparar pasta no servidor
       - name: Prepare server folder
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -40,7 +40,7 @@ jobs:
             sudo mkdir -p /var/www/gatherin/backend
             sudo chown -R ubuntu:ubuntu /var/www/gatherin
 
-      # 5. Copiar arquivos para a EC2
+      # 5. Copiar arquivos buildados
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
@@ -50,7 +50,7 @@ jobs:
           source: ".next,public,package.json,package-lock.json,node_modules,next.config.js,backend"
           target: "/var/www/gatherin"
 
-      # 6. Criar os .envs e subir com PM2
+      # 6. Iniciar com PM2 usando variáveis de ambiente
       - name: Start frontend with PM2 (using environment vars)
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -68,5 +68,6 @@ jobs:
             npm install --omit=dev
 
             pm2 delete gatherin || true
-            pm2 start "node_modules/.bin/next start -p 3000 -H 0.0.0.0" --name gatherin
+            pm2 start "node_modules/.bin/next start -p 3000 -H 0.0.0.0" \
+              --name gatherin --update-env
             pm2 save
