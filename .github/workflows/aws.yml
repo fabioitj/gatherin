@@ -27,6 +27,9 @@ jobs:
 
       # 4. Build Next.js (sem travar por lint)
       - name: Build Next.js
+        env:
+          DATABASE_URL_FRONT: ${{ secrets.DATABASE_URL_FRONT }}
+          DATABASE_URL_BACK: ${{ secrets.DATABASE_URL_BACK }}
         run: npm run build -- --no-lint
 
       # 5. Parar PM2 e limpar pasta antiga
