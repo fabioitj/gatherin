@@ -25,14 +25,8 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
-      # 4. Build Next.js (sem travar por lint)
+      # 4. Build Next.js
       - name: Build Next.js
-        env:
-          DATABASE_URL_FRONT: ${{ secrets.DATABASE_URL_FRONT }}
-          DATABASE_URL_BACK: ${{ secrets.DATABASE_URL_BACK }}
-          OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
-          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
-          NEXTAUTH_URL: ${{ secrets.NEXTAUTH_URL }}
         run: npm run build -- --no-lint
 
       # 5. Parar PM2 e limpar pasta antiga
@@ -43,26 +37,22 @@ jobs:
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
-            pm2 stop frontend || true
+            pm2 stop gatherin || true
             sudo rm -rf /var/www/gatherin/*
             sudo mkdir -p /var/www/gatherin
             sudo chown ubuntu:ubuntu /var/www/gatherin
 
-      # 5.5. List files for debugging
-      - name: List files in workspace
-        run: ls -laR
-
-      # 6. Copiar arquivos buildados para o servidor
+      # 6. Copiar arquivos buildados para a EC2
       - name: Copy files to EC2
         uses: appleboy/scp-action@v0.1.7
         with:
           host: ${{ secrets.EC2_HOST }}
           username: ubuntu
           key: ${{ secrets.EC2_SSH_KEY }}
-          source: ".next,public,package.json,package-lock.json,next.config.ts"
+          source: ".next,public,package.json,package-lock.json,next.config.ts,backend"
           target: "/var/www/gatherin"
 
-      # 7. Instalar dependências no servidor e reiniciar PM2
+      # 7. Criar .env e iniciar com PM2
       - name: Restart frontend on EC2
         uses: appleboy/ssh-action@v1.2.0
         with:
@@ -71,6 +61,16 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /var/www/gatherin
+
+            # Criar .env com todas as variáveis do projeto
+            echo "DATABASE_URL_FRONT=${{ secrets.DATABASE_URL_FRONT }}" > .env
+            echo "DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}" >> .env
+            echo "NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}" >> .env
+            echo "NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}" >> .env
+            echo "OPEN_API_KEY=${{ secrets.OPEN_API_KEY }}" >> .env
+
             npm install --omit=dev
-            pm2 start "npm run start -- -p 3000 -H 0.0.0.0" --name gatherin || pm2 restart gatherin
+
+            pm2 delete gatherin || true
+            pm2 start "npx dotenv -e .env -- npm run start -- -p 3000 -H 0.0.0.0" --name gatherin
             pm2 save
