@@ -30,6 +30,8 @@ jobs:
         env:
           DATABASE_URL_FRONT: ${{ secrets.DATABASE_URL_FRONT }}
           DATABASE_URL_BACK: ${{ secrets.DATABASE_URL_BACK }}
+          OPEN_API_KEY: ${{ secrets.OPEN_API_KEY }}
+          NEXTAUTH_SECRET: ${{ secrets.NEXTAUTH_SECRET }}
         run: npm run build -- --no-lint
 
       # 5. Parar PM2 e limpar pasta antiga
