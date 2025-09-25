@@ -33,7 +33,7 @@ WORKDIR /app
 
 # Definir variáveis de ambiente
 ENV NODE_ENV=production
-ENV NEXT_TELEMETRY_DISABLED 1
+ENV NEXT_TELEMETRY_DISABLED=1
 
 # Criar usuário e grupo não-root
 RUN addgroup -g 1001 -S nodejs && \
