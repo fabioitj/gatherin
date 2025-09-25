@@ -1,18 +1,39 @@
+##############################
 # 1. Etapa de Instalação de Dependências
+##############################
 FROM node:22-slim AS deps
 
 WORKDIR /app
 
+# Instalar libs do Prisma (necessárias no runtime)
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl \
+    libssl-dev \
+    libc6 \
+    zlib1g \
+    wget \
+ && rm -rf /var/lib/apt/lists/*
+
 # Copiar package.json e lockfile
 COPY package.json package-lock.json ./
 
-# Instalar dependências de produção
-RUN npm ci --only=production
+# Instalar TODAS as dependências (inclui dev para o build)
+RUN npm ci
 
+##############################
 # 2. Etapa de Build
+##############################
 FROM node:22-slim AS builder
 
 WORKDIR /app
+
+# Copiar libs do sistema
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl \
+    libssl-dev \
+    libc6 \
+    zlib1g \
+ && rm -rf /var/lib/apt/lists/*
 
 # Copiar dependências da etapa anterior
 COPY --from=deps /app/node_modules ./node_modules
@@ -23,34 +44,44 @@ COPY . .
 # Gerar Prisma Client
 RUN npx prisma generate
 
-# Build da aplicação
+# Build da aplicação Next.js (standalone)
 RUN npm run build
 
+##############################
 # 3. Etapa Final (Produção)
+##############################
 FROM node:22-slim AS runner
 
 WORKDIR /app
 
-# Definir variáveis de ambiente
+# Variáveis de ambiente
 ENV NODE_ENV=production
 ENV NEXT_TELEMETRY_DISABLED=1
 
-# Criar usuário e grupo não-root
-RUN addgroup -g 1001 -S nodejs && \
-    adduser -S nextjs -u 1001
+# Instalar apenas libs necessárias no runtime
+RUN apt-get update && apt-get install -y --no-install-recommends \
+    openssl \
+    libc6 \
+    zlib1g \
+    wget \
+ && rm -rf /var/lib/apt/lists/*
 
-# Copiar arquivos da build (standalone)
+# Criar usuário e grupo não-root (sintaxe Debian)
+RUN groupadd -g 1001 nodejs \
+ && useradd -m -u 1001 -g nodejs nextjs
+
+# Copiar arquivos da build
 COPY --from=builder /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 
-# Mudar para o usuário não-root
+# Usar usuário não-root
 USER nextjs
 
-# Expor a porta
+# Expor porta
 EXPOSE 3000
 
-# Healthcheck para verificar se a aplicação está rodando
+# Healthcheck
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
