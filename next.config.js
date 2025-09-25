@@ -1,16 +1,21 @@
 /** @type {import('next').NextConfig} */
-const withBundleAnalyzer = require('@next/bundle-analyzer')({
-  enabled: process.env.ANALYZE === 'true',
+const withBundleAnalyzer = require("@next/bundle-analyzer")({
+  enabled: process.env.ANALYZE === "true",
 });
 
 const nextConfig = {
   eslint: {
     ignoreDuringBuilds: true,
   },
-  images: { 
+  images: {
     unoptimized: false,
-    domains: ['www.infomoney.com.br', 'infomoney.com.br', 'www.moneytimes.com.br', 'moneytimes.com.br'],
-    formats: ['image/webp', 'image/avif'],
+    domains: [
+      "www.infomoney.com.br",
+      "infomoney.com.br",
+      "www.moneytimes.com.br",
+      "moneytimes.com.br",
+    ],
+    formats: ["image/webp", "image/avif"],
     deviceSizes: [640, 750, 828, 1080, 1200, 1920, 2048, 3840],
     imageSizes: [16, 32, 48, 64, 96, 128, 256, 384],
     minimumCacheTTL: 60,
@@ -22,34 +27,36 @@ const nextConfig = {
     scrollRestoration: true,
   },
   compiler: {
-    removeConsole: process.env.NODE_ENV === 'production',
+    removeConsole: process.env.NODE_ENV === "production",
   },
   swcMinify: false,
-  output: 'standalone',
+  output: "standalone",
   modularizeImports: {
-    'lucide-react': {
-      transform: 'lucide-react/dist/esm/icons/{{member}}',
+    "lucide-react": {
+      transform: "lucide-react/dist/esm/icons/{{member}}",
     },
   },
   webpack: (config, { dev, isServer }) => {
     if (!dev && !isServer) {
       config.optimization.splitChunks = {
-        chunks: 'all',
+        chunks: "all",
         cacheGroups: {
           vendor: {
             test: /[\\/]node_modules[\\/]/,
-            name: 'vendors',
-            chunks: 'all',
+            name: "vendors",
+            chunks: "all",
           },
           common: {
-            name: 'common',
+            name: "common",
             minChunks: 2,
-            chunks: 'all',
+            chunks: "all",
             enforce: true,
           },
         },
       };
     }
+    config.externals = [...config.externals, "bcrypt"];
+
     return config;
   },
 };
