@@ -78,8 +78,7 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
-COPY docker-entrypoint.sh /app/docker-entrypoint.sh
-RUN chmod +x /app/docker-entrypoint.sh
-
-ENTRYPOINT ["/app/docker-entrypoint.sh"]
-CMD ["node", "server.js"]   # ou "node .next/standalone/server.js"
+# 🔑 Se você não tiver server.js, use:
+CMD ["node", "server.js"]
+# ou, se for build standalone:
+# CMD ["node", "server.js"]

@@ -8,7 +8,7 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    
+
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
@@ -42,7 +42,7 @@ jobs:
           key: ${{ secrets.EC2_SSH_KEY }}
           script: |
             cd /home/ubuntu/gatherin
-            
+
             # Create .env file from secrets
             cat > .env <<EOF
             DATABASE_URL=${{ secrets.DATABASE_URL }}
@@ -51,6 +51,19 @@ jobs:
             NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
             NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
             EOF
-            
-            # Build and start the containers
-            docker-compose up -d --build
+
+            # Build containers without starting them
+            docker-compose build
+
+            # Start only the database first
+            docker-compose up -d database
+
+            # Wait for database to be healthy
+            echo "⏳ Waiting for Postgres to be ready..."
+            sleep 15  # pode trocar por pg_isready se quiser mais preciso
+
+            # Run migrations
+            docker-compose run --rm migrate
+
+            # Start backend and frontend
+            docker-compose up -d backend frontend

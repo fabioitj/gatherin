@@ -42,6 +42,20 @@ services:
     networks:
       - gatherin-network
 
+  migrate:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: npx prisma migrate deploy
+    env_file:
+      - .env
+    depends_on:
+      database:
+        condition: service_healthy
+    networks:
+      - gatherin-network
+    restart: "no"
+
 networks:
   gatherin-network:
     driver: bridge
