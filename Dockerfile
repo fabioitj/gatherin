@@ -41,6 +41,9 @@ COPY --from=deps /app/node_modules ./node_modules
 # Copiar todo o código
 COPY . .
 
+# 🔑 Criar a pasta public (mesmo se não existir no repositório)
+RUN mkdir -p /app/public
+
 # Gerar Prisma Client
 RUN npx prisma generate
 
