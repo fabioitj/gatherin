@@ -39,7 +39,7 @@ RUN mkdir -p /app/public
 
 # Prisma
 RUN npx prisma generate
-RUN npx prisma migrate deploy
+# ❌ não rodar migrate aqui
 
 # Build Next.js (standalone mode)
 RUN npm run build
@@ -78,7 +78,5 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
-# 🔑 Se você não tiver server.js, use:
 CMD ["node", "server.js"]
-# ou, se for build standalone:
-# CMD ["node", "server.js"]
+# ou, se for standalone: CMD ["node", "server.js"]
