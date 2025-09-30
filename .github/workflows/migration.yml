@@ -1,10 +1,11 @@
 name: Deploy Migrations to EC2
 on:
-  push:
+  workflow_run:
+    workflows: ["Deploy Gatherin to EC2"]   
+    types:
+      - completed
     paths:
       - prisma/migrations/**
-    branches:
-      - develop
 
 jobs:
   deploy:
