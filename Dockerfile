@@ -82,6 +82,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
-ENTRYPOINT ["./entrypoint.sh"]
+ENTRYPOINT ["sudo", "./entrypoint.sh"]
 CMD ["node", "server.js"]
 # ou, se for standalone: CMD ["node", "server.js"]
