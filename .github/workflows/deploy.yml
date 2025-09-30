@@ -1,36 +1,109 @@
-- name: Build and deploy on EC2
-  uses: appleboy/ssh-action@v1.2.0
-  with:
-    host: ${{ secrets.EC2_HOST }}
-    username: ubuntu
-    key: ${{ secrets.EC2_SSH_KEY }}
-    script: |
-      cd /home/ubuntu/gatherin
+name: Deploy Gatherin to EC2
 
-      echo -e "\033[1;34m🔑 Creating .env file...\033[0m"
-      cat > .env <<EOF
-      DATABASE_URL=${{ secrets.DATABASE_URL }}
-      DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
-      OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
-      NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
-      NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
-      SKIP_BUILD_STATIC_GENERATION=true
-      EOF
+on:
+  push:
+    branches:
+      - develop
 
-      echo -e "\033[1;34m🐘 Starting Postgres...\033[0m"
-      docker-compose up -d database
-      
-      # Wait for database to be ready
-      echo -e "\033[1;34m⏳ Waiting for database...\033[0m"
-      sleep 10
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
 
-      echo -e "\033[1;34m📦 Building backend...\033[0m"
-      docker-compose build backend
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
 
-      echo -e "\033[1;34m📦 Building frontend...\033[0m"
-      docker-compose build frontend
+      - name: Clean old files and stop services
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/gatherin || true
+            docker-compose down || true
+            sudo rm -rf /home/ubuntu/gatherin
+            mkdir -p /home/ubuntu/gatherin
 
-      echo -e "\033[1;34m🚀 Starting all services...\033[0m"
-      docker-compose up -d
+      - name: Copy project files to EC2
+        uses: appleboy/scp-action@v0.1.7
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          source: "."
+          target: "/home/ubuntu/gatherin"
 
-      echo -e "\033[1;32m✅ Deploy finished successfully!\033[0m"
+      - name: Build and deploy on EC2
+        uses: appleboy/ssh-action@v1.2.0
+        with:
+          host: ${{ secrets.EC2_HOST }}
+          username: ubuntu
+          key: ${{ secrets.EC2_SSH_KEY }}
+          script: |
+            cd /home/ubuntu/gatherin
+
+            echo -e "\033[1;34m🔑 Creating .env file...\033[0m"
+            cat > .env <<EOF
+            DATABASE_URL=${{ secrets.DATABASE_URL }}
+            DATABASE_URL_BACK=${{ secrets.DATABASE_URL_BACK }}
+            OPENAI_API_KEY=${{ secrets.OPENAI_API_KEY }}
+            NEXTAUTH_URL=${{ secrets.NEXTAUTH_URL }}
+            NEXTAUTH_SECRET=${{ secrets.NEXTAUTH_SECRET }}
+            SKIP_BUILD_STATIC_GENERATION=true
+            EOF
+
+            echo -e "\033[1;34m🐘 Starting Postgres...\033[0m"
+            docker-compose up -d database
+            
+            # Wait for database to be healthy
+            echo -e "\033[1;34m⏳ Waiting for database to be ready...\033[0m"
+            timeout=60
+            elapsed=0
+            until docker-compose exec -T database pg_isready -U postgres -d myapp > /dev/null 2>&1 || [ $elapsed -eq $timeout ]; do
+              sleep 2
+              elapsed=$((elapsed + 2))
+              echo "Waiting for database... ${elapsed}s"
+            done
+
+            if [ $elapsed -eq $timeout ]; then
+              echo -e "\033[1;31m❌ Database failed to start in time!\033[0m"
+              exit 1
+            fi
+
+            echo -e "\033[1;32m✅ Database is ready!\033[0m"
+
+            echo -e "\033[1;34m📦 Building backend...\033[0m"
+            docker-compose build backend
+
+            echo -e "\033[1;34m📦 Building frontend...\033[0m"
+            docker-compose build frontend
+
+            echo -e "\033[1;34m🚀 Starting backend...\033[0m"
+            docker-compose up -d backend
+
+            # Wait for backend to be healthy
+            echo -e "\033[1;34m⏳ Waiting for backend to be ready...\033[0m"
+            timeout=60
+            elapsed=0
+            until [ "$(docker inspect -f {{.State.Health.Status}} gatherin-backend)" = "healthy" ] || [ $elapsed -eq $timeout ]; do
+              sleep 2
+              elapsed=$((elapsed + 2))
+              echo "Waiting for backend... ${elapsed}s"
+            done
+
+            if [ $elapsed -eq $timeout ]; then
+              echo -e "\033[1;31m❌ Backend failed to start in time!\033[0m"
+              exit 1
+            fi
+
+            echo -e "\033[1;32m✅ Backend is ready!\033[0m"
+
+            echo -e "\033[1;34m🚀 Starting frontend...\033[0m"
+            docker-compose up -d frontend
+
+            echo -e "\033[1;32m✅ Deploy finished successfully!\033[0m"
+            
+            # Show running containers
+            echo -e "\033[1;34m📊 Running containers:\033[0m"
+            docker-compose ps
