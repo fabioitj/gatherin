@@ -37,9 +37,11 @@ COPY . .
 
 RUN mkdir -p /app/public
 
-# Prisma
-RUN npx prisma generate
-# ❌ não rodar migrate aqui
+# Copiar schema do Prisma
+COPY prisma ./prisma
+
+# Gerar client e aplicar migrations
+RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Build Next.js (standalone mode)
 RUN npm run build

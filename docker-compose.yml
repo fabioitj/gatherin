@@ -49,7 +49,6 @@ services:
     build:
       context: .
       dockerfile: Dockerfile
-    command: npx prisma migrate deploy
     env_file:
       - .env
     depends_on:
