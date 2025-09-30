@@ -1,4 +1,4 @@
-name: Deploy Migrations to EC2
+name: Deploy Migrations
 on:
   workflow_dispatch:
   push:

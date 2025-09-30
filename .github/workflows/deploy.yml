@@ -1,4 +1,4 @@
-name: Deploy Gatherin to EC2
+name: Deploy Gatherin
 
 on:
   push:
