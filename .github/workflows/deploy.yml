@@ -55,9 +55,6 @@ jobs:
             echo -e "\033[1;34m📦 Building containers...\033[0m"
             docker-compose build
 
-            echo -e "\033[1;34m🐘 Starting Postgres...\033[0m"
-            docker-compose up -d database
-
             echo -e "\033[1;34m🚀 Starting backend and frontend...\033[0m"
             docker-compose up -d backend frontend
 
