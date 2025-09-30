@@ -2,6 +2,8 @@ name: Deploy Gatherin to EC2
 
 on:
   push:
+    paths:
+      - prisma/migrations/**
     branches:
       - develop
 
