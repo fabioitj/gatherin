@@ -45,19 +45,6 @@ services:
       timeout: 5s
       retries: 5
 
-  migrate:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    env_file:
-      - .env
-    depends_on:
-      database:
-        condition: service_healthy
-    networks:
-      - gatherin-network
-    restart: "no"
-
 networks:
   gatherin-network:
     driver: bridge
