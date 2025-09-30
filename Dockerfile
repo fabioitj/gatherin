@@ -69,6 +69,7 @@ RUN groupadd -g 1001 nodejs \
 RUN mkdir -p /app/public && chown -R nextjs:nodejs /app/public
 
 COPY entrypoint.sh ./entrypoint.sh
+RUN chmod +x ./entrypoint.sh
 
 # Copiar arquivos do build
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
@@ -82,6 +83,6 @@ EXPOSE 3000
 HEALTHCHECK --interval=30s --timeout=5s --start-period=10s --retries=3 \
   CMD wget --no-verbose --tries=1 --spider http://localhost:3000/api/health || exit 1
 
-ENTRYPOINT ["sudo", "./entrypoint.sh"]
+ENTRYPOINT ["./entrypoint.sh"]
 CMD ["node", "server.js"]
 # ou, se for standalone: CMD ["node", "server.js"]
