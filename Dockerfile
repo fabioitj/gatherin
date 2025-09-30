@@ -43,8 +43,6 @@ COPY prisma ./prisma
 # Gerar client e aplicar migrations
 RUN npx prisma generate --schema=./prisma/schema.prisma
 
-RUN npx prisma migrate deploy
-
 # Build Next.js (standalone mode)
 RUN npm run build
 
