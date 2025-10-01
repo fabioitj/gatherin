@@ -225,7 +225,7 @@ export default function WalletPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-5 gap-2 sm:gap-4 lg:gap-6 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-4 lg:gap-6 mb-8">
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-2 sm:p-4 lg:p-6">
             <CardTitle className="text-xs font-medium text-gray-600">
