@@ -22,11 +22,11 @@ const CurrencyInput = React.forwardRef<HTMLInputElement, CurrencyInputProps>(
 
     const formatCurrency = (val: string) => {
       const numericValue = val.replace(/\D/g, "");
-      if (!numericValue) return "0,00";
+      if (!numericValue || numericValue === "0") return "0,00";
 
-      const cents = numericValue.padStart(3, "0");
-      const integerPart = cents.slice(0, -2);
-      const decimalPart = cents.slice(-2);
+      const intValue = parseInt(numericValue, 10);
+      const integerPart = Math.floor(intValue / 100).toString();
+      const decimalPart = (intValue % 100).toString().padStart(2, "0");
 
       const formattedInteger = integerPart.replace(/\B(?=(\d{3})+(?!\d))/g, ".");
 
