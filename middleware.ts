@@ -5,10 +5,12 @@ export default withAuth(
   function middleware(req) {
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token;
+
+    console.log({token, pathname});
     
     // Redirect authenticated users away from auth pages
-    if (token && (pathname.startsWith('/login') || pathname.startsWith('/register'))) {
-      return NextResponse.redirect(new URL('/', req.url));
+    if (token && (pathname.endsWith('/login') || pathname.endsWith('/register'))) {
+      return NextResponse.redirect(new URL('/news', req.url));
     }
     
     return NextResponse.next();

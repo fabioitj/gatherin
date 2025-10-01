@@ -66,7 +66,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
     <div className="container mx-auto px-4 py-8">
       {/* Back Button */}
       <div className="mb-8">
-        <Link href="/">
+        <Link href="/news">
           <Button
             variant="ghost"
             className="text-purple-600 hover:text-purple-700 hover:bg-purple-50"
@@ -186,7 +186,7 @@ export default async function NewsDetailPage({ params }: NewsDetailPageProps) {
               />
 
               <div className="flex gap-3 justify-between">
-                <Link href="/">
+                <Link href="/news">
                   <Button variant="outline" className="bg-white">
                     Ver mais notícias
                   </Button>

@@ -15,7 +15,7 @@ function FooterComponent() {
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
           {/* Brand */}
           <div className="space-y-4">
-            <Link href="/" className="flex items-center space-x-3">
+            <Link href="/news" className="flex items-center space-x-3">
               <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl">
                 <TrendingUp className="w-6 h-6 text-white" />
               </div>
@@ -34,10 +34,10 @@ function FooterComponent() {
           <div className="space-y-4">
             <h3 className="text-lg font-semibold">Links rápidos</h3>
             <nav className="space-y-2">
-              <Link href="/" className="block text-gray-400 hover:text-white transition-colors duration-200">
+              <Link href="/news" className="block text-gray-400 hover:text-white transition-colors duration-200">
                 Página inicial
               </Link>
-              <Link href="/sobre" className="block text-gray-400 hover:text-white transition-colors duration-200">
+              <Link href="/about" className="block text-gray-400 hover:text-white transition-colors duration-200">
                 Sobre o GatherIn
               </Link>
             </nav>

@@ -26,7 +26,7 @@ export default function AboutPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Back Button */}
       <div className="mb-8">
-        <Link href="/">
+        <Link href="/news">
           <Button variant="ghost" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar para início
@@ -148,7 +148,7 @@ export default function AboutPage() {
           <p className="text-xl mb-8 opacity-90">
             Explore nossa plataforma e mantenha-se sempre informado sobre o mercado financeiro brasileiro.
           </p>
-          <Link href="/">
+          <Link href="/news">
             <Button size="lg" variant="secondary" className="bg-white text-purple-700 hover:bg-gray-100 font-semibold">
               Explorar notícias
             </Button>

@@ -129,7 +129,7 @@ export default function FavoritesPage() {
     <div className="container mx-auto px-4 py-8">
       {/* Back Button */}
       <div className="mb-8">
-        <Link href="/">
+        <Link href="/news">
           <Button variant="ghost" className="text-purple-600 hover:text-purple-700 hover:bg-purple-50">
             <ArrowLeft className="w-4 h-4 mr-2" />
             Voltar para início
@@ -164,7 +164,7 @@ export default function FavoritesPage() {
           <p className="text-gray-500 mb-6">
             Você ainda não favoritou nenhuma notícia. Explore as notícias e salve suas favoritas!
           </p>
-          <Link href="/">
+          <Link href="/news">
             <Button className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800">
               Explorar notícias
             </Button>

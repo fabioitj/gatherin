@@ -24,7 +24,7 @@ export default function NotFound() {
         </p>
         
         <div className="flex flex-col sm:flex-row gap-4 justify-center">
-          <Link href="/">
+          <Link href="/news">
             <Button 
               size="lg" 
               className="bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white"
@@ -50,8 +50,8 @@ export default function NotFound() {
             Precisa de ajuda?
           </h2>
           <p className="text-purple-700">
-            Explore nossas <Link href="/" className="underline hover:text-purple-900">notícias mais recentes</Link> ou 
-            saiba mais <Link href="/sobre" className="underline hover:text-purple-900">sobre nossa plataforma</Link>.
+            Explore nossas <Link href="/news" className="underline hover:text-purple-900">notícias mais recentes</Link> ou 
+            saiba mais <Link href="/about" className="underline hover:text-purple-900">sobre nossa plataforma</Link>.
           </p>
         </div>
       </div>

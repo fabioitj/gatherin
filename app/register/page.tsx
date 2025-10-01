@@ -213,7 +213,7 @@ export default function RegisterPage() {
       if (result?.error) {
         setError("Conta criada, mas erro ao fazer login automático");
       } else {
-        router.push("/");
+        router.push("/news");
         router.refresh();
       }
     } catch (err) {

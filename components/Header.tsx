@@ -19,7 +19,7 @@ export function Header() {
   const { data: session } = useSession();
 
   const navigation = [
-    { name: 'Início', href: '/' },
+    { name: 'Início', href: '/news' },
     { name: 'Sobre', href: '/about' },
   ];
 
@@ -40,7 +40,7 @@ export function Header() {
     <header className="sticky top-0 z-50 w-full border-b bg-white/95 backdrop-blur supports-[backdrop-filter]:bg-white/60">
       <div className="container mx-auto px-4">
         <div className="flex h-16 items-center justify-between">
-          <Link href="/" className="flex items-center space-x-3">
+          <Link href="/news" className="flex items-center space-x-3">
             <div className="flex items-center justify-center w-10 h-10 bg-gradient-to-br from-purple-600 to-purple-700 rounded-xl">
               <TrendingUp className="w-6 h-6 text-white" />
             </div>
