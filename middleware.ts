@@ -7,35 +7,45 @@ export default withAuth(
     const token = req.nextauth.token;
 
     console.log({token, pathname});
-    
-    // Redirect authenticated users away from auth pages
-    if (token && (pathname.endsWith('/login') || pathname.endsWith('/register'))) {
+
+    // Redirect / to /news
+    if (pathname === '/') {
       return NextResponse.redirect(new URL('/news', req.url));
     }
-    
+
+    // Redirect authenticated users away from auth pages
+    if (token && (pathname === '/login' || pathname === '/register')) {
+      return NextResponse.redirect(new URL('/news', req.url));
+    }
+
+    // Redirect unauthenticated users to login if trying to access protected routes
+    if (!token && pathname !== '/login' && pathname !== '/register') {
+      return NextResponse.redirect(new URL('/login', req.url));
+    }
+
     return NextResponse.next();
   },
   {
     callbacks: {
       authorized: ({ token, req }) => {
         const { pathname } = req.nextUrl;
-        
+
         // Public routes that don't require authentication
         const publicRoutes = ['/login', '/register'];
-        
+
         // API routes that don't require authentication
         const publicApiRoutes = ['/api/auth'];
-        
+
         // Check if it's a public route
         if (publicRoutes.some(route => pathname.startsWith(route))) {
           return true; // Allow access to auth pages
         }
-        
+
         // Check if it's a public API route
         if (publicApiRoutes.some(route => pathname.startsWith(route))) {
           return true;
         }
-        
+
         // For all other routes, require authentication
         return !!token;
       },
