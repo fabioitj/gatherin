@@ -270,7 +270,7 @@ export default function RecommendationsPage() {
                         className="w-full bg-gradient-to-r from-green-600 to-green-700 hover:from-green-700 hover:to-green-800 text-white"
                         asChild
                       >
-                        <Link href={`/?search=${encodeURIComponent(rec.recommendedAsset)}`}>
+                        <Link href={`/news?search=${encodeURIComponent(rec.recommendedAsset)}`}>
                           Pesquisar {rec.recommendedAsset}
                         </Link>
                       </Button>

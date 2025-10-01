@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Button } from "@/components/ui/button";
-import { CreditCard as Edit } from "lucide-react";
+import { Edit } from "lucide-react";
 import { toast } from "sonner";
 
 const assetFormSchema = z.object({

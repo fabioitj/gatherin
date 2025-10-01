@@ -316,7 +316,7 @@ export default function WalletPage() {
               💡 Ver Recomendações Personalizadas
             </Button>
           </Link>
-          <Link href="/?search=&wallet=true">
+          <Link href="/news?search=&wallet=true">
             <Button 
               variant="outline" 
               className="border-purple-200 text-purple-700 hover:bg-purple-50 bg-purple-50/50"
@@ -447,7 +447,7 @@ export default function WalletPage() {
                         </td>
                         <td className="px-4 py-4 text-right">
                           <div className="flex items-center justify-end gap-2">
-                            <Link href={`/?search=${encodeURIComponent(asset.ticker)}`}>
+                            <Link href={`/news?search=${encodeURIComponent(asset.ticker)}`}>
                               <Button 
                                 variant="ghost" 
                                 size="icon" 
@@ -518,7 +518,7 @@ export default function WalletPage() {
                           </Badge>
                         </div>
                         <div className="flex items-center gap-1">
-                          <Link href={`/?search=${encodeURIComponent(asset.ticker)}`}>
+                          <Link href={`/news?search=${encodeURIComponent(asset.ticker)}`}>
                             <Button 
                               variant="ghost" 
                               size="icon" 
