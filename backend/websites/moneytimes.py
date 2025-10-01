@@ -5,6 +5,7 @@ from lib.openai import gerar_resumo_com_ia, validar_conteudo_com_ia, capturar_ti
 from lib.https import HEADERS
 from abstract.website import Website
 from lib.ticker_extractor import TickerExtractor
+import locale
 
 class MoneyTimes(Website):
     BASE_URL = "https://www.moneytimes.com.br/ultimas-noticias/"
@@ -31,7 +32,20 @@ class MoneyTimes(Website):
 
                 titulo = article_component.select_one('h1').text.strip()
                 corpo = article_component.select_one('.single_block_news_text').text.strip()
+                
+                meses = {
+                    "jan": "Jan", "fev": "Feb", "mar": "Mar", "abr": "Apr",
+                    "mai": "May", "jun": "Jun", "jul": "Jul", "ago": "Aug",
+                    "set": "Sep", "out": "Oct", "nov": "Nov", "dez": "Dec"
+                }
+                
                 data_str = article_component.select_one(".single_meta_author_infos_date_time").text.strip()
+
+                for pt, en in meses.items():
+                    if pt in data_str.lower():
+                        data_str = data_str.lower().replace(pt, en)
+                        break
+
                 data_pub = datetime.strptime(data_str, "%d %b %Y, %H:%M")
                 imagem_url = article_component.select_one('.single_block_news_image img')["src"]
 
