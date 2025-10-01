@@ -20,6 +20,7 @@ export default function LoginPage() {
 
   const router = useRouter();
   const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get('callbackUrl') || '/news';
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -38,7 +39,7 @@ export default function LoginPage() {
       } else {
         // Refresh the session and redirect
         await getSession();
-        router.push("/news");
+        router.push(callbackUrl);
       }
     } catch (err) {
       setError('Erro ao fazer login');
