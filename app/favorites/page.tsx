@@ -10,6 +10,7 @@ import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Favorite } from '@/types/favorites';
+import { NewsCardSkeleton } from '@/components/skeletons/NewsCardSkeleton';
 
 interface FavoritesResponse {
   favorites: Favorite[];
@@ -99,18 +100,7 @@ export default function FavoritesPage() {
     return null;
   }
 
-  if (loading && !favoritesData) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
-            <p className="text-gray-600">Carregando favoritos...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const showSkeletons = loading && !favoritesData;
 
   if (error && !favoritesData) {
     return (
@@ -153,7 +143,19 @@ export default function FavoritesPage() {
       </div>
 
       {/* Favorites Grid */}
-      {!favoritesData || favoritesData.favorites.length === 0 ? (
+      {showSkeletons ? (
+        <>
+          <div className="flex items-center justify-between mb-6">
+            <div className="h-8 w-48 bg-gray-200 animate-pulse rounded" />
+            <div className="h-6 w-20 bg-gray-200 animate-pulse rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <NewsCardSkeleton key={i} />
+            ))}
+          </div>
+        </>
+      ) : !favoritesData || favoritesData.favorites.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <Heart className="w-16 h-16 mx-auto opacity-50" />

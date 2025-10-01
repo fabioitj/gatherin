@@ -13,6 +13,7 @@ import { Loader2, AlertCircle, TrendingUp, Wallet } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Category } from "@prisma/client";
+import { NewsCardSkeleton } from "@/components/skeletons/NewsCardSkeleton";
 
 // Lazy load components that are not immediately visible
 const LazyNewsCard = dynamic(
@@ -282,7 +283,19 @@ export default function NewsPage() {
       </div>
 
       {/* News Grid */}
-      {!newsData || newsData.news.length === 0 ? (
+      {loading && !newsData ? (
+        <>
+          <div className="flex items-center justify-between mb-6">
+            <div className="h-8 w-48 bg-gray-200 animate-pulse rounded" />
+            <div className="h-6 w-20 bg-gray-200 animate-pulse rounded-full" />
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <NewsCardSkeleton key={i} />
+            ))}
+          </div>
+        </>
+      ) : !newsData || newsData.news.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <TrendingUp className="w-16 h-16 mx-auto opacity-50" />

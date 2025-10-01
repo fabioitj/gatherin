@@ -10,6 +10,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Progress } from '@/components/ui/progress';
+import { RecommendationCardSkeleton } from '@/components/skeletons/RecommendationCardSkeleton';
 
 interface Recommendation {
   id: string;
@@ -103,18 +104,7 @@ export default function RecommendationsPage() {
     return null;
   }
 
-  if (loading && !recommendations) {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
-            <p className="text-gray-600">Analisando sua carteira...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
+  const showSkeletons = loading && !recommendations;
 
   if (error && !recommendations) {
     return (
@@ -185,7 +175,18 @@ export default function RecommendationsPage() {
       )}
 
       {/* Recommendations */}
-      {!recommendations || recommendations.recommendations.length === 0 ? (
+      {showSkeletons ? (
+        <>
+          <div className="flex items-center justify-between mb-6">
+            <h2 className="text-2xl font-bold text-gray-900">Analisando sua carteira...</h2>
+          </div>
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 mb-8">
+            {Array.from({ length: 6 }).map((_, i) => (
+              <RecommendationCardSkeleton key={i} />
+            ))}
+          </div>
+        </>
+      ) : !recommendations || recommendations.recommendations.length === 0 ? (
         <div className="text-center py-12">
           <div className="text-gray-400 mb-4">
             <Lightbulb className="w-16 h-16 mx-auto opacity-50" />

@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Loader as Loader2, Trash2, ArrowLeft, Wallet, TrendingUp, Building2, Plus, Search } from 'lucide-react';
+import { Loader2, Trash2, ArrowLeft, Wallet, TrendingUp, Building2, Plus, Search } from 'lucide-react';
 import { AddAssetDialog } from '@/components/AddAssetDialog';
 import { EditAssetDialog } from '@/components/EditAssetDialog';
 import {
@@ -22,6 +22,8 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { toast } from 'sonner';
+import { StatsCardSkeleton } from '@/components/skeletons/StatsCardSkeleton';
+import { WalletAssetSkeletonRow, WalletAssetSkeletonCard } from '@/components/skeletons/WalletAssetSkeleton';
 
 // Define types for Wallet and Asset
 interface Asset {
@@ -225,7 +227,14 @@ export default function WalletPage() {
       </div>
 
       {/* Stats Cards */}
-      <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-4 lg:gap-6 mb-8">
+      {loading && !wallet ? (
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-4 lg:gap-6 mb-8">
+          {Array.from({ length: 5 }).map((_, i) => (
+            <StatsCardSkeleton key={i} />
+          ))}
+        </div>
+      ) : (
+        <div className="grid grid-cols-1 sm:grid-cols-5 gap-2 sm:gap-4 lg:gap-6 mb-8">
         <Card className="border-0 shadow-lg bg-white/80 backdrop-blur-sm">
           <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2 p-2 sm:p-4 lg:p-6">
             <CardTitle className="text-xs font-medium text-gray-600">
@@ -319,6 +328,7 @@ export default function WalletPage() {
           </CardContent>
         </Card>
       </div>
+      )}
 
       {/* Portfolio Performance Card */}
       
@@ -365,7 +375,39 @@ export default function WalletPage() {
           </div>
         </CardHeader>
         <CardContent className="p-4 sm:p-6">
-          {wallet?.assets && wallet.assets.length > 0 ? (
+          {loading && !wallet ? (
+            <>
+              {/* Desktop Skeleton */}
+              <div className="hidden md:block overflow-x-auto">
+                <table className="w-full">
+                  <thead>
+                    <tr className="border-b border-gray-200">
+                      <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700">Ticker</th>
+                      <th className="px-4 py-4 text-left text-sm font-semibold text-gray-700">Tipo</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Quantidade</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Preço Médio</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Preço Atual</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Valor Atual</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Ganho/Perda</th>
+                      <th className="px-4 py-4 text-right text-sm font-semibold text-gray-700">Ações</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y divide-gray-100">
+                    {Array.from({ length: 3 }).map((_, i) => (
+                      <WalletAssetSkeletonRow key={i} />
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+
+              {/* Mobile Skeleton */}
+              <div className="md:hidden space-y-4">
+                {Array.from({ length: 3 }).map((_, i) => (
+                  <WalletAssetSkeletonCard key={i} />
+                ))}
+              </div>
+            </>
+          ) : wallet?.assets && wallet.assets.length > 0 ? (
             <>
               {/* Desktop Table View */}
               <div className="hidden md:block overflow-x-auto">
