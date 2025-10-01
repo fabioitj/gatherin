@@ -44,7 +44,7 @@ COPY prisma ./prisma
 RUN npx prisma generate --schema=./prisma/schema.prisma
 
 # Build Next.js (standalone mode)
-RUN npm run build
+RUN npm run build && npm run postbuild
 
 ##############################
 # 3. Etapa Final (Produção)

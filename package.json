@@ -8,7 +8,8 @@
     "start": "next start",
     "lint": "next lint",
     "db:generate": "prisma generate",
-    "analyze": "cross-env ANALYZE=true next build"
+    "analyze": "cross-env ANALYZE=true next build",
+    "postbuild": "next-sitemap"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
@@ -60,6 +61,7 @@
     "lucide-react": "^0.446.0",
     "next": "13.5.1",
     "next-auth": "^4.24.5",
+    "next-sitemap": "^4.2.3",
     "next-themes": "^0.3.0",
     "postcss": "8.4.30",
     "prisma": "^5.7.1",
