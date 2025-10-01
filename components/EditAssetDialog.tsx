@@ -35,7 +35,7 @@ const assetFormSchema = z.object({
     .min(1, "O preço médio é obrigatório")
     .transform((val) => {
       // Handle Brazilian decimal format (comma as decimal separator)
-      const normalizedValue = val.replace(/\./g, "").replace(",", ".");
+      const normalizedValue = val.replace(",", ".");
       const parsed = parseFloat(normalizedValue);
       if (isNaN(parsed) || parsed <= 0) {
         throw new Error("O preço médio deve ser um número positivo");
@@ -66,13 +66,11 @@ export function EditAssetDialog({
     resolver: zodResolver(assetFormSchema),
     defaultValues: {
       quantity: asset.quantity,
-      averagePrice: Number(
-        asset.averagePrice.toLocaleString("pt-BR", {
-          minimumFractionDigits: 2,
-          maximumFractionDigits: 2,
-          useGrouping: true,
-        })
-      ),
+      averagePrice: asset.averagePrice.toLocaleString("pt-BR", {
+        minimumFractionDigits: 2,
+        maximumFractionDigits: 2,
+        useGrouping: true,
+      }),
     },
   });
 

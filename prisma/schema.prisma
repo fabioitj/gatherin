@@ -120,9 +120,6 @@ model AssetData {
   @@index([type])
   @@index([ticker])
   @@index([name])
-  @@index([name], map: "idx_asset_data_name")
-  @@index([ticker], map: "idx_asset_data_ticker")
-  @@index([type], map: "idx_asset_data_type")
   @@map("asset_data")
 }
 
