@@ -23,7 +23,7 @@ import {
 import { Input } from "@/components/ui/input";
 import { CurrencyInput } from "@/components/ui/currency-input";
 import { Button } from "@/components/ui/button";
-import { Edit } from "lucide-react";
+import { CreditCard as Edit } from "lucide-react";
 import { toast } from "sonner";
 
 const assetFormSchema = z.object({
@@ -120,7 +120,18 @@ export function EditAssetDialog({
                 <FormItem>
                   <FormLabel>Quantidade</FormLabel>
                   <FormControl>
-                    <Input type="number" {...field} />
+                    <Input
+                      type="number"
+                      step="1"
+                      min="1"
+                      {...field}
+                      onChange={(e) => {
+                        const value = e.target.value;
+                        if (value === '' || /^\d+$/.test(value)) {
+                          field.onChange(value);
+                        }
+                      }}
+                    />
                   </FormControl>
                   <FormMessage />
                 </FormItem>

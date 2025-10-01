@@ -18,10 +18,12 @@ import { useSession, signOut } from 'next-auth/react';
 export function Header() {
   const { data: session } = useSession();
 
-  const navigation = [
-    { name: 'Início', href: '/news' },
-    { name: 'Sobre', href: '/about' },
-  ];
+  const navigation = session?.user
+    ? [
+        { name: 'Início', href: '/news' },
+        { name: 'Sobre', href: '/about' },
+      ]
+    : [];
 
   const getInitials = (name: string) => {
     return name

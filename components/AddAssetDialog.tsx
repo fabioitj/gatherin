@@ -455,7 +455,19 @@ export function AddAssetDialog({ onAssetAdded }: AddAssetDialogProps) {
                   <FormItem>
                     <FormLabel>Quantidade</FormLabel>
                     <FormControl>
-                      <Input type="number" placeholder="0" {...field} />
+                      <Input
+                        type="number"
+                        step="1"
+                        min="1"
+                        placeholder="0"
+                        {...field}
+                        onChange={(e) => {
+                          const value = e.target.value;
+                          if (value === '' || /^\d+$/.test(value)) {
+                            field.onChange(value);
+                          }
+                        }}
+                      />
                     </FormControl>
                     <FormMessage />
                   </FormItem>

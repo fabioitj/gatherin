@@ -34,35 +34,36 @@ function NewsCardComponent({ news, linkPrefix = '/news', priority = false, isFav
   });
 
   return (
-    <Card className="group h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border-0 shadow-lg bg-white/80 backdrop-blur-sm">
-      {news.imageUrl && (
-        <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
-          <Image
-            src={news.imageUrl}
-            alt={news.title}
-            fill
-            className="object-cover transition-transform duration-300 group-hover:scale-110"
-            sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
-            priority={priority}
-            loading={priority ? 'eager' : 'lazy'}
-            quality={priority ? 85 : 75}
-            placeholder="blur"
-            blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
-          />
-          <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
-          
-          {/* Favorite Button Overlay */}
-          <div className="absolute top-3 right-3">
-            <FavoriteButton 
-              newsId={news.id} 
-              initialIsFavorited={isFavorited}
-              size="sm"
-              variant="ghost"
-              className="bg-white/80 backdrop-blur-sm hover:bg-white/90"
+    <Link href={`${linkPrefix}/${news.id}`} className="block h-full">
+      <Card className="group h-full flex flex-col transition-all duration-300 hover:shadow-xl hover:scale-[1.02] border-0 shadow-lg bg-white/80 backdrop-blur-sm cursor-pointer">
+        {news.imageUrl && (
+          <div className="relative w-full h-48 overflow-hidden rounded-t-lg">
+            <Image
+              src={news.imageUrl}
+              alt={news.title}
+              fill
+              className="object-cover transition-transform duration-300 group-hover:scale-110"
+              sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+              priority={priority}
+              loading={priority ? 'eager' : 'lazy'}
+              quality={priority ? 85 : 75}
+              placeholder="blur"
+              blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAAIAAoDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAhEAACAQMDBQAAAAAAAAAAAAABAgMABAUGIWGRkqGx0f/EABUBAQEAAAAAAAAAAAAAAAAAAAMF/8QAGhEAAgIDAAAAAAAAAAAAAAAAAAECEgMRkf/aAAwDAQACEQMRAD8AltJagyeH0AthI5xdrLcNM91BF5pX2HaH9bcfaSXWGaRmknyJckliyjqTzSlT54b6bk+h0R//2Q=="
             />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/20 to-transparent" />
+
+            {/* Favorite Button Overlay */}
+            <div className="absolute top-3 right-3 z-10" onClick={(e) => e.preventDefault()}>
+              <FavoriteButton
+                newsId={news.id}
+                initialIsFavorited={isFavorited}
+                size="sm"
+                variant="ghost"
+                className="bg-white/80 backdrop-blur-sm hover:bg-white/90"
+              />
+            </div>
           </div>
-        </div>
-      )}
+        )}
       
       <CardHeader className="pb-3">
         <div className="flex items-center justify-between mb-3">
@@ -78,11 +79,13 @@ function NewsCardComponent({ news, linkPrefix = '/news', priority = false, isFav
               {formattedDate}
             </div>
             {!news.imageUrl && (
-              <FavoriteButton 
-                newsId={news.id} 
-                initialIsFavorited={isFavorited}
-                size="sm"
-              />
+              <div onClick={(e) => e.preventDefault()}>
+                <FavoriteButton
+                  newsId={news.id}
+                  initialIsFavorited={isFavorited}
+                  size="sm"
+                />
+              </div>
             )}
           </div>
         </div>
@@ -113,15 +116,14 @@ function NewsCardComponent({ news, linkPrefix = '/news', priority = false, isFav
       </CardContent>
 
       <CardFooter className="pt-0">
-        <Link href={`${linkPrefix}/${news.id}`} className="w-full">
-          <Button 
-            className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium transition-all duration-200 shadow-md hover:shadow-lg"
-          >
-            Leia mais
-          </Button>
-        </Link>
+        <Button
+          className="w-full bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 text-white font-medium transition-all duration-200 shadow-md hover:shadow-lg"
+        >
+          Leia mais
+        </Button>
       </CardFooter>
     </Card>
+    </Link>
   );
 }
 

@@ -26,10 +26,24 @@ export async function POST(req: Request) {
       where: {
         userId: session.user.id,
       },
+      include: {
+        assets: true,
+      },
     });
 
     if (!wallet) {
       return NextResponse.json({ error: 'Wallet not found' }, { status: 404 });
+    }
+
+    const existingAsset = wallet.assets.find(
+      (asset) => asset.ticker.toUpperCase() === ticker.toUpperCase()
+    );
+
+    if (existingAsset) {
+      return NextResponse.json(
+        { error: 'Este ativo já foi adicionado à carteira.' },
+        { status: 400 }
+      );
     }
 
     const newAsset = await prisma.asset.create({

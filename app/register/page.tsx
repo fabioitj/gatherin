@@ -26,6 +26,7 @@ import {
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Progress } from "@/components/ui/progress";
 import { signIn } from "next-auth/react";
+import { validateCPF, parseDateDDMMYYYY, formatDateToDDMMYYYY, calculateAge } from "@/lib/validators";
 
 interface FormData {
   // Step 1: Account Info
@@ -58,11 +59,45 @@ export default function RegisterPage() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [isFormValid, setIsFormValid] = useState<boolean | null>(null);
+  const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormData, string>>>({});
+  const [cpfError, setCpfError] = useState("");
+  const [birthDateDisplay, setBirthDateDisplay] = useState("");
 
   const router = useRouter();
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    if (fieldErrors[field]) {
+      setFieldErrors((prev) => ({ ...prev, [field]: "" }));
+    }
+  };
+
+  const handleCPFBlur = () => {
+    const cleanCPF = formData.cpf.replace(/\D/g, "");
+    if (cleanCPF.length === 0) {
+      setCpfError("");
+      return;
+    }
+    if (cleanCPF.length !== 11) {
+      setCpfError("CPF deve ter 11 dígitos");
+      return;
+    }
+    if (!validateCPF(cleanCPF)) {
+      setCpfError("CPF inválido");
+      return;
+    }
+    setCpfError("");
+  };
+
+  const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const inputValue = e.target.value;
+    updateFormData("birthDate", inputValue);
+    if (inputValue) {
+      const [year, month, day] = inputValue.split('-');
+      setBirthDateDisplay(`${day}/${month}/${year}`);
+    } else {
+      setBirthDateDisplay("");
+    }
   };
 
   const validateStep1 = () => {
@@ -94,18 +129,17 @@ export default function RegisterPage() {
   };
 
   const validateStep2 = () => {
-    if (!formData.cpf.replace(/\D/g, "")) {
+    const cleanCPF = formData.cpf.replace(/\D/g, "");
+
+    if (!cleanCPF) {
       setError("CPF é obrigatório");
       return false;
     }
-    if (formData.cpf.replace(/\D/g, "").length !== 11) {
+    if (cleanCPF.length !== 11) {
       setError("CPF deve ter 11 dígitos");
       return false;
     }
-
-    // Basic CPF validation
-    const cleanCPF = formData.cpf.replace(/\D/g, "");
-    if (/^(\d)\1{10}$/.test(cleanCPF)) {
+    if (!validateCPF(cleanCPF)) {
       setError("CPF inválido");
       return false;
     }
@@ -115,17 +149,11 @@ export default function RegisterPage() {
       return false;
     }
 
-    // Age validation
-    const birthDate = new Date(formData.birthDate);
-    const today = new Date();
-    const age = today.getFullYear() - birthDate.getFullYear();
-    const monthDiff = today.getMonth() - birthDate.getMonth();
+    const [year, month, day] = formData.birthDate.split('-').map(Number);
+    const birthDate = new Date(year, month - 1, day);
+    const age = calculateAge(birthDate);
 
-    if (
-      age < 18 ||
-      (age === 18 && monthDiff < 0) ||
-      (age === 18 && monthDiff === 0 && today.getDate() < birthDate.getDate())
-    ) {
+    if (age < 18) {
       setError("Você deve ter pelo menos 18 anos para se cadastrar");
       return false;
     }
@@ -471,10 +499,14 @@ export default function RegisterPage() {
                       placeholder="000.000.000-00"
                       value={formData.cpf}
                       onChange={(e) => updateFormData("cpf", e.target.value)}
+                      onBlur={handleCPFBlur}
                       required
                       disabled={loading}
                       className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
+                    {cpfError && (
+                      <p className="text-sm text-red-600 mt-1">{cpfError}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -488,9 +520,7 @@ export default function RegisterPage() {
                       id="birthDate"
                       type="date"
                       value={formData.birthDate}
-                      onChange={(e) =>
-                        updateFormData("birthDate", e.target.value)
-                      }
+                      onChange={handleBirthDateChange}
                       required
                       disabled={loading}
                       className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
@@ -566,11 +596,7 @@ export default function RegisterPage() {
                                 Data de nascimento:
                               </span>
                               <span className="font-medium text-gray-900">
-                                {formData.birthDate
-                                  ? new Date(
-                                      formData.birthDate
-                                    ).toLocaleDateString("pt-BR")
-                                  : ""}
+                                {birthDateDisplay}
                               </span>
                             </div>
                             <div className="flex justify-between">
@@ -660,8 +686,8 @@ export default function RegisterPage() {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    disabled={loading}
-                    className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg"
+                    disabled={loading || (currentStep === 2 && cpfError !== "")}
+                    className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Próximo
                     <ArrowRight className="w-4 h-4 ml-2" />

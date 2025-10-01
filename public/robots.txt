@@ -1,0 +1,9 @@
+# *
+User-agent: *
+Allow: /
+
+# Host
+Host: https://gatherin.com.br
+
+# Sitemaps
+Sitemap: https://gatherin.com.br/sitemap.xml
