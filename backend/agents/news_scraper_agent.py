@@ -2,6 +2,7 @@ from typing import Dict, Any, List
 from agents.base_agent import BaseAgent
 from websites.infomoney import InfoMoney
 from websites.moneytimes import MoneyTimes
+from websites.investidor10 import Investidor10
 from lib.db import salvar_noticias_no_postgres
 
 class NewsScraperAgent(BaseAgent):
@@ -11,7 +12,7 @@ class NewsScraperAgent(BaseAgent):
     
     def __init__(self, config: Dict[str, Any] = None):
         default_config = {
-            "sources": ["infomoney", "moneytimes"],
+            "sources": ["infomoney", "moneytimes", "investidor10"],
             "max_retries": 3,
             "retry_delay": 5,  # seconds
             "batch_size": 50
@@ -25,7 +26,8 @@ class NewsScraperAgent(BaseAgent):
         # Initialize scrapers
         self.scrapers = {
             "infomoney": InfoMoney(),
-            "moneytimes": MoneyTimes()
+            "moneytimes": MoneyTimes(),
+            "investidor10": Investidor10()
         }
     
     def _execute(self) -> Dict[str, Any]:
