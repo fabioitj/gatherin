@@ -9,7 +9,7 @@ import { CategoryFilter } from "@/components/CategoryFilter";
 import { SearchBar } from "@/components/SearchBar";
 import { Pagination } from "@/components/Pagination";
 import { PaginatedNews } from "@/types/news";
-import { Loader2, AlertCircle, TrendingUp, Wallet } from "lucide-react";
+import { Loader as Loader2, CircleAlert as AlertCircle, TrendingUp, Wallet } from "lucide-react";
 import { Alert, AlertDescription } from "@/components/ui/alert";
 import { Button } from "@/components/ui/button";
 import { Category } from "@prisma/client";

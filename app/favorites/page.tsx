@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Heart, ArrowLeft, Loader2, AlertCircle } from 'lucide-react';
+import { Heart, ArrowLeft, Loader as Loader2, CircleAlert as AlertCircle } from 'lucide-react';
 import { NewsCard } from '@/components/NewsCard';
 import { Pagination } from '@/components/Pagination';
 import { Button } from '@/components/ui/button';

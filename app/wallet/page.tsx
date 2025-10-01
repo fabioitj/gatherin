@@ -4,7 +4,7 @@ import { useState, useEffect } from 'react';
 import { useSession } from 'next-auth/react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Loader2, Trash2, ArrowLeft, Wallet, TrendingUp, Building2, Plus, Search } from 'lucide-react';
+import { Loader as Loader2, Trash2, ArrowLeft, Wallet, TrendingUp, Building2, Plus, Search } from 'lucide-react';
 import { AddAssetDialog } from '@/components/AddAssetDialog';
 import { EditAssetDialog } from '@/components/EditAssetDialog';
 import {
