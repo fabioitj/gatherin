@@ -201,14 +201,14 @@ export default function FavoritesPage() {
       )}
 
       {/* Loading overlay for pagination */}
-      {loading && favoritesData && (
+      {/* {loading && favoritesData && (
         <div className="fixed inset-0 bg-black/20 flex items-center justify-center z-50">
           <div className="bg-white rounded-lg p-6 shadow-xl">
             <Loader2 className="w-6 h-6 animate-spin mx-auto mb-2 text-purple-600" />
             <p className="text-gray-600">Carregando...</p>
           </div>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
