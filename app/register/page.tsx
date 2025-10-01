@@ -60,34 +60,87 @@ export default function RegisterPage() {
   const [error, setError] = useState("");
   const [isFormValid, setIsFormValid] = useState<boolean | null>(null);
   const [fieldErrors, setFieldErrors] = useState<Partial<Record<keyof FormData, string>>>({});
-  const [cpfError, setCpfError] = useState("");
   const [birthDateDisplay, setBirthDateDisplay] = useState("");
 
   const router = useRouter();
 
   const updateFormData = (field: keyof FormData, value: string) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
-    if (fieldErrors[field]) {
-      setFieldErrors((prev) => ({ ...prev, [field]: "" }));
+    setFieldErrors((prev) => ({ ...prev, [field]: "" }));
+    setError("");
+  };
+
+  const validateField = (field: keyof FormData, value: string): string => {
+    switch (field) {
+      case "name":
+        if (!value.trim()) return "Nome é obrigatório";
+        if (value.trim().length < 2) return "Nome deve ter pelo menos 2 caracteres";
+        return "";
+      case "email":
+        if (!value.trim()) return "Email é obrigatório";
+        if (!/\S+@\S+\.\S+/.test(value)) return "Email inválido";
+        return "";
+      case "password":
+        if (value.length < 6) return "A senha deve ter pelo menos 6 caracteres";
+        return "";
+      case "confirmPassword":
+        if (value !== formData.password) return "As senhas não coincidem";
+        return "";
+      case "cpf":
+        const cleanCPF = value.replace(/\D/g, "");
+        if (!cleanCPF) return "CPF é obrigatório";
+        if (cleanCPF.length !== 11) return "CPF deve ter 11 dígitos";
+        if (!validateCPF(cleanCPF)) return "CPF inválido";
+        return "";
+      case "birthDate":
+        if (!value) return "Data de nascimento é obrigatória";
+        const [year, month, day] = value.split('-').map(Number);
+        const birthDate = new Date(year, month - 1, day);
+        const age = calculateAge(birthDate);
+        if (age < 18) return "Você deve ter pelo menos 18 anos para se cadastrar";
+        return "";
+      case "phoneNumber":
+        const cleanPhone = value.replace(/\D/g, "");
+        if (!cleanPhone) return "Telefone é obrigatório";
+        if (cleanPhone.length !== 11) return "Telefone deve ter 11 dígitos no formato (11) 99999-9999";
+        if (!/^[1-9][1-9]9[0-9]{8}$/.test(cleanPhone)) return "Telefone deve ser um número de celular válido no formato (XX) 9XXXX-XXXX";
+        return "";
+      default:
+        return "";
     }
   };
 
-  const handleCPFBlur = () => {
-    const cleanCPF = formData.cpf.replace(/\D/g, "");
-    if (cleanCPF.length === 0) {
-      setCpfError("");
-      return;
-    }
-    if (cleanCPF.length !== 11) {
-      setCpfError("CPF deve ter 11 dígitos");
-      return;
-    }
-    if (!validateCPF(cleanCPF)) {
-      setCpfError("CPF inválido");
-      return;
-    }
-    setCpfError("");
+  const handleFieldBlur = (field: keyof FormData) => {
+    const error = validateField(field, formData[field]);
+    setFieldErrors((prev) => ({ ...prev, [field]: error }));
   };
+
+  const validateCurrentStep = (): boolean => {
+    if (currentStep === 1) {
+      return (
+        formData.name.trim() !== "" &&
+        formData.email.trim() !== "" &&
+        formData.password !== "" &&
+        formData.confirmPassword !== "" &&
+        !validateField("name", formData.name) &&
+        !validateField("email", formData.email) &&
+        !validateField("password", formData.password) &&
+        !validateField("confirmPassword", formData.confirmPassword)
+      );
+    } else if (currentStep === 2) {
+      return (
+        formData.cpf !== "" &&
+        formData.birthDate !== "" &&
+        formData.phoneNumber !== "" &&
+        !validateField("cpf", formData.cpf) &&
+        !validateField("birthDate", formData.birthDate) &&
+        !validateField("phoneNumber", formData.phoneNumber)
+      );
+    }
+    return false;
+  };
+
+  const isNextButtonEnabled = validateCurrentStep();
 
   const handleBirthDateChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const inputValue = e.target.value;
@@ -101,82 +154,24 @@ export default function RegisterPage() {
   };
 
   const validateStep1 = () => {
-    if (!formData.name.trim()) {
-      setError("Nome é obrigatório");
-      return false;
-    }
-    if (formData.name.trim().length < 2) {
-      setError("Nome deve ter pelo menos 2 caracteres");
-      return false;
-    }
-    if (!formData.email.trim()) {
-      setError("Email é obrigatório");
-      return false;
-    }
-    if (!/\S+@\S+\.\S+/.test(formData.email)) {
-      setError("Email inválido");
-      return false;
-    }
-    if (formData.password.length < 6) {
-      setError("A senha deve ter pelo menos 6 caracteres");
-      return false;
-    }
-    if (formData.password !== formData.confirmPassword) {
-      setError("As senhas não coincidem");
-      return false;
-    }
-    return true;
+    const errors: Partial<Record<keyof FormData, string>> = {
+      name: validateField("name", formData.name),
+      email: validateField("email", formData.email),
+      password: validateField("password", formData.password),
+      confirmPassword: validateField("confirmPassword", formData.confirmPassword),
+    };
+    setFieldErrors(errors);
+    return !Object.values(errors).some((error) => error !== "");
   };
 
   const validateStep2 = () => {
-    const cleanCPF = formData.cpf.replace(/\D/g, "");
-
-    if (!cleanCPF) {
-      setError("CPF é obrigatório");
-      return false;
-    }
-    if (cleanCPF.length !== 11) {
-      setError("CPF deve ter 11 dígitos");
-      return false;
-    }
-    if (!validateCPF(cleanCPF)) {
-      setError("CPF inválido");
-      return false;
-    }
-
-    if (!formData.birthDate) {
-      setError("Data de nascimento é obrigatória");
-      return false;
-    }
-
-    const [year, month, day] = formData.birthDate.split('-').map(Number);
-    const birthDate = new Date(year, month - 1, day);
-    const age = calculateAge(birthDate);
-
-    if (age < 18) {
-      setError("Você deve ter pelo menos 18 anos para se cadastrar");
-      return false;
-    }
-
-    if (!formData.phoneNumber.replace(/\D/g, "")) {
-      setError("Telefone é obrigatório");
-      return false;
-    }
-    if (formData.phoneNumber.replace(/\D/g, "").length !== 11) {
-      setError("Telefone deve ter 11 dígitos no formato (11) 99999-9999");
-      return false;
-    }
-
-    // Validate Brazilian phone format
-    const cleanPhone = formData.phoneNumber.replace(/\D/g, "");
-    if (!/^[1-9][1-9]9[0-9]{8}$/.test(cleanPhone)) {
-      setError(
-        "Telefone deve ser um número de celular válido no formato (XX) 9XXXX-XXXX"
-      );
-      return false;
-    }
-
-    return true;
+    const errors: Partial<Record<keyof FormData, string>> = {
+      cpf: validateField("cpf", formData.cpf),
+      birthDate: validateField("birthDate", formData.birthDate),
+      phoneNumber: validateField("phoneNumber", formData.phoneNumber),
+    };
+    setFieldErrors(errors);
+    return !Object.values(errors).some((error) => error !== "");
   };
 
   const handleNext = () => {
@@ -353,17 +348,6 @@ export default function RegisterPage() {
 
           <CardContent className="pb-8">
             <form className="space-y-6">
-              {error && (
-                <Alert
-                  variant="destructive"
-                  className="border-red-200 bg-red-50"
-                >
-                  <AlertDescription className="text-red-800">
-                    {error}
-                  </AlertDescription>
-                </Alert>
-              )}
-
               {/* Step 1: Account Information */}
               {currentStep === 1 && (
                 <div className="space-y-5">
@@ -380,10 +364,14 @@ export default function RegisterPage() {
                       placeholder="Digite seu nome completo"
                       value={formData.name}
                       onChange={(e) => updateFormData("name", e.target.value)}
+                      onBlur={() => handleFieldBlur("name")}
                       required
                       disabled={loading}
                       className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
+                    {fieldErrors.name && (
+                      <p className="text-sm text-red-600 mt-1">{fieldErrors.name}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -399,10 +387,14 @@ export default function RegisterPage() {
                       placeholder="seu@email.com"
                       value={formData.email}
                       onChange={(e) => updateFormData("email", e.target.value)}
+                      onBlur={() => handleFieldBlur("email")}
                       required
                       disabled={loading}
                       className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
+                    {fieldErrors.email && (
+                      <p className="text-sm text-red-600 mt-1">{fieldErrors.email}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -421,6 +413,7 @@ export default function RegisterPage() {
                         onChange={(e) =>
                           updateFormData("password", e.target.value)
                         }
+                        onBlur={() => handleFieldBlur("password")}
                         required
                         disabled={loading}
                         className="h-12 pr-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
@@ -440,6 +433,9 @@ export default function RegisterPage() {
                         )}
                       </Button>
                     </div>
+                    {fieldErrors.password && (
+                      <p className="text-sm text-red-600 mt-1">{fieldErrors.password}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -458,6 +454,7 @@ export default function RegisterPage() {
                         onChange={(e) =>
                           updateFormData("confirmPassword", e.target.value)
                         }
+                        onBlur={() => handleFieldBlur("confirmPassword")}
                         required
                         disabled={loading}
                         className="h-12 pr-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
@@ -479,6 +476,9 @@ export default function RegisterPage() {
                         )}
                       </Button>
                     </div>
+                    {fieldErrors.confirmPassword && (
+                      <p className="text-sm text-red-600 mt-1">{fieldErrors.confirmPassword}</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -499,13 +499,13 @@ export default function RegisterPage() {
                       placeholder="000.000.000-00"
                       value={formData.cpf}
                       onChange={(e) => updateFormData("cpf", e.target.value)}
-                      onBlur={handleCPFBlur}
+                      onBlur={() => handleFieldBlur("cpf")}
                       required
                       disabled={loading}
                       className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
-                    {cpfError && (
-                      <p className="text-sm text-red-600 mt-1">{cpfError}</p>
+                    {fieldErrors.cpf && (
+                      <p className="text-sm text-red-600 mt-1">{fieldErrors.cpf}</p>
                     )}
                   </div>
 
@@ -521,10 +521,14 @@ export default function RegisterPage() {
                       type="date"
                       value={formData.birthDate}
                       onChange={handleBirthDateChange}
+                      onBlur={() => handleFieldBlur("birthDate")}
                       required
                       disabled={loading}
                       className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
+                    {fieldErrors.birthDate && (
+                      <p className="text-sm text-red-600 mt-1">{fieldErrors.birthDate}</p>
+                    )}
                   </div>
 
                   <div className="space-y-2">
@@ -542,10 +546,14 @@ export default function RegisterPage() {
                       onChange={(e) =>
                         updateFormData("phoneNumber", e.target.value)
                       }
+                      onBlur={() => handleFieldBlur("phoneNumber")}
                       required
                       disabled={loading}
                       className="h-12 border-gray-200 focus:border-purple-300 focus:ring-purple-200"
                     />
+                    {fieldErrors.phoneNumber && (
+                      <p className="text-sm text-red-600 mt-1">{fieldErrors.phoneNumber}</p>
+                    )}
                   </div>
                 </div>
               )}
@@ -686,7 +694,7 @@ export default function RegisterPage() {
                   <Button
                     type="button"
                     onClick={handleNext}
-                    disabled={loading || (currentStep === 2 && cpfError !== "")}
+                    disabled={loading || !isNextButtonEnabled}
                     className="flex-1 h-12 bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 shadow-lg disabled:opacity-50 disabled:cursor-not-allowed"
                   >
                     Próximo
