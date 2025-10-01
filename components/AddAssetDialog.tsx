@@ -31,13 +31,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { toast } from "sonner";
-import {
-  PlusCircle,
-  ChevronsUpDown,
-  Check,
-  Search,
-  Loader2,
-} from "lucide-react";
+import { CirclePlus as PlusCircle, ChevronsUpDown, Check, Search, Loader as Loader2 } from "lucide-react";
 import {
   Popover,
   PopoverContent,
