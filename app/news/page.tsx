@@ -194,19 +194,6 @@ export default function NewsPage() {
     window.scrollTo({ top: 0, behavior: "smooth" });
   };
 
-  // if (loading && !newsData) {
-  //   return (
-  //     <div className="container mx-auto px-4 py-8">
-  //       <div className="flex items-center justify-center min-h-96">
-  //         <div className="text-center">
-  //           <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
-  //           <p className="text-gray-600">Carregando notícias...</p>
-  //         </div>
-  //       </div>
-  //     </div>
-  //   );
-  // }
-
   if (error && !newsData) {
     return (
       <div className="container mx-auto px-4 py-8">

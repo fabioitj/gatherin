@@ -85,22 +85,8 @@ export default function RecommendationsPage() {
     }
   }, [session]);
 
-  // Show loading while checking authentication
-  if (status === 'loading') {
-    return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex items-center justify-center min-h-96">
-          <div className="text-center">
-            <Loader2 className="w-8 h-8 animate-spin mx-auto mb-4 text-purple-600" />
-            <p className="text-gray-600">Carregando...</p>
-          </div>
-        </div>
-      </div>
-    );
-  }
-
   // Don't render anything if not authenticated (will redirect)
-  if (!session?.user) {
+  if (status === 'loading' || !session?.user) {
     return null;
   }
 
