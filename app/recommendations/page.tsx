@@ -48,9 +48,9 @@ export default function RecommendationsPage() {
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'loading') return;
-    
+
     if (!session?.user) {
-      router.push('/login?callbackUrl=/recommendations');
+      router.push('/login');
       return;
     }
   }, [session, status, router]);

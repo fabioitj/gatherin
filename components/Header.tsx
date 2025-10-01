@@ -33,7 +33,7 @@ export function Header() {
   };
 
   const handleLogout = () => {
-    signOut({ callbackUrl: '/login' });
+    signOut({ redirect: true, callbackUrl: '/login' });
   };
 
   return (

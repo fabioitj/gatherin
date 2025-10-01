@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
 import { Eye, EyeOff, LogIn, TrendingUp } from "lucide-react";
 import { Button } from "@/components/ui/button";
@@ -25,8 +25,6 @@ export default function LoginPage() {
   const [error, setError] = useState("");
 
   const router = useRouter();
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/news";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -45,7 +43,7 @@ export default function LoginPage() {
       } else {
         // Refresh the session and redirect
         await getSession();
-        router.push(callbackUrl);
+        router.push("/news");
       }
     } catch (err) {
       setError("Erro ao fazer login");

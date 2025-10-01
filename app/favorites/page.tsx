@@ -31,9 +31,9 @@ export default function FavoritesPage() {
   // Redirect if not authenticated
   useEffect(() => {
     if (status === 'loading') return;
-    
+
     if (!session?.user) {
-      router.push('/login?callbackUrl=/favorites');
+      router.push('/login');
       return;
     }
   }, [session, status, router]);
