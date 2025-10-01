@@ -21,6 +21,7 @@ import {
   FormMessage,
 } from "@/components/ui/form";
 import { Input } from "@/components/ui/input";
+import { CurrencyInput } from "@/components/ui/currency-input";
 import { Button } from "@/components/ui/button";
 import { Edit } from "lucide-react";
 import { toast } from "sonner";
@@ -35,7 +36,7 @@ const assetFormSchema = z.object({
     .min(1, "O preço médio é obrigatório")
     .transform((val) => {
       // Handle Brazilian decimal format (comma as decimal separator)
-      const normalizedValue = val.replace(",", ".");
+      const normalizedValue = val.replace(/\./g, "").replace(",", ".");
       const parsed = parseFloat(normalizedValue);
       if (isNaN(parsed) || parsed <= 0) {
         throw new Error("O preço médio deve ser um número positivo");
@@ -44,7 +45,7 @@ const assetFormSchema = z.object({
     }),
 });
 
-type AssetFormValues = z.infer<typeof assetFormSchema>;
+type AssetFormValues = z.input<typeof assetFormSchema>;
 
 interface EditAssetDialogProps {
   asset: {
@@ -132,7 +133,7 @@ export function EditAssetDialog({
                 <FormItem>
                   <FormLabel>Preço Médio</FormLabel>
                   <FormControl>
-                    <Input type="text" placeholder="0,00" {...field} />
+                    <CurrencyInput placeholder="0,00" {...field} />
                   </FormControl>
                   <FormMessage />
                 </FormItem>
