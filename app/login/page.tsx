@@ -1,48 +1,54 @@
-'use client';
+"use client";
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Link from 'next/link';
-import { Eye, EyeOff, LogIn, TrendingUp } from 'lucide-react';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Alert, AlertDescription } from '@/components/ui/alert';
-import { signIn, getSession } from 'next-auth/react';
+import { useEffect, useState } from "react";
+import { useRouter, useSearchParams } from "next/navigation";
+import Link from "next/link";
+import { Eye, EyeOff, LogIn, TrendingUp } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import {
+  Card,
+  CardContent,
+  CardDescription,
+  CardHeader,
+  CardTitle,
+} from "@/components/ui/card";
+import { Alert, AlertDescription } from "@/components/ui/alert";
+import { signIn, getSession } from "next-auth/react";
 
 export default function LoginPage() {
-  const [email, setEmail] = useState('');
-  const [password, setPassword] = useState('');
+  const [email, setEmail] = useState("");
+  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get('callbackUrl') || '/news';
+  const callbackUrl = searchParams.get("callbackUrl") || "/news";
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
-    setError('');
+    setError("");
 
     try {
-      const result = await signIn('credentials', {
+      const result = await signIn("credentials", {
         email,
         password,
         redirect: false,
       });
 
       if (result?.error) {
-        setError('Email ou senha inválidos');
+        setError("Email ou senha inválidos");
       } else {
         // Refresh the session and redirect
         await getSession();
         router.push(callbackUrl);
       }
     } catch (err) {
-      setError('Erro ao fazer login');
+      setError("Erro ao fazer login");
     } finally {
       setLoading(false);
     }
@@ -66,7 +72,9 @@ export default function LoginPage() {
 
         <Card className="border-0 shadow-xl bg-white/80 backdrop-blur-sm">
           <CardHeader className="space-y-1">
-            <CardTitle className="text-2xl font-bold text-center">Login</CardTitle>
+            <CardTitle className="text-2xl font-bold text-center">
+              Login
+            </CardTitle>
             <CardDescription className="text-center">
               Digite suas credenciais para acessar sua conta
             </CardDescription>
@@ -97,7 +105,7 @@ export default function LoginPage() {
                 <div className="relative">
                   <Input
                     id="password"
-                    type={showPassword ? 'text' : 'password'}
+                    type={showPassword ? "text" : "password"}
                     placeholder="Sua senha"
                     value={password}
                     onChange={(e) => setPassword(e.target.value)}
@@ -142,7 +150,7 @@ export default function LoginPage() {
 
             <div className="mt-6 text-center">
               <p className="text-sm text-gray-600">
-                Não tem uma conta?{' '}
+                Não tem uma conta?{" "}
                 <Link
                   href="/register"
                   className="font-medium text-purple-600 hover:text-purple-700 transition-colors"

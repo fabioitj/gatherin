@@ -6,8 +6,6 @@ export default withAuth(
     const { pathname } = req.nextUrl;
     const token = req.nextauth.token;
 
-    console.log({token, pathname});
-
     // Redirect / to /news
     if (pathname === '/') {
       return NextResponse.redirect(new URL('/news', req.url));
@@ -49,9 +47,6 @@ export default withAuth(
         // For all other routes, require authentication
         return !!token;
       },
-    },
-    pages: {
-      signIn: '/login',
     },
   }
 );
